@@ -11,6 +11,10 @@ class QTIOHELPERSHARED_EXPORT QSPIDevice : public QFile
 public:
     QSPIDevice(const QString & name);
     QSPIDevice(int bus, int channel);
+
+    // Call this once before opening devices
+    static void setRemoteServer(const QString serverIP, quint16 serverPort);
+
     virtual bool open(OpenMode flags) Q_DECL_OVERRIDE;
     virtual void close() Q_DECL_OVERRIDE;
     virtual bool isSequential() const Q_DECL_OVERRIDE;

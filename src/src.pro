@@ -1,3 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS = spidevice
+SUBDIRS += \
+    spidevice \
+    tools
+
+tools.depends = spidevice
