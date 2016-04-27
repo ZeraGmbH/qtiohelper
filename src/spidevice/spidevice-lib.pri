@@ -13,3 +13,5 @@ SOURCES += \
 
 HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS \
     $$PWD/qspiremoteserver.h
+
+LIBS += -L../../lib -lQt5IoRemoteCommon

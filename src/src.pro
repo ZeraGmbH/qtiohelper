@@ -2,6 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     spidevice \
-    tools
+    tools \
+    remote-common
 
 tools.depends = spidevice
+spidevice.depends = remote-common
