@@ -7,7 +7,7 @@
 
 class QSPIDeviceServerClient;
 
-class QTIOHELPERSHARED_EXPORT QSPIDeviceRemoteServer: public QObject
+class QTSPIDEVICESHARED_EXPORT QSPIDeviceRemoteServer: public QObject
 {
     Q_OBJECT
 public:

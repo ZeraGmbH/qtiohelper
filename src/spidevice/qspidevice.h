@@ -6,7 +6,7 @@
 
 class QSPIDevicePrivate;
 
-class QTIOHELPERSHARED_EXPORT QSPIDevice : public QFile
+class QTSPIDEVICESHARED_EXPORT QSPIDevice : public QFile
 {
 public:
     QSPIDevice(const QString & name);
