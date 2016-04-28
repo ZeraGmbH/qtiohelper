@@ -307,6 +307,9 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
     QByteArray dataRemoteSend, dataRemoteReceive;
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteSend;
 
+    // QSPIDevice does not log this by default
+    qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
+
     // handle device action
     quint8 ui8OK = spiDevice.sendReceive(dataRemoteSend, dataRemoteReceive);
 
@@ -363,6 +366,9 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
     qint64 i64maxlen;
     streamIn >> ui32Len >> ui32Cmd >> i64maxlen;
 
+    // QSPIDevice does not log this by default
+    qInfo("SPI read on %s (%lli Bytes)", qPrintable(spiDevice.fileName()), i64maxlen);
+
     // handle device action
     QByteArray dataRemoteReceive = spiDevice.read(i64maxlen);
 
@@ -418,6 +424,9 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
     QByteArray dataRemoteWrite;
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteWrite;
 
+    // QSPIDevice does not log this by default
+    qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
+
     // handle device action
     qint64 i64BytesWritten = spiDevice.write(dataRemoteWrite);
 
@@ -451,7 +460,7 @@ void QSPIDeviceRemoteServer::open(quint16 port)
 void QSPIDeviceRemoteServer::onClientNew()
 {
     QTcpSocket* pClientSocket = server.nextPendingConnection();
-    qInfo("SPI client connected from %s\n", qPrintable(pClientSocket->peerAddress().toString()));
+    qInfo("SPI client connected from %s", qPrintable(pClientSocket->peerAddress().toString()));
     QSPIDeviceServerClient* pClient = new QSPIDeviceServerClient(this, pClientSocket);
     clientHash[pClientSocket] = pClient;
 
