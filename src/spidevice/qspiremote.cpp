@@ -324,7 +324,7 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
     socket->write(dataCmdSend);
 }
 
-qint64 QSPIDeviceRemoteClient::readData(char *data, qint64 ui64maxlen)
+qint64 QSPIDeviceRemoteClient::readData(char *data, qint64 i64maxlen)
 {
     QByteArray dataCmdSend;
     QDataStream streamOut(&dataCmdSend, QIODevice::WriteOnly);
@@ -332,7 +332,7 @@ qint64 QSPIDeviceRemoteClient::readData(char *data, qint64 ui64maxlen)
     // Build send frame
     quint32 ui32Len = 0;
     quint32 ui32Cmd = CMD_READ;
-    streamOut << ui32Len << ui32Cmd << ui64maxlen;
+    streamOut << ui32Len << ui32Cmd << i64maxlen;
 
     // length correction
     ui32Len = dataCmdSend.size();
@@ -360,11 +360,11 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
     // Extract cmd/data
     QDataStream streamIn(dataReceive, QIODevice::ReadOnly);
     quint32 ui32Len, ui32Cmd;
-    qint64 ui64maxlen;
-    streamIn >> ui32Len >> ui32Cmd >> ui64maxlen;
+    qint64 i64maxlen;
+    streamIn >> ui32Len >> ui32Cmd >> i64maxlen;
 
     // handle device action
-    QByteArray dataRemoteReceive = spiDevice.read(ui64maxlen);
+    QByteArray dataRemoteReceive = spiDevice.read(i64maxlen);
 
     // create response
     QByteArray dataCmdSend;

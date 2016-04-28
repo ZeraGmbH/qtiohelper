@@ -35,7 +35,7 @@ public:
     bool setBitsPerWord(quint8 ui8BitsPerWord);
     bool setBitSpeed(quint32 ui32BitSpeedHz);
     bool sendReceive(QByteArray& dataRemoteSend, QByteArray& dataRemoteReceive);
-    qint64 readData(char *data, qint64 ui64maxlen);
+    qint64 readData(char *data, qint64 i64maxlen);
     qint64 writeData(const char *data, qint64 i64Len);
 private:
     QTcpSocket socket;
