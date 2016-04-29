@@ -46,10 +46,10 @@ QSPIDevice::QSPIDevice(int bus, int channel) :
 bool QSPIDevice::open(OpenMode flags)
 {
     Q_D(QSPIDevice);
+    flags |= QIODevice::Unbuffered;
     if(remoteServerIP.isEmpty())
     {
         qInfo("SPI opening %s...", qPrintable(fileName()));
-        flags |= QIODevice::Unbuffered;
         bool bOpen = exists() && QFile::open(flags);
         if(bOpen)
         {
