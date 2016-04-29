@@ -2,13 +2,9 @@
 
 bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
 {
-    QTimer timer;
-    timer.setSingleShot(true);
-
     QEventLoop loop;
     QObject::connect(socket, &QTcpSocket::readyRead, &loop, &QEventLoop::quit);
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.start(2000);
+    QObject::connect(socket, &QTcpSocket::disconnected, &loop, &QEventLoop::quit);
 
     data->clear();
     // we have to read leading length first
@@ -21,20 +17,14 @@ bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
         if(socket->bytesAvailable() == 0)
             loop.exec();
         // readyRead?
-        if(timer.isActive())
+        *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
+        if(!bLenValid && (quint32)data->size() >= sizeof(ui32Count))
         {
+            stream >> ui32Count;
+            bLenValid = true;
+            // we just read count there might be more waiting
             *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
-            if(!bLenValid && (quint32)data->size() >= sizeof(ui32Count))
-            {
-                stream >> ui32Count;
-                bLenValid = true;
-                // we just read count there might be more waiting
-                *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
-            }
         }
-        // timeout
-        else
-            break;
     }
     return ui32Count == (quint32)data->size();
 }

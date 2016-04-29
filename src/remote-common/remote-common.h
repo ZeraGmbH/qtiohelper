@@ -1,6 +1,5 @@
 #include <QDataStream>
 #include <QEventLoop>
-#include <QTimer>
 #include <QTcpSocket>
 
 #if defined(QIOHELPERREMOTE_LIBRARY)
