@@ -6,8 +6,8 @@ bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
     timer.setSingleShot(true);
 
     QEventLoop loop;
-    loop.connect(socket, SIGNAL(readyRead()), SLOT(quit()));
-    loop.connect(&timer, SIGNAL(timeout()), SLOT(quit()));
+    QObject::connect(socket, &QTcpSocket::readyRead, &loop, &QEventLoop::quit);
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.start(2000);
 
     data->clear();
