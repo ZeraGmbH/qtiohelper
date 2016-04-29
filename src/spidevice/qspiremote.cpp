@@ -308,7 +308,8 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteSend;
 
     // QSPIDevice does not log this by default
-    qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
+    if(verboseLevel>1)
+        qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
 
     // handle device action
     quint8 ui8OK = spiDevice.sendReceive(dataRemoteSend, dataRemoteReceive);
@@ -367,7 +368,8 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> i64maxlen;
 
     // QSPIDevice does not log this by default
-    qInfo("SPI read on %s (%lli Bytes)", qPrintable(spiDevice.fileName()), i64maxlen);
+    if(verboseLevel>1)
+        qInfo("SPI read on %s (%lli Bytes)", qPrintable(spiDevice.fileName()), i64maxlen);
 
     // handle device action
     QByteArray dataRemoteReceive = spiDevice.read(i64maxlen);
@@ -425,7 +427,8 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteWrite;
 
     // QSPIDevice does not log this by default
-    qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
+    if(verboseLevel>1)
+        qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
 
     // handle device action
     qint64 i64BytesWritten = spiDevice.write(dataRemoteWrite);
@@ -448,20 +451,29 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
 /////////////////////////////////////////////////////////////////////////////////////////////
 QSPIDeviceRemoteServer::QSPIDeviceRemoteServer(QObject* parent) : QObject(parent)
 {
+    verboseLevel = 0;
     connect(&server, &QTcpServer::newConnection, this, &QSPIDeviceRemoteServer::onClientNew);
 }
 
 void QSPIDeviceRemoteServer::open(quint16 port)
 {
+    if(verboseLevel>0)
+        qInfo("SPI server listening on IPPort %i\n", port);
     server.listen(QHostAddress::Any, port);
 }
 
+void QSPIDeviceRemoteServer::setVerboseLevel(int level)
+{
+    verboseLevel = level;
+}
 
 void QSPIDeviceRemoteServer::onClientNew()
 {
     QTcpSocket* pClientSocket = server.nextPendingConnection();
-    qInfo("SPI client connected from %s", qPrintable(pClientSocket->peerAddress().toString()));
+    if(verboseLevel>0)
+        qInfo("SPI client connected from %s", qPrintable(pClientSocket->peerAddress().toString()));
     QSPIDeviceServerClient* pClient = new QSPIDeviceServerClient(this, pClientSocket);
+    pClient->setVerboseLevel(verboseLevel);
     clientHash[pClientSocket] = pClient;
 
     connect(pClientSocket, &QTcpSocket::disconnected, this, &QSPIDeviceRemoteServer::onClientDisconnect);
@@ -470,7 +482,8 @@ void QSPIDeviceRemoteServer::onClientNew()
 void QSPIDeviceRemoteServer::onClientDisconnect()
 {
     QTcpSocket *pSocket = qobject_cast<QTcpSocket*>(sender());
-    qInfo("SPI client %s disconnected\n", qPrintable(pSocket->peerAddress().toString()));
+    if(verboseLevel>0)
+        qInfo("SPI client %s disconnected\n", qPrintable(pSocket->peerAddress().toString()));
     if(pSocket)
     {
         QSPIDeviceServerClient* pClient = clientHash.take(pSocket);
@@ -483,7 +496,13 @@ void QSPIDeviceRemoteServer::onClientDisconnect()
 QSPIDeviceServerClient::QSPIDeviceServerClient(QObject *parent, QTcpSocket* sock) : QObject(parent), spiDevice(0,0)
 {
     socket = sock;
+    verboseLevel = 0;
     connect(socket, &QTcpSocket::readyRead, this, &QSPIDeviceServerClient::onReceive);
+}
+
+void QSPIDeviceServerClient::setVerboseLevel(int level)
+{
+    verboseLevel = level;
 }
 
 void QSPIDeviceServerClient::onReceive()

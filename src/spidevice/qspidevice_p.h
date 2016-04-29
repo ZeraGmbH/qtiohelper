@@ -46,6 +46,7 @@ class QSPIDeviceServerClient: public QObject
     Q_OBJECT
 public:
     QSPIDeviceServerClient(QObject *parent, QTcpSocket* sock);
+    void setVerboseLevel(int level);
 
 public slots:
     void onReceive();
@@ -63,6 +64,7 @@ private:
 
     QTcpSocket* socket;
     QSPIDevice spiDevice;
+    int verboseLevel;
 };
 
 #endif // QSPIDEVICE_P_H

@@ -15,6 +15,11 @@ int main(int argc, char *argv[])
     portOption.setDefaultValue("5000");
     parser.addOption(portOption);
 
+    // option for port verbosity
+    QCommandLineOption verboseOption(QStringList() << "v" << "verbose", "Debug output level [0..2]", "level");
+    verboseOption.setDefaultValue("1");
+    parser.addOption(verboseOption);
+
     parser.process(a);
     bool optValOK = true;
     bool optionsOK = true;
@@ -28,10 +33,19 @@ int main(int argc, char *argv[])
         qWarning("Invalid value for IPPort %s!\n", qPrintable(strOptVal));
         optionsOK = false;
     }
+
+    strOptVal = parser.value(verboseOption);
+    int verboseLevel = strOptVal.toInt(&optValOK);
+    if(!optValOK || verboseLevel<0 || verboseLevel>2)
+    {
+        qWarning("Invalid value for verbose level %s!\n", qPrintable(strOptVal));
+        optionsOK = false;
+    }
+
     if(optionsOK)
     {
         QSPIDeviceRemoteServer remoteServer;
-        qInfo("SPI server listening on IPPort %i\n", port);
+        remoteServer.setVerboseLevel(verboseLevel);
         remoteServer.open(port);
         return a.exec();
     }

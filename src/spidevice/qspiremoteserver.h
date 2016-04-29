@@ -13,6 +13,7 @@ class QTSPIDEVICESHARED_EXPORT QSPIDeviceRemoteServer: public QObject
 public:
     QSPIDeviceRemoteServer(QObject *parent = 0);
     void open(quint16 port);
+    void setVerboseLevel(int level);
 public slots:
     void onClientNew();
     void onClientDisconnect();
@@ -20,6 +21,7 @@ public slots:
 private:
     QTcpServer server;
     QHash<QTcpSocket*, QSPIDeviceServerClient*> clientHash;
+    int verboseLevel;
 };
 
 #endif // QSPIREMOTESERVER_H
