@@ -19,10 +19,10 @@ QRelayMapper::QRelayMapper(QObject *parent) :
     QObject(parent),
     d_ptr(new QRelayMapperPrivate())
 {
-    connect(&m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::OnSliceTimer);
+    connect(&m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
 }
 
-void QRelayMapper::Setup(quint16 ui16LogicalArrayInfoCount,
+void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
                          const struct TLogicalRelaisEntry *pLogicalInfoArray,
                          int iMsecSlice,
                          StartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
@@ -52,13 +52,13 @@ void QRelayMapper::Setup(quint16 ui16LogicalArrayInfoCount,
     m_SliceTimer.setInterval(iMsecSlice);
 }
 
-quint16 QRelayMapper::GetLogicalRelayCount()
+quint16 QRelayMapper::getLogicalRelayCount()
 {
     Q_D(QRelayMapper);
     return d->logicalSetMask.count();
 }
 
-void QRelayMapper::StartSet(const QBitArray& logicalEnableMask,
+void QRelayMapper::startSet(const QBitArray& logicalEnableMask,
                             const QBitArray& logicalSetMask,
                             bool bForce)
 {
@@ -81,21 +81,21 @@ void QRelayMapper::StartSet(const QBitArray& logicalEnableMask,
         m_SliceTimer.start();
 }
 
-void QRelayMapper::StartSet(quint16 ui16BitNo, bool bSet, bool bForce)
+void QRelayMapper::startSet(quint16 ui16BitNo, bool bSet, bool bForce)
 {
     Q_D(QRelayMapper);
-    quint16 ui16BitCount = GetLogicalRelayCount();
+    quint16 ui16BitCount = getLogicalRelayCount();
     if(ui16BitNo < ui16BitCount)
     {
         QBitArray logicalEnableMask(ui16BitCount);
         QBitArray logicalSetMask(ui16BitCount);
         logicalEnableMask.setBit(ui16BitNo);
         logicalSetMask.setBit(ui16BitNo, bSet);
-        StartSet(logicalEnableMask, logicalSetMask, bForce);
+        startSet(logicalEnableMask, logicalSetMask, bForce);
     }
 }
 
-void QRelayMapper::OnSliceTimer()
+void QRelayMapper::onSliceTimer()
 {
     Q_D(QRelayMapper);
     // prepare output data
@@ -201,10 +201,10 @@ void QRelayMapper::OnSliceTimer()
             bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
     }
     if(!bLowerLayerBusy)
-        OnLowLayerFinish(this);
+        onLowLayerFinish(this);
 }
 
-void QRelayMapper::OnLowLayerFinish(const QObject *pSignalHandler)
+void QRelayMapper::onLowLayerFinish(const QObject *pSignalHandler)
 {
     if(pSignalHandler == this)
     {
@@ -222,7 +222,7 @@ void QRelayMapper::OnLowLayerFinish(const QObject *pSignalHandler)
         if(!bOneOrMoreBusy)
         {
             m_SliceTimer.stop();
-            emit Idle();
+            emit idle();
         }
     }
 }

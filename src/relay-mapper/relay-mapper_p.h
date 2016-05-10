@@ -4,8 +4,6 @@
 #include <QObject>
 #include "relay-mapper.h"
 
-class QRelayMapperRemoteClient;
-
 class QRelayMapperPrivate
 {
 public:

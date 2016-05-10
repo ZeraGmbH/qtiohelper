@@ -40,7 +40,7 @@ enum enLogicalRelaisFlags
 class QRelayMapperPrivate;
 
 // Callback function for lower layer
-//   * return value signals non-blocking or we'll wait for OnLowLayerFinish
+//   * return value signals non-blocking or we'll wait for onLowLayerFinish
 //   * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
 typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask, const QObject *pSignalHandler)> StartLowLayerSwitchFunction;
 
@@ -49,27 +49,27 @@ class QTRELAYSSHARED_EXPORT QRelayMapper : public QObject
     Q_OBJECT
 public:
     QRelayMapper(QObject *parent = NULL);
-    void Setup(quint16 ui16LogicalArrayInfoCount,
+    void setup(quint16 ui16LogicalArrayInfoCount,
                const struct TLogicalRelaisEntry *pLogicalInfoArray,
                int iMsecSlice,
                StartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
-    quint16 GetLogicalRelayCount();
+    quint16 getLogicalRelayCount();
 
-    void StartSet(const QBitArray& logicalEnableMask,
+    void startSet(const QBitArray& logicalEnableMask,
                   const QBitArray& logicalSetMask,
                   bool bForce = false);
-    void StartSet(quint16 ui16BitNo,
+    void startSet(quint16 ui16BitNo,
                   bool bSet,
                   bool bForce = false);
 
 signals:
-    void Idle();
+    void idle();
 
 public slots:
-    void OnLowLayerFinish(const QObject *pSignalHandler);
+    void onLowLayerFinish(const QObject *pSignalHandler);
 
 private slots:
-    void OnSliceTimer();
+    void onSliceTimer();
 
 private:
     QTimer m_SliceTimer;
