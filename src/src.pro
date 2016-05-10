@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    bit-input-poller \
     spidevice \
     tools \
     relay-mapper \
