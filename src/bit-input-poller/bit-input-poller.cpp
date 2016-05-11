@@ -61,7 +61,7 @@ void QBitInputPoller::onPollTimer()
     if(d->m_pStartBitReadFunction)
     {
         bool bBitHandlerBusy = d->m_pStartBitReadFunction(&d->m_BitMaskInput);
-        if(bBitHandlerBusy)
+        if(!bBitHandlerBusy)
         {
             if(!d->m_BitMaskInvert.isEmpty())
                 d->m_BitMaskInput ^= d->m_BitMaskInvert;
