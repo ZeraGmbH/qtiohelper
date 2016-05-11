@@ -157,15 +157,27 @@ void QActuaSense::addAtomicIn(int iActionID, int iInBitNum)
     QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
     QActuaSenseIOParams* pIOParams;
     if(iter == d->m_PoolIOData.end())
-    {
-        // create a new parameter and add to inactive actions
+        // create a new parameter
         pIOParams = new QActuaSenseIOParams(this);
-        d->m_PoolIOData[iActionID] = pIOParams;
-        d->m_PoolActionsArray[ACTION_POOL_TYPE_INACTIVE][iActionID] = new QActuaSenseAction(pIOParams);
-    }
     else
         pIOParams = iter.value();
     pIOParams->setIn(iInBitNum);
+
+    // Do we need to create an action entry?
+    // to be sure we check all action pools
+    bool bActionAlreadyCreated = false;
+    QActuaSenseActionIntHash::iterator iterAction;
+    for(int iType=0; iType<ACTION_POOL_TYPE_COUNT; iType++)
+    {
+        iterAction = d->m_PoolActionsArray[iType].find(iActionID);
+        if(iterAction != d->m_PoolActionsArray[iType].end())
+        {
+            bActionAlreadyCreated = true;
+            break;
+        }
+    }
+    if(!bActionAlreadyCreated)
+        d->m_PoolActionsArray[ACTION_POOL_TYPE_INACTIVE][iActionID] = new QActuaSenseAction(pIOParams);
 }
 
 void QActuaSense::addAtomicOut(int iActionID, int iOutBitNum)
