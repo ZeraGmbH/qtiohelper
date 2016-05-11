@@ -40,9 +40,13 @@ enum enLogicalRelaisFlags
 class QRelayMapperPrivate;
 
 // Callback function for lower layer
-//   * return value signals non-blocking or we'll wait for onLowLayerFinish
-//   * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
-typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask, const QObject *pSignalHandler)> StartLowLayerSwitchFunction;
+//  * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
+//  * NON-BLOCKING:
+//      -return value true
+//      -low layer must keep pSignalHandler and send it with onLowLayerFinish for the transaction caused by us
+//  * BLOCKING:
+//      -return value false - onLowLayerFinish is never called
+typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask, const QObject *pSignalHandler)> RelayMapperStartLowLayerSwitchFunction;
 
 class QTRELAYSSHARED_EXPORT QRelayMapper : public QObject
 {
@@ -52,7 +56,7 @@ public:
     void setup(quint16 ui16LogicalArrayInfoCount,
                const struct TLogicalRelaisEntry *pLogicalInfoArray,
                int iMsecSlice,
-               StartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
+               RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
     quint16 getLogicalRelayCount();
 
     void startSet(const QBitArray& logicalEnableMask,

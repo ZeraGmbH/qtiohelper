@@ -1,7 +1,7 @@
 #include "relay-mapper.h"
 #include "relay-mapper_p.h"
 
-// ************* QRelayMapperPrivate
+// ************************** QRelayMapperPrivate
 
 QRelayMapperPrivate::QRelayMapperPrivate()
 {
@@ -13,7 +13,7 @@ QRelayMapperPrivate::~QRelayMapperPrivate()
 {
 }
 
-// ************* QRelayMapper
+// ************************** QRelayMapper
 
 QRelayMapper::QRelayMapper(QObject *parent) :
     QObject(parent),
@@ -25,7 +25,7 @@ QRelayMapper::QRelayMapper(QObject *parent) :
 void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
                          const struct TLogicalRelaisEntry *pLogicalInfoArray,
                          int iMsecSlice,
-                         StartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
+                         RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
 {
     Q_D(QRelayMapper);
 

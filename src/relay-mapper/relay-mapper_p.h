@@ -28,7 +28,7 @@ public:
     QBitArray logicalBusyMask;
 
     // Low layer callback
-    StartLowLayerSwitchFunction CallbackStartLowLayerSwitch;
+    RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch;
 };
 
 
