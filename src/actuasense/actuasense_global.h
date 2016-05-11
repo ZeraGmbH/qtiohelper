@@ -1,0 +1,14 @@
+#ifndef QTACTUASENSE_GLOBAL_H
+#define QTACTUASENSE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#ifndef QT_STATIC
+#if defined(QT_BUILD_ACTUASENSE_LIB)
+#  define QTACTUASENSESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define QTACTUASENSESHARED_EXPORT Q_DECL_IMPORT
+#endif
+#endif
+
+#endif // QTACTUASENSE_GLOBAL_H

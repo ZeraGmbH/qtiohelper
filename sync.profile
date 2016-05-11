@@ -1,10 +1,11 @@
 %modules = (
+    "QtActuaSense"     => "$basedir/src/actuasense",
     "QtBitInputPoller" => "$basedir/src/bit-input-poller",
-    "QtSpiDevice" => "$basedir/src/spidevice",
     "QtIoRemoteCommon" => "$basedir/src/remote-common",
-    "QtRelayMapper" => "$basedir/src/relay-mapper",
+    "QtRelayMapper"    => "$basedir/src/relay-mapper",
+    "QtSpiDevice"      => "$basedir/src/spidevice",
 );
 
 %dependencies = (
-        "qtbase" => "",
+        "qtbase"       => "",
 );

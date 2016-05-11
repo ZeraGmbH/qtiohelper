@@ -1,11 +1,12 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    actuasense \
     bit-input-poller \
-    spidevice \
-    tools \
     relay-mapper \
-    remote-common
+    remote-common \
+    spidevice \
+    tools
 
 tools.depends = spidevice
 spidevice.depends = remote-common
