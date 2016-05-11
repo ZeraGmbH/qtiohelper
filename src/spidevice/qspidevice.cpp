@@ -6,7 +6,7 @@
 #include "qspidevice.h"
 #include "qspidevice_p.h"
 
-// ************* QSPIDevicePrivate
+// ************************** QSPIDevicePrivate
 
 QSPIDevicePrivate::QSPIDevicePrivate()
 {
@@ -18,7 +18,7 @@ QSPIDevicePrivate::~QSPIDevicePrivate()
 {
 }
 
-// ************* QSPIDevice
+// ************************** QSPIDevice
 
 QString remoteServerIP;
 quint16 remoteServerPort = 0;
