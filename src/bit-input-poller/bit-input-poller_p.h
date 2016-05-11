@@ -12,6 +12,7 @@ public:
     virtual ~QBitInputPollerPrivate();
 
     QBitArray m_BitMaskInput;
+    QBitArray m_BitMaskInvert;
     StartBitReadFunction m_pStartBitReadFunction;
 };
 
