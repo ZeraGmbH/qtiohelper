@@ -36,8 +36,8 @@ public:
 
     // we handle so called MultiActions (multiple pin transitions at one time)
     void openMultiAction();
-    void outSetStart(int iActionID, bool bStateOut);
-    void inStartObserve(int iActionID, bool bStateInDesired, int iTimeoutMs,
+    void startOutSet(int iActionID, bool bStateOut);
+    void startInObserve(int iActionID, bool bStateInDesired, int iTimeoutMs,
                         QString strOK = QString(), QString strErr = QString(), QString strLongTermErr = QString());
     void closeMultiAction();
 

@@ -48,9 +48,6 @@ public:
     QString m_strLongTermErr;
 };
 
-typedef QHash<int, QActuaSenseIOParams*> QActuaSenseIOParamsIntHash;
-typedef QHash<int, QActuaSenseAction*> QActuaSenseActionIntHash;
-
 enum enActionPoolType
 {
     ACTION_POOL_TYPE_INACTIVE = 0,
@@ -60,14 +57,30 @@ enum enActionPoolType
     ACTION_POOL_TYPE_COUNT
 };
 
+class QActuaSenseActionPointerArray
+{
+public:
+    QActuaSenseActionPointerArray(QActuaSenseAction* pAction);
+    ~QActuaSenseActionPointerArray();
+
+    QActuaSenseAction* moveActionTo(enum enActionPoolType eNewType);
+    QActuaSenseAction* find();
+
+    QActuaSenseAction* m_arrpAction[ACTION_POOL_TYPE_COUNT];
+};
+
+typedef QHash<int, QActuaSenseIOParams*> QActuaSenseIOParamsIntHash;
+typedef QHash<int, QActuaSenseActionPointerArray*> QActuaSenseActionPointerArrayIntHash;
+
 class QActuaSensePrivate
 {
 public:
     QActuaSensePrivate();
     virtual ~QActuaSensePrivate();
 
-
-    QActuaSenseAction* MoveActionTo(int iActionID, enum enActionPoolType eType);
+    bool hasReachedDestinationState(QActuaSenseAction *pAction);
+    bool hasTimedOut(QActuaSenseAction *pAction);
+    bool readInputState(QActuaSenseAction *pAction);
 
     QBitArray m_OutEnableBitArr;
     QBitArray m_OutSetBitArr;
@@ -78,7 +91,7 @@ public:
 
     bool m_bInAddingActions;
 
-    QActuaSenseActionIntHash m_PoolActionsArray[ACTION_POOL_TYPE_COUNT];
+    QActuaSenseActionPointerArrayIntHash m_PoolActionsArray;
 
     QElapsedTimer m_TimerElapsedLastPoll;
 };
