@@ -62,6 +62,8 @@ private:
     void handleReadData(QByteArray* dataReceive);
     void handleWriteData(QByteArray* dataReceive);
 
+    void logData(QString strLead, QByteArray data);
+
     QTcpSocket* socket;
     QSPIDevice spiDevice;
     int verboseLevel;

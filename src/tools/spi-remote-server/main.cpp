@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     parser.addOption(portOption);
 
     // option for port verbosity
-    QCommandLineOption verboseOption(QStringList() << "v" << "verbose", "Debug output level [0..2]", "level");
+    QCommandLineOption verboseOption(QStringList() << "v" << "verbose", "Debug output level [0..3]", "level");
     verboseOption.setDefaultValue("1");
     parser.addOption(verboseOption);
 
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
     strOptVal = parser.value(verboseOption);
     int verboseLevel = strOptVal.toInt(&optValOK);
-    if(!optValOK || verboseLevel<0 || verboseLevel>2)
+    if(!optValOK || verboseLevel<0 || verboseLevel>3)
     {
         qWarning("Invalid value for verbose level %s!\n", qPrintable(strOptVal));
         optionsOK = false;

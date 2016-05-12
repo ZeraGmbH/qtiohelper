@@ -312,7 +312,11 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
         qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
 
     // handle device action
+    if(verboseLevel>2)
+        logData(QLatin1String("SendReceive/Send:"), dataRemoteSend);
     quint8 ui8OK = spiDevice.sendReceive(dataRemoteSend, dataRemoteReceive);
+    if(verboseLevel>2)
+        logData(QLatin1String("SendReceive/Receive:"), dataRemoteReceive);
 
     // create response
     QByteArray dataCmdSend;
@@ -373,6 +377,8 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
 
     // handle device action
     QByteArray dataRemoteReceive = spiDevice.read(i64maxlen);
+    if(verboseLevel>2)
+        logData(QLatin1String("Read:"), dataRemoteReceive);
 
     // create response
     QByteArray dataCmdSend;
@@ -431,6 +437,8 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
         qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
 
     // handle device action
+    if(verboseLevel>2)
+        logData(QLatin1String("Write:"), dataRemoteWrite);
     qint64 i64BytesWritten = spiDevice.write(dataRemoteWrite);
 
     // create response
@@ -447,6 +455,18 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
     socket->write(dataCmdSend);
 }
 
+void QSPIDeviceServerClient::logData(QString strLead, QByteArray data)
+{
+    QString strLog, strByte;
+    strLog = strLead;
+    for(int iByte=0; iByte<data.count(); iByte++)
+    {
+        quint8 ui8Val = data.at(iByte);
+        strByte.sprintf(" %02X", ui8Val);
+        strLog += strByte;
+    }
+    qInfo(qPrintable(strLog));
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 QSPIDeviceRemoteServer::QSPIDeviceRemoteServer(QObject* parent) : QObject(parent)
