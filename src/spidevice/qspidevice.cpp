@@ -279,26 +279,27 @@ static quint8 reverse(quint8 b) {
 qint64 QSPIDevice::readData(char *data, qint64 maxlen)
 {
     Q_D(QSPIDevice);
+    qint64 bytesRead = -1;
     if(d->remoteClient == NULL)
     {
-        qint64 bytesRead = QFile::readData(data, maxlen);
+        bytesRead = QFile::readData(data, maxlen);
         if(d->bSWReverseRequired)
         {
             for(qint64 iByte=0; iByte<bytesRead; iByte++)
                 data[iByte] = (char)reverse((quint8)data[iByte]);
         }
-        return bytesRead;
     }
     else
-        return d->remoteClient->readData(data, maxlen);
+        bytesRead = d->remoteClient->readData(data, maxlen);
+    return bytesRead;
 }
 
 qint64 QSPIDevice::writeData(const char *data, qint64 len)
 {
     Q_D(QSPIDevice);
+    qint64 bytesWritten = -1;
     if(d->remoteClient == NULL)
     {
-        qint64 bytesWritten = -1;
         if(d->bSWReverseRequired)
         {
             char *copyData = new char[len];
@@ -312,8 +313,8 @@ qint64 QSPIDevice::writeData(const char *data, qint64 len)
         }
         else
             bytesWritten = QFile::writeData(data, len);
-        return bytesWritten;
     }
     else
-        return d->remoteClient->writeData(data, len);
+        bytesWritten = d->remoteClient->writeData(data, len);
+    return bytesWritten;
 }
