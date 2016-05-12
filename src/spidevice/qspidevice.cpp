@@ -47,10 +47,11 @@ bool QSPIDevice::open(OpenMode flags)
 {
     Q_D(QSPIDevice);
     flags |= QIODevice::Unbuffered;
+    bool bOpen = false;
     if(remoteServerIP.isEmpty())
     {
         qInfo("SPI opening %s...", qPrintable(fileName()));
-        bool bOpen = exists() && QFile::open(flags);
+        bOpen = exists() && QFile::open(flags);
         if(bOpen)
         {
             /* Check if we opened SPI by a simple ioctl check */
@@ -69,7 +70,6 @@ bool QSPIDevice::open(OpenMode flags)
             }
             d->bSWReverseRequired = false;
         }
-        return bOpen;
     }
     else
     {
@@ -84,9 +84,10 @@ bool QSPIDevice::open(OpenMode flags)
         QString strTempFileName = QDir::tempPath() + "/" + strList[strList.count()-1];
         setFileName(strTempFileName);
         d->remoteClient = new QSPIDeviceRemoteClient();
-        return d->remoteClient->open(remoteServerIP, remoteServerPort, d->devFileName, flags) &&
+        bOpen = d->remoteClient->open(remoteServerIP, remoteServerPort, d->devFileName, flags) &&
                 QFile::open(flags | QIODevice::ReadWrite);
     }
+    return bOpen;
 }
 
 void QSPIDevice::close()
@@ -112,6 +113,7 @@ bool QSPIDevice::isSequential() const
 bool QSPIDevice::setMode(quint8 Mode)
 {
     Q_D(QSPIDevice);
+    bool bOK = true;
     if(d->remoteClient == NULL)
     {
         qInfo("SPI set mode %u...", Mode);
@@ -132,32 +134,36 @@ bool QSPIDevice::setMode(quint8 Mode)
             break;
         default:
             qWarning("SetMode: invalid mode %u!", Mode);
-            return false;
+            bOK = false;
+            break;
         }
 
         if(!isOpen())
         {
             qWarning("SetMode: SPI device not open!");
-            return false;
+            bOK = false;
         }
         else
         {
             if(ioctl(handle(), SPI_IOC_WR_MODE, &mode) < 0)
+            {
                 qWarning("QSPIDevice::SetMode failed!");
+                bOK = false;
+            }
         }
-        return true;
     }
     else
-        return d->remoteClient->setMode(Mode);
+        bOK = d->remoteClient->setMode(Mode);
+    return bOK;
 }
 
 bool QSPIDevice::setLSBFirst(bool lsbFirst)
 {
     Q_D(QSPIDevice);
+    bool bOK = true;
     if(d->remoteClient == NULL)
     {
         qInfo("SPI LSBFirst %u...", lsbFirst);
-        bool bOK = true;
         if(!isOpen())
         {
             qWarning("SetLSBFirst: SPI device not open!");
@@ -176,19 +182,19 @@ bool QSPIDevice::setLSBFirst(bool lsbFirst)
                 bOK = true;
             }
         }
-        return bOK;
     }
     else
-        return d->remoteClient->setLSBFirst(lsbFirst);
+        bOK = d->remoteClient->setLSBFirst(lsbFirst);
+    return bOK;
 }
 
 bool QSPIDevice::setBitsPerWord(quint8 bitsPerWord)
 {
     Q_D(QSPIDevice);
+    bool bOK = true;
     if(d->remoteClient == NULL)
     {
         qInfo("SPI bits per word %u...", bitsPerWord);
-        bool bOK = true;
         if(!isOpen())
         {
             qWarning("SetBitsPerWord: SPI device not open!");
@@ -201,19 +207,19 @@ bool QSPIDevice::setBitsPerWord(quint8 bitsPerWord)
             if(!bOK)
                 qWarning("QSPIDevice::setBitsPerWord failed!");
         }
-        return bOK;
     }
     else
-        return d->remoteClient->setBitsPerWord(bitsPerWord);
+        bOK = d->remoteClient->setBitsPerWord(bitsPerWord);
+    return bOK;
 }
 
 bool QSPIDevice::setBitSpeed(quint32 bitSpeedHz)
 {
     Q_D(QSPIDevice);
+    bool bOK = true;
     if(d->remoteClient == NULL)
     {
         qInfo("SPI bitspeed %u Hz...", bitSpeedHz);
-        bool bOK = true;
         if(!isOpen())
         {
             qWarning("QSPIDevice::setBitSpeed: device not open!");
@@ -226,18 +232,18 @@ bool QSPIDevice::setBitSpeed(quint32 bitSpeedHz)
             if(!bOK)
                 qWarning("QSPIDevice::setBitSpeed failed!");
         }
-        return bOK;
     }
     else
-        return d->remoteClient->setBitSpeed(bitSpeedHz);
+        bOK = d->remoteClient->setBitSpeed(bitSpeedHz);
+    return bOK;
 }
 
 bool QSPIDevice::sendReceive(QByteArray &dataSend, QByteArray &dataReceive)
 {
     Q_D(QSPIDevice);
+    bool bOK = true;
     if(d->remoteClient == NULL)
     {
-        bool bOK = true;
         if(!isOpen())
         {
             qWarning("QSPIDevice::sendReceive: device not open!");
@@ -262,10 +268,10 @@ bool QSPIDevice::sendReceive(QByteArray &dataSend, QByteArray &dataReceive)
                 bOK = false;
             }
         }
-        return bOK;
     }
     else
-        return d->remoteClient->sendReceive(dataSend, dataReceive);
+        bOK = d->remoteClient->sendReceive(dataSend, dataReceive);
+    return bOK;
 }
 
 // taken from http://stackoverflow.com/questions/2602823/in-c-c-whats-the-simplest-way-to-reverse-the-order-of-bits-in-a-byte
