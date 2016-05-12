@@ -409,6 +409,45 @@ bool QActuaSense::readInputState(int iActionID)
     return bInState;
 }
 
+void QActuaSense::removeFromLongObserv(int iActionID)
+{
+    Q_D(QActuaSense);
+    QActuaSenseActionPointerArrayIntHash::iterator iterActionPointerArray;
+    QActuaSenseActionPointerArray* pActionPointerArray;
+    // one
+    if(iActionID != -1)
+    {
+        iterActionPointerArray = d->m_PoolActionsArray.find(iActionID);
+        if(iterActionPointerArray != d->m_PoolActionsArray.end())
+        {
+            pActionPointerArray = iterActionPointerArray.value();
+            if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE])
+            {
+                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_INACTIVE] =
+                        pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE];
+                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE] = NULL;
+            }
+        }
+    }
+    // all
+    else
+    {
+        for(iterActionPointerArray = d->m_PoolActionsArray.begin();
+            iterActionPointerArray != d->m_PoolActionsArray.end();
+            iterActionPointerArray++)
+        {
+            pActionPointerArray = iterActionPointerArray.value();
+            if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE])
+            {
+                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_INACTIVE] =
+                        pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE];
+                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE] = NULL;
+            }
+        }
+    }
+
+}
+
 void QActuaSense::onPollTimer()
 {
     Q_D(QActuaSense);

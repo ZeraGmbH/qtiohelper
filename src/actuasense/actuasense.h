@@ -43,6 +43,7 @@ public:
 
     // convenience
     bool readInputState(int iActionID);
+    void removeFromLongObserv(int iActionID); // note iActionID == -1 all
 
 signals:
     void multiActionFinished(bool bError);
