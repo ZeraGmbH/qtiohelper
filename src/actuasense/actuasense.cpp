@@ -527,7 +527,7 @@ void QActuaSense::onPollTimer()
     if(bOneOrMoreFinished && !bActivePending)
         emit multiActionFinished(bActiveError);
 
-    // notify for log term errors
+    // notify for long term errors
     if(bLongTermError)
         emit longTermObservationError();
 }
