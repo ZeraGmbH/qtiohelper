@@ -479,6 +479,7 @@ void QActuaSense::onPollTimer()
             // action timed out?
             else if(d->hasTimedOut(pAction))
             {
+                bOneOrMoreFinished = true;
                 // treat as error only for error string set
                 if(!pAction->m_strErr.isEmpty())
                 {
