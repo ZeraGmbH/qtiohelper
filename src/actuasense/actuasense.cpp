@@ -38,7 +38,7 @@ void QActuaSenseIOParams::onDemoSetStateError(bool bError)
 // ********************************* QActuaSenseAction *********************************
 QActuaSenseAction::QActuaSenseAction(QActuaSenseIOParams* pAtomicIO) : QObject(pAtomicIO)
 {
-    m_pIOParams = m_pIOParams;
+    m_pIOParams = pAtomicIO;
     m_iTimeoutMs = 0;
     m_bInStateDesired = false;
     m_iMsSinceLastSet = 0;
@@ -372,7 +372,7 @@ void QActuaSense::closeMultiAction()
     if(d->m_pLowLayerStartFunc && d->m_OutEnableBitArr.count(true) != 0)
     {
         // start low layer transaction
-        // note: we don't care if low layer call does block or not - MultiActionFinished by
+        // note: we don't care if low layer call does block or not - multiActionFinished by
         // input conditions polled
         d->m_pLowLayerStartFunc(d->m_OutEnableBitArr, d->m_OutSetBitArr);
         // reset flags to avoid setting in next transaction
@@ -415,6 +415,7 @@ void QActuaSense::onPollTimer()
     int iTimeSinceLastPoll = d->m_TimerElapsedLastPoll.restart();
     bool bActiveError = false;
     bool bLongTermError = false;
+    bool bOneOrMoreFinished = false;
     // 1st loop over all action arrays
     for(QActuaSenseActionPointerArrayIntHash::iterator iter = d->m_PoolActionsArray.begin();
         iter != d->m_PoolActionsArray.end();
@@ -430,6 +431,7 @@ void QActuaSense::onPollTimer()
             // action finished?
             if(d->hasReachedDestinationState(pAction))
             {
+                bOneOrMoreFinished = true;
                 // Drop OK string
                 if(!pAction->m_strOK.isEmpty())
                     qInfo(pAction->m_strOK.toLatin1());
@@ -487,10 +489,10 @@ void QActuaSense::onPollTimer()
     }
 
     // active actions finished -> notification
-    if(!bActivePending)
-        emit MultiActionFinished(bActiveError);
+    if(bOneOrMoreFinished && !bActivePending)
+        emit multiActionFinished(bActiveError);
 
     // notify for log term errors
     if(bLongTermError)
-        emit LongTermObservationError();
+        emit longTermObservationError();
 }

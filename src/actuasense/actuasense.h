@@ -45,8 +45,8 @@ public:
     bool readInputState(int iActionID);
 
 signals:
-    void MultiActionFinished(bool bError);
-    void LongTermObservationError();
+    void multiActionFinished(bool bError);
+    void longTermObservationError();
 
 public slots:
     void onPollTimer();
