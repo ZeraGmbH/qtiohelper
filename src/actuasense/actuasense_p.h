@@ -24,12 +24,6 @@ public:
     int m_iDemoBitNumIn;
     QBitArray *m_pDemoBitArrIn;
     bool m_bDemoError;
-
-signals:
-
-public slots:
-    // after called with true all further readInputStates will return with state unequal desired
-    void onDemoSetStateError(bool bError);
 };
 
 class QActuaSenseAction : public QObject

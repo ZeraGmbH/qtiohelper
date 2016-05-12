@@ -29,11 +29,6 @@ void QActuaSenseIOParams::setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn, 
     m_pDemoBitArrIn = pDemoBitArrIn;
 }
 
-void QActuaSenseIOParams::onDemoSetStateError(bool bError)
-{
-    m_bDemoError = bError;
-}
-
 
 // ********************************* QActuaSenseAction *********************************
 QActuaSenseAction::QActuaSenseAction(QActuaSenseIOParams* pAtomicIO) : QObject(pAtomicIO)
