@@ -206,6 +206,13 @@ void QActuaSense::addAtomicOut(int iActionID, int iOutBitNum)
     }
 }
 
+void QActuaSense::setBitMaskSize(int iSize)
+{
+    Q_D(QActuaSense);
+    d->m_OutEnableBitArr.resize(iSize);
+    d->m_OutSetBitArr.resize(iSize);
+}
+
 void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitArrIn, int iDemoBitNumIn)
 {
     Q_D(QActuaSense);

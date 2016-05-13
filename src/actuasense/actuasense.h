@@ -24,6 +24,9 @@ public:
     void setStartLowLayerCallback(ActuaSenseStartLowLayerSwitchFunction pFunc);
     void addAtomicIn(int iActionID, int iInBitNum);
     void addAtomicOut(int iActionID, int iOutBitNum);
+    // we can override the automatic biitmap size alignment implemented in
+    // addAtomic.. e.g if the mask sized must be something dividable by 8
+    void setBitMaskSize(int iSize);
 
     // setup demo
     // note iActionID == -1 all currently found
