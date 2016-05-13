@@ -9,7 +9,8 @@ bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
     bool bLenValid = false;
     while ((quint32)data->size() < ui32Count)
     {
-        socket->waitForReadyRead();
+        if(socket->bytesAvailable() == 0)
+            socket->waitForReadyRead();
         *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
         if(!bLenValid && (quint32)data->size() >= sizeof(ui32Count))
         {
