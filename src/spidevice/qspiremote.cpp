@@ -22,17 +22,9 @@ enum enRemotableCommands
 
 bool QSPIDeviceRemoteClient::open(const QString serverIP, quint16 serverPort, QString devFileName, QIODevice::OpenMode flags)
 {
-    QTimer timer;
-    timer.setSingleShot(true);
-
-    QEventLoop loop;
-    QObject::connect(&socket, &QTcpSocket::connected, &loop, &QEventLoop::quit);
-    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    timer.start(2000);
-
     // connect and wait for establishment
     socket.connectToHost(serverIP, serverPort);
-    loop.exec();
+    socket.waitForConnected();
 
     QByteArray dataCmdSend;
     QDataStream streamOut(&dataCmdSend, QIODevice::WriteOnly);
