@@ -6,6 +6,7 @@ SUBDIRS += \
     relay-mapper \
     remote-common \
     spidevice \
+    serialportasyncblock \
     tools
 
 tools.depends = spidevice
