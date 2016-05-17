@@ -3,7 +3,6 @@
 
 #include <QSerialPort>
 #include <QByteArray>
-#include <QTimer>
 #include "serialportasyncblock_global.h"
 
 class QSerialPortAsyncBlockPrivate;
@@ -27,9 +26,6 @@ private slots:
     void onReadyRead();
 
 private:
-    QTimer m_timeoutTimerTotal;
-    QTimer m_timeoutTimerBlock;
-
     QSerialPortAsyncBlockPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QSerialPortAsyncBlock)
 };

@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QHash>
 #include <QBitArray>
+#include <QTimer>
 #include <QElapsedTimer>
 #include "actuasense.h"
 
@@ -88,6 +89,7 @@ public:
     QActuaSenseActionPointerArrayIntHash m_PoolActionsArray;
 
     QElapsedTimer m_TimerElapsedLastPoll;
+    QTimer m_IoPollTimer;
 };
 
 #endif // QActuaSense_P_H

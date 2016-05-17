@@ -2,6 +2,7 @@
 #define QRelayMapper_P_H
 
 #include <QObject>
+#include <QTimer>
 #include "relay-mapper.h"
 
 class QRelayMapperPrivate
@@ -29,6 +30,9 @@ public:
 
     // Low layer callback
     RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch;
+
+    // Optional timer
+    QTimer m_SliceTimer;
 };
 
 

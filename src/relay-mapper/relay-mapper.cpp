@@ -19,7 +19,8 @@ QRelayMapper::QRelayMapper(QObject *parent) :
     QObject(parent),
     d_ptr(new QRelayMapperPrivate())
 {
-    connect(&m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
+    Q_D(QRelayMapper);
+    connect(&d->m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
 }
 
 void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
@@ -48,8 +49,8 @@ void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
     d->pLogicalInfoArray = pLogicalInfoArray;
 
     // setup out slice timer
-    m_SliceTimer.setSingleShot(false);
-    m_SliceTimer.setInterval(iMsecSlice);
+    d->m_SliceTimer.setSingleShot(false);
+    d->m_SliceTimer.setInterval(iMsecSlice);
 }
 
 quint16 QRelayMapper::getLogicalRelayCount()
@@ -77,8 +78,8 @@ void QRelayMapper::startSet(const QBitArray& logicalEnableMask,
             d->logicalSetMaskNext.setBit(iBit, logicalSetMask.at(iBit));
         }
     }
-    if(!m_SliceTimer.isActive())
-        m_SliceTimer.start();
+    if(!d->m_SliceTimer.isActive())
+        d->m_SliceTimer.start();
 }
 
 void QRelayMapper::startSet(quint16 ui16BitNo, bool bSet, bool bForce)
@@ -221,7 +222,7 @@ void QRelayMapper::onLowLayerFinish(const QObject *pSignalHandler)
         }
         if(!bOneOrMoreBusy)
         {
-            m_SliceTimer.stop();
+            d->m_SliceTimer.stop();
             emit idle();
         }
     }

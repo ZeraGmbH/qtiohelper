@@ -2,7 +2,6 @@
 #define QActuaSense_H
 
 #include <QObject>
-#include <QTimer>
 #include <functional>
 #include "actuasense_global.h"
 
@@ -56,8 +55,6 @@ public slots:
     void onPollTimer();
 
 private:
-    QTimer m_IoPollTimer;
-
     QActuaSensePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QActuaSense)
 };

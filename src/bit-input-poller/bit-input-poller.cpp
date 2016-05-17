@@ -18,7 +18,8 @@ QBitInputPoller::QBitInputPoller(QObject *parent) :
     QObject(parent),
     d_ptr(new QBitInputPollerPrivate())
 {
-    connect(&m_PollTimer, &QTimer::timeout, this, &QBitInputPoller::onPollTimer);
+    Q_D(QBitInputPoller);
+    connect(&d->m_PollTimer, &QTimer::timeout, this, &QBitInputPoller::onPollTimer);
 }
 
 void QBitInputPoller::setupInputMask(int iCountBits, const QBitArray &mask)
@@ -45,13 +46,15 @@ void QBitInputPoller::setStartBitReadFunction(StartBitReadFunction pFunc)
 
 void QBitInputPoller::startPoll(int iMilliSecCycle)
 {
-    m_PollTimer.setSingleShot(false);
-    m_PollTimer.start(iMilliSecCycle);
+    Q_D(QBitInputPoller);
+    d->m_PollTimer.setSingleShot(false);
+    d->m_PollTimer.start(iMilliSecCycle);
 }
 
 void QBitInputPoller::stopPoll()
 {
-    m_PollTimer.stop();
+    Q_D(QBitInputPoller);
+    d->m_PollTimer.stop();
 }
 
 

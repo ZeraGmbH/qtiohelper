@@ -2,7 +2,6 @@
 #define QRelayMapper_H
 
 #include <QObject>
-#include <QTimer>
 #include <QBitArray>
 #include <functional>
 #include "relay-mapper_global.h"
@@ -76,8 +75,6 @@ private slots:
     void onSliceTimer();
 
 private:
-    QTimer m_SliceTimer;
-
     QRelayMapperPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QRelayMapper)
 };

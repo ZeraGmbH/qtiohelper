@@ -2,7 +2,6 @@
 #define QBitInputPoller_H
 
 #include <QObject>
-#include <QTimer>
 #include <QBitArray>
 #include <functional>
 #include "bit-input-poller_global.h"
@@ -41,8 +40,6 @@ private slots:
     void onPollTimer();
 
 private:
-    QTimer m_PollTimer;
-
     QBitInputPollerPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QBitInputPoller)
 };

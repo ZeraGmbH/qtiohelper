@@ -1,3 +1,4 @@
+#include <QTimer>
 #include "serialportasyncblock.h"
 #include "serialportasyncblock_p.h"
 
@@ -15,12 +16,13 @@ QSerialPortAsyncBlock::QSerialPortAsyncBlock(QObject *parent) :
     QSerialPort(parent),
     d_ptr(new QSerialPortAsyncBlockPrivate())
 {
-    connect(&m_timeoutTimerTotal, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
-    connect(&m_timeoutTimerBlock, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
+    Q_D(QSerialPortAsyncBlock);
+    connect(&d->m_TimeoutTimerTotal, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
+    connect(&d->m_TimeoutTimerBlock, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
     connect(this, &QSerialPortAsyncBlock::readyRead, this, &QSerialPortAsyncBlock::onReadyRead);
 
-    m_timeoutTimerTotal.setSingleShot(true);
-    m_timeoutTimerBlock.setSingleShot(true);
+    d->m_TimeoutTimerTotal.setSingleShot(true);
+    d->m_TimeoutTimerBlock.setSingleShot(true);
 }
 
 void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDataReceive)
@@ -29,7 +31,7 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
     d->m_dataSend = dataSend;
     d->m_pDataReceive = pDataReceive;
     if(d->m_iMsReceiveTotal > 0)
-        m_timeoutTimerTotal.start(d->m_iMsReceiveTotal);
+        d->m_TimeoutTimerTotal.start(d->m_iMsReceiveTotal);
     clear(AllDirections);
     write(dataSend);
 }
@@ -58,8 +60,8 @@ void QSerialPortAsyncBlock::onTimeout()
     Q_D(QSerialPortAsyncBlock);
     d->m_pDataReceive->append(readAll());
     clear(AllDirections);
-    m_timeoutTimerTotal.stop();
-    m_timeoutTimerBlock.stop();
+    d->m_TimeoutTimerTotal.stop();
+    d->m_TimeoutTimerBlock.stop();
     emit IoFinished();
 }
 
@@ -76,11 +78,11 @@ void QSerialPortAsyncBlock::onReadyRead()
         bFinish = true;
     if(bFinish)
     {
-        m_timeoutTimerTotal.stop();
-        m_timeoutTimerBlock.stop();
+        d->m_TimeoutTimerTotal.stop();
+        d->m_TimeoutTimerBlock.stop();
     }
     else if(d->m_iMsBetweenTwoBytes)
-        m_timeoutTimerBlock.start(d->m_iMsBetweenTwoBytes);
+        d->m_TimeoutTimerBlock.start(d->m_iMsBetweenTwoBytes);
     if(bFinish)
         emit IoFinished();
 }

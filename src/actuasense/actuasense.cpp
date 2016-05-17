@@ -271,15 +271,17 @@ void QActuaSense::setDemoError(bool bDemoError, int iActionID)
 
 void QActuaSense::startInternalInputPoll(int milliSeconds)
 {
-    m_IoPollTimer.setSingleShot(false);
-    m_IoPollTimer.start(milliSeconds);
-    connect(&m_IoPollTimer,&QTimer::timeout, this, &QActuaSense::onPollTimer);
+    Q_D(QActuaSense);
+    d->m_IoPollTimer.setSingleShot(false);
+    d->m_IoPollTimer.start(milliSeconds);
+    connect(&d->m_IoPollTimer,&QTimer::timeout, this, &QActuaSense::onPollTimer);
 }
 
 void QActuaSense::stopInternalInputPoll()
 {
-    m_IoPollTimer.stop();
-    disconnect(&m_IoPollTimer,&QTimer::timeout, this, &QActuaSense::onPollTimer);
+    Q_D(QActuaSense);
+    d->m_IoPollTimer.stop();
+    disconnect(&d->m_IoPollTimer,&QTimer::timeout, this, &QActuaSense::onPollTimer);
 }
 
 void QActuaSense::openMultiAction()
