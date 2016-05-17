@@ -27,7 +27,8 @@ private slots:
     void onReadyRead();
 
 private:
-    QTimer m_timeoutTimer;
+    QTimer m_timeoutTimerTotal;
+    QTimer m_timeoutTimerBlock;
 
     QSerialPortAsyncBlockPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QSerialPortAsyncBlock)
