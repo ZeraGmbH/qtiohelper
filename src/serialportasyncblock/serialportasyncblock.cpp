@@ -5,7 +5,7 @@
 
 QSerialPortAsyncBlockPrivate::QSerialPortAsyncBlockPrivate()
 {
-    m_iMsFirstByte = 0;
+    m_iMsReceiveTotal = 0;
     m_iMsBetweenTwoBytes = 0;
     m_iBlockLenReceive = 0;
 }
@@ -28,16 +28,16 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
     Q_D(QSerialPortAsyncBlock);
     d->m_dataSend = dataSend;
     d->m_pDataReceive = pDataReceive;
-    if(d->m_iMsFirstByte > 0)
-        m_timeoutTimerTotal.start(d->m_iMsFirstByte);
+    if(d->m_iMsReceiveTotal > 0)
+        m_timeoutTimerTotal.start(d->m_iMsReceiveTotal);
     clear(AllDirections);
     write(dataSend);
 }
 
-void QSerialPortAsyncBlock::setReadTimeout(int iMsFirstByte, int iMsBetweenTwoBytes)
+void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveTotal, int iMsBetweenTwoBytes)
 {
     Q_D(QSerialPortAsyncBlock);
-    d->m_iMsFirstByte = iMsFirstByte;
+    d->m_iMsReceiveTotal = iMsReceiveTotal;
     d->m_iMsBetweenTwoBytes = iMsBetweenTwoBytes;
 }
 
