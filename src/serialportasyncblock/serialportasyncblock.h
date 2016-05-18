@@ -17,7 +17,7 @@ public:
     void setBlockLenReceive(int iBlockLenReceive);
     void setBlockEnd(QByteArray endBlock);
 signals:
-    void IoFinished();
+    void ioFinished();
 
 public slots:
 

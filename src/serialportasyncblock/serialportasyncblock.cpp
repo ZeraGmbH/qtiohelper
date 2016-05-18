@@ -62,7 +62,7 @@ void QSerialPortAsyncBlock::onTimeout()
     clear(AllDirections);
     d->m_TimeoutTimerTotal.stop();
     d->m_TimeoutTimerBlock.stop();
-    emit IoFinished();
+    emit ioFinished();
 }
 
 void QSerialPortAsyncBlock::onReadyRead()
@@ -84,5 +84,5 @@ void QSerialPortAsyncBlock::onReadyRead()
     else if(d->m_iMsBetweenTwoBytes)
         d->m_TimeoutTimerBlock.start(d->m_iMsBetweenTwoBytes);
     if(bFinish)
-        emit IoFinished();
+        emit ioFinished();
 }
