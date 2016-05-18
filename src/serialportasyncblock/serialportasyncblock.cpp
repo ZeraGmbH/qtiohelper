@@ -33,7 +33,9 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
     if(d->m_iMsReceiveFirst > 0)
         d->m_TimerForFirst.start(d->m_iMsReceiveFirst);
     clear(AllDirections);
-    write(dataSend);
+    // empty send: read only
+    if(dataSend.size() > 0)
+        write(dataSend);
 }
 
 void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes)
