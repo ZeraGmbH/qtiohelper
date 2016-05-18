@@ -30,13 +30,14 @@ void QSPIDevice::setRemoteServer(const QString serverIP, quint16 serverPort)
 }
 
 
-QSPIDevice::QSPIDevice(const QString &name) :
-    QFile(name),
+QSPIDevice::QSPIDevice(const QString &name, QObject *parent) :
+    QFile(name, parent),
     d_ptr(new QSPIDevicePrivate())
 {
 }
 
-QSPIDevice::QSPIDevice(int bus, int channel) :
+QSPIDevice::QSPIDevice(int bus, int channel, QObject *parent) :
+    QFile(parent),
     d_ptr(new QSPIDevicePrivate())
 {
     QString strFileName = QString(QLatin1String("/dev/spidev%1.%2")).arg(bus).arg(channel);
