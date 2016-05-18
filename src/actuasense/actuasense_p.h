@@ -76,6 +76,7 @@ public:
     bool hasReachedDestinationState(QActuaSenseAction *pAction);
     bool hasTimedOut(QActuaSenseAction *pAction);
     bool readInputState(QActuaSenseAction *pAction);
+    QActuaSenseIOParams* findOrCreateIOParam(int iActionID, QObject *pParent);
 
     QBitArray m_OutEnableBitArr;
     QBitArray m_OutSetBitArr;

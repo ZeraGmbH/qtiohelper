@@ -144,7 +144,20 @@ bool QActuaSensePrivate::readInputState(QActuaSenseAction *pAction)
     return bInState;
 }
 
-
+QActuaSenseIOParams* QActuaSensePrivate::findOrCreateIOParam(int iActionID, QObject* pParent)
+{
+    QActuaSenseIOParamsIntHash::iterator iter = m_PoolIOData.find(iActionID);
+    QActuaSenseIOParams* pIOParams;
+    if(iter == m_PoolIOData.end())
+    {
+        // create a new parameter
+        pIOParams = new QActuaSenseIOParams(pParent);
+        m_PoolIOData[iActionID] = pIOParams;
+    }
+    else
+        pIOParams = iter.value();
+    return pIOParams;
+}
 
 // ********************************* QActuaSense *********************************
 
@@ -169,13 +182,7 @@ void QActuaSense::setStartLowLayerCallback(ActuaSenseStartLowLayerSwitchFunction
 void QActuaSense::addAtomicIn(int iActionID, int iInBitNum)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
-    QActuaSenseIOParams* pIOParams;
-    if(iter == d->m_PoolIOData.end())
-        // create a new parameter
-        pIOParams = new QActuaSenseIOParams(this);
-    else
-        pIOParams = iter.value();
+    QActuaSenseIOParams* pIOParams = d->findOrCreateIOParam(iActionID, this);
     pIOParams->setIn(iInBitNum);
 
     // Do we need to create an action entry?
@@ -188,17 +195,9 @@ void QActuaSense::addAtomicIn(int iActionID, int iInBitNum)
 void QActuaSense::addAtomicOut(int iActionID, int iOutBitNum)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
-    QActuaSenseIOParams* pIOParams;
-    if(iter == d->m_PoolIOData.end())
-    {
-        // create a new parameter
-        pIOParams = new QActuaSenseIOParams(this);
-        d->m_PoolIOData[iActionID] = pIOParams;
-    }
-    else
-        pIOParams = iter.value();
+    QActuaSenseIOParams* pIOParams = d->findOrCreateIOParam(iActionID, this);
     pIOParams->setOut(iOutBitNum);
+    // bitmaps size alignment neccessary?
     if(iOutBitNum+1 > d->m_OutSetBitArr.count())
     {
         d->m_OutEnableBitArr.resize(iOutBitNum+1);
