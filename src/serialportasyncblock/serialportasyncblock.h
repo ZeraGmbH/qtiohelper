@@ -14,8 +14,7 @@ public:
     QSerialPortAsyncBlock(QObject *parent = Q_NULLPTR);
     void sendAndReceive(QByteArray dataSend, QByteArray* pDataReceive);
     void setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes);
-    void setBlockLenReceive(int iBlockLenReceive);
-    void setBlockEnd(QByteArray endBlock);
+    void setBlockEndCriteria(int iBlockLenReceive = 0, QByteArray endBlock = QByteArray());
 signals:
     void ioFinished();
 

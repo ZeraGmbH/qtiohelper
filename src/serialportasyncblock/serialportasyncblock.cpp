@@ -45,15 +45,10 @@ void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveFirst, int iMsBetweenTw
     d->m_iMsBetweenTwoBytes = iMsBetweenTwoBytes;
 }
 
-void QSerialPortAsyncBlock::setBlockLenReceive(int iBlockLenReceive)
+void QSerialPortAsyncBlock::setBlockEndCriteria(int iBlockLenReceive, QByteArray endBlock)
 {
     Q_D(QSerialPortAsyncBlock);
     d->m_iBlockLenReceive = iBlockLenReceive;
-}
-
-void QSerialPortAsyncBlock::setBlockEnd(QByteArray endBlock)
-{
-    Q_D(QSerialPortAsyncBlock);
     d->m_endBlock = endBlock;
 }
 
