@@ -24,27 +24,31 @@ bool QSPIDeviceRemoteClient::open(const QString serverIP, quint16 serverPort, QS
 {
     // connect and wait for establishment
     socket.connectToHost(serverIP, serverPort);
-    socket.waitForConnected();
+    bool bOpen = socket.waitForConnected(2000);
+    if(bOpen)
+    {
 
-    QByteArray dataCmdSend;
-    QDataStream streamOut(&dataCmdSend, QIODevice::WriteOnly);
+        QByteArray dataCmdSend;
+        QDataStream streamOut(&dataCmdSend, QIODevice::WriteOnly);
 
-    // Build send frame
-    quint32 ui32Len = 0;
-    quint32 ui32Cmd = CMD_OPEN;
-    quint32 ui32flags = flags;
-    streamOut << ui32Len << ui32Cmd << devFileName << ui32flags;
+        // Build send frame
+        quint32 ui32Len = 0;
+        quint32 ui32Cmd = CMD_OPEN;
+        quint32 ui32flags = flags;
+        streamOut << ui32Len << ui32Cmd << devFileName << ui32flags;
 
-    // length correction
-    ui32Len = dataCmdSend.size();
-    streamOut.device()->seek(0);
-    streamOut << ui32Len;
+        // length correction
+        ui32Len = dataCmdSend.size();
+        streamOut.device()->seek(0);
+        streamOut << ui32Len;
 
-    // send
-    socket.write(dataCmdSend);
+        // send
+        socket.write(dataCmdSend);
 
-    // get response
-    return receiveOK(&socket);
+        // get response
+        bOpen = receiveOK(&socket);
+    }
+    return bOpen;
 }
 
 void QSPIDeviceServerClient::handleOpen(QByteArray* dataReceive)
