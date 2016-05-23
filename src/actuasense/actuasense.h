@@ -47,6 +47,9 @@ public:
     bool readInputState(int iActionID);
     void removeFromLongObserv(int iActionID); // note iActionID == -1 all
 
+    // longTermObservationError is async - poll (return error/string):
+    bool getLongTermStatus(QString &strErr);
+
 signals:
     void multiActionFinished(bool bError);
     void longTermObservationError();

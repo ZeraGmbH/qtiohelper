@@ -163,6 +163,27 @@ bool QActuaSensePrivate::hasTimedOut(QActuaSenseIOData *pActionData)
     return pActionData->m_iMsSinceLastSet >= pActionData->m_iTimeoutMs;
 }
 
+bool QActuaSensePrivate::getLongTermStatus(QString &strErr)
+{
+    bool bLongTermError = false;
+    strErr.clear();
+    for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
+        iter != m_PoolIOData.end();
+        iter++)
+    {
+        QActuaSenseIOData* pActionData = iter.value();
+        if(pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR)
+        {
+            bLongTermError = true;
+            if(strErr.isEmpty())
+                strErr = pActionData->m_strLongTermErr;
+            else
+                strErr += QLatin1String(" / ") + pActionData->m_strLongTermErr;
+        }
+    }
+    return bLongTermError;
+}
+
 void QActuaSensePrivate::onPollTimer()
 {
     int iTimeSinceLastPoll = m_TimerElapsedLastPoll.restart();
@@ -480,6 +501,12 @@ void QActuaSense::removeFromLongObserv(int iActionID)
 {
     Q_D(QActuaSense);
     d->removeFromLongObserv(iActionID);
+}
+
+bool QActuaSense::getLongTermStatus(QString &strErr)
+{
+    Q_D(QActuaSense);
+    return d->getLongTermStatus(strErr);
 }
 
 void QActuaSense::onPollTimer()

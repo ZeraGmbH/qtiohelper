@@ -65,6 +65,8 @@ public:
     bool hasReachedDestinationState(QActuaSenseIOData *pActionData);
     bool hasTimedOut(QActuaSenseIOData *pActionData);
 
+    bool getLongTermStatus(QString &strErr);
+
     void onPollTimer();
 
 private:
