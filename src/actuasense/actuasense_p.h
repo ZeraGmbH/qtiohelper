@@ -9,13 +9,19 @@
 #include <QElapsedTimer>
 #include "actuasense.h"
 
-class QActuaSenseIOParams : public QObject
+enum enActionState
+{
+    ACTION_STATE_INACTIVE = 0,
+    ACTION_STATE_ACTIVE,
+    ACTION_STATE_LONG_OBSERVE,
+    ACTION_STATE_LONG_OBSERVE_ERR
+};
+
+class QActuaSenseIOData : public QObject
 {
     Q_OBJECT
 public:
-    QActuaSenseIOParams(QObject* pParent);
-    void setIn(int iInBitNum);
-    void setOut(int iOutBitNum);
+    QActuaSenseIOData(QObject* pParent);
     void setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn = NULL, int iDemoBitNumIn=-1);
 
     int m_iOutBitNum;
@@ -25,15 +31,7 @@ public:
     int m_iDemoBitNumIn;
     QBitArray *m_pDemoBitArrIn;
     bool m_bDemoError;
-};
 
-class QActuaSenseAction : public QObject
-{
-    Q_OBJECT
-public:
-    QActuaSenseAction(QActuaSenseIOParams* pAtomicIO);
-
-    QActuaSenseIOParams* m_pIOParams;
     int m_iTimeoutMs;
     int m_iMsSinceLastSet;
     bool m_bInStateDesired;
@@ -41,31 +39,11 @@ public:
     QString m_strOK;
     QString m_strErr;
     QString m_strLongTermErr;
+
+    enum enActionState m_eActionState;
 };
 
-enum enActionPoolType
-{
-    ACTION_POOL_TYPE_INACTIVE = 0,
-    ACTION_POOL_TYPE_ACTIVE,
-    ACTION_POOL_TYPE_LONG_OBSERVE,
-
-    ACTION_POOL_TYPE_COUNT
-};
-
-class QActuaSenseActionPointerArray
-{
-public:
-    QActuaSenseActionPointerArray(QActuaSenseAction* pAction);
-    ~QActuaSenseActionPointerArray();
-
-    QActuaSenseAction* moveActionTo(enum enActionPoolType eNewType);
-    QActuaSenseAction* find();
-
-    QActuaSenseAction* m_arrpAction[ACTION_POOL_TYPE_COUNT];
-};
-
-typedef QHash<int, QActuaSenseIOParams*> QActuaSenseIOParamsIntHash;
-typedef QHash<int, QActuaSenseActionPointerArray*> QActuaSenseActionPointerArrayIntHash;
+typedef QHash<int, QActuaSenseIOData*> QActuaSenseIODataIntHash;
 
 class QActuaSensePrivate
 {
@@ -73,24 +51,36 @@ public:
     QActuaSensePrivate();
     virtual ~QActuaSensePrivate();
 
-    bool hasReachedDestinationState(QActuaSenseAction *pAction);
-    bool hasTimedOut(QActuaSenseAction *pAction);
-    bool readInputState(QActuaSenseAction *pAction);
-    QActuaSenseIOParams* findOrCreateIOParam(int iActionID, QObject *pParent);
+    void openMultiAction();
+    void startOutSet(int iActionID, bool bStateOut);
+    void startInObserve(int iActionID, bool bStateInDesired, int iTimeoutMs,
+                        QString strOK, QString strErr, QString strLongTermErr);
+    void closeMultiAction();
 
+    bool readInputState(int iActionID);
+    bool readInputState(QActuaSenseIOData *pActionData);
+    void removeFromLongObserv(int iActionID); // note iActionID == -1 all
+    QActuaSenseIOData* findOrCreateIOParam(int iActionID, QObject *pParent);
+
+    bool hasReachedDestinationState(QActuaSenseIOData *pActionData);
+    bool hasTimedOut(QActuaSenseIOData *pActionData);
+
+    void onPollTimer();
+
+private:
     QBitArray m_OutEnableBitArr;
     QBitArray m_OutSetBitArr;
     const QBitArray *m_pInBitArr;
     ActuaSenseStartLowLayerSwitchFunction m_pLowLayerStartFunc;
 
-    QActuaSenseIOParamsIntHash m_PoolIOData;
-
     bool m_bInAddingActions;
-
-    QActuaSenseActionPointerArrayIntHash m_PoolActionsArray;
+    QActuaSenseIODataIntHash m_PoolIOData;
 
     QElapsedTimer m_TimerElapsedLastPoll;
     QTimer m_IoPollTimer;
+
+    QActuaSense *q_ptr;
+    Q_DECLARE_PUBLIC(QActuaSense)
 };
 
 #endif // QActuaSense_P_H

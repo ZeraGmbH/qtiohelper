@@ -1,92 +1,29 @@
 #include "actuasense.h"
 #include "actuasense_p.h"
 
-// ********************************* QActuaSenseIOParams *********************************
-QActuaSenseIOParams::QActuaSenseIOParams(QObject* pParent) : QObject(pParent)
+// ********************************* QActuaSenseIOData *********************************
+QActuaSenseIOData::QActuaSenseIOData(QObject* pParent) : QObject(pParent)
 {
     m_iInBitNum = -1;
     m_iOutBitNum = -1;
+
     m_bDemoMode = false;
     m_iDemoBitNumIn = -1;
     m_pDemoBitArrIn = NULL;
     m_bDemoError = false;
+
+    m_iTimeoutMs = 0;
+    m_bInStateDesired = false;
+    m_iMsSinceLastSet = 0;
+
+    m_eActionState = ACTION_STATE_INACTIVE;
 }
 
-void QActuaSenseIOParams::setIn(int iInBitNum)
-{
-    m_iInBitNum = iInBitNum;
-}
-
-void QActuaSenseIOParams::setOut(int iOutBitNum)
-{
-    m_iOutBitNum = iOutBitNum;
-}
-
-void QActuaSenseIOParams::setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn, int iDemoBitNumIn)
+void QActuaSenseIOData::setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn, int iDemoBitNumIn)
 {
     m_bDemoMode = bDemoMode;
     m_iDemoBitNumIn = iDemoBitNumIn;
     m_pDemoBitArrIn = pDemoBitArrIn;
-}
-
-
-// ********************************* QActuaSenseAction *********************************
-QActuaSenseAction::QActuaSenseAction(QActuaSenseIOParams* pAtomicIO) : QObject(pAtomicIO)
-{
-    m_pIOParams = pAtomicIO;
-    m_iTimeoutMs = 0;
-    m_bInStateDesired = false;
-    m_iMsSinceLastSet = 0;
-}
-
-// ********************************* QActuaSenseActionPointerArray *********************************
-QActuaSenseActionPointerArray::QActuaSenseActionPointerArray(QActuaSenseAction *pAction)
-{
-    for(int iPointer=0; iPointer<ACTION_POOL_TYPE_COUNT; iPointer++)
-        m_arrpAction[iPointer] = NULL;
-    m_arrpAction[ACTION_POOL_TYPE_INACTIVE] = pAction;
-}
-
-QActuaSenseActionPointerArray::~QActuaSenseActionPointerArray()
-{
-    for(int iPointer=0; iPointer<ACTION_POOL_TYPE_COUNT; iPointer++)
-        if(m_arrpAction[iPointer])
-            delete m_arrpAction[iPointer];
-}
-
-QActuaSenseAction* QActuaSenseActionPointerArray::moveActionTo(enum enActionPoolType eNewType)
-{
-    QActuaSenseAction* pAction = NULL;
-    for(int iPointer=0; iPointer<ACTION_POOL_TYPE_COUNT; iPointer++)
-    {
-        if(m_arrpAction[iPointer])
-        {
-            pAction = m_arrpAction[iPointer];
-            m_arrpAction[iPointer] = NULL;
-            break;
-        }
-    }
-    if(pAction)
-        m_arrpAction[eNewType] = pAction;
-    else
-        qFatal("QActuaSenseActionPointerArray::moveActionTo: There were no action pointers found!");
-    return pAction;
-}
-
-QActuaSenseAction* QActuaSenseActionPointerArray::find()
-{
-    QActuaSenseAction* pAction = NULL;
-    for(int iPointer=0; iPointer<ACTION_POOL_TYPE_COUNT; iPointer++)
-    {
-        if(m_arrpAction[iPointer])
-        {
-            pAction = m_arrpAction[iPointer];
-            break;
-        }
-    }
-    if(pAction == NULL)
-        qFatal("QActuaSenseActionPointerArray::find: There were no action pointers found!");
-    return pAction;
 }
 
 
@@ -99,64 +36,293 @@ QActuaSensePrivate::QActuaSensePrivate()
 
 QActuaSensePrivate::~QActuaSensePrivate()
 {
-    for(QActuaSenseIOParamsIntHash::iterator iter=m_PoolIOData.begin(); iter!=m_PoolIOData.end(); iter++)
+    for(QActuaSenseIODataIntHash::iterator iter=m_PoolIOData.begin(); iter!=m_PoolIOData.end(); iter++)
         delete iter.value();
     m_PoolIOData.clear();
 }
 
-bool QActuaSensePrivate::hasReachedDestinationState(QActuaSenseAction *pAction)
+void QActuaSensePrivate::openMultiAction()
 {
-    // In case no input pin was set: use timeout
-    if(pAction->m_pIOParams->m_iInBitNum < 0)
-        return hasTimedOut(pAction);
-    return pAction->m_bInStateDesired == readInputState(pAction);
+    // if the last multi action failed we have entries left in active
+    // move them to inactive
+    for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
+        iter != m_PoolIOData.end();
+        iter++)
+    {
+        QActuaSenseIOData *pActionData = iter.value();
+        if(pActionData->m_eActionState == ACTION_STATE_ACTIVE)
+            pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+    }
+    m_bInAddingActions = true;
 }
 
-bool QActuaSensePrivate::hasTimedOut(QActuaSenseAction *pAction)
+void QActuaSensePrivate::startOutSet(int iActionID, bool bStateOut)
 {
-    return pAction->m_iMsSinceLastSet >= pAction->m_iTimeoutMs;
+    QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.find(iActionID);
+    if(iter != m_PoolIOData.end())
+    {
+        QActuaSenseIOData* pActionData = iter.value();
+        if(pActionData->m_iOutBitNum>=0)
+        {
+            m_OutEnableBitArr.setBit(pActionData->m_iOutBitNum);
+            m_OutSetBitArr.setBit(pActionData->m_iOutBitNum, bStateOut);
+            // if we are not in a multi action we transfer now otherwise keep set data
+            // and transfer in closeMultiAction
+            if(!m_bInAddingActions && m_pLowLayerStartFunc)
+            {
+                // just fire and forget
+                m_pLowLayerStartFunc(m_OutEnableBitArr, m_OutSetBitArr);
+                // avoid setting this bit in next transaction
+                m_OutEnableBitArr.setBit(pActionData->m_iOutBitNum, false);
+            }
+        }
+        else
+            qWarning("startOutSet: iActionId %i no out information set!", iActionID);
+    }
+    else
+        qWarning("startOutSet: iActionId %i not found!", iActionID);
 }
 
-bool QActuaSensePrivate::readInputState(QActuaSenseAction *pAction)
+void QActuaSensePrivate::startInObserve(int iActionID, bool bStateInDesired, int iTimeoutMs, QString strOK, QString strErr, QString strLongTermErr)
+{
+    QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.find(iActionID);
+    if(iter != m_PoolIOData.end())
+    {
+        QActuaSenseIOData *pActionData = iter.value();
+        // We are inside a transaction -> active
+        if(m_bInAddingActions)
+            pActionData->m_eActionState = ACTION_STATE_ACTIVE;
+        // outside transaction
+        else
+        {
+            // move to long term if error message is set
+            if(!strLongTermErr.isEmpty())
+                pActionData->m_eActionState = ACTION_STATE_LONG_OBSERVE;
+            // move to inactive
+            else
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+        }
+        if(pActionData)
+        {
+            pActionData->m_iTimeoutMs = iTimeoutMs;
+            pActionData->m_iMsSinceLastSet = 0;
+            pActionData->m_bInStateDesired = bStateInDesired;
+            pActionData->m_strOK = strOK;
+            pActionData->m_strErr = strErr;
+            pActionData->m_strLongTermErr = strLongTermErr;
+        }
+    }
+    else
+        qWarning("startInObserve: iActionId %i not found!", iActionID);
+
+}
+
+void QActuaSensePrivate::closeMultiAction()
+{
+    m_bInAddingActions = false;
+    if(m_pLowLayerStartFunc && m_OutEnableBitArr.count(true) != 0)
+    {
+        // start low layer transaction
+        // note: we don't care if low layer call does block or not - multiActionFinished by
+        // input conditions polled
+        m_pLowLayerStartFunc(m_OutEnableBitArr, m_OutSetBitArr);
+        // reset flags to avoid setting in next transaction
+        m_OutEnableBitArr.fill(false);
+    }
+
+}
+
+bool QActuaSensePrivate::readInputState(int iActionID)
 {
     bool bInState = false;
-    if(!pAction->m_pIOParams->m_bDemoMode)
-        bInState = m_pInBitArr->at(pAction->m_pIOParams->m_iInBitNum);
+    QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.find(iActionID);
+    if(iter != m_PoolIOData.end())
+    {
+
+        QActuaSenseIOData* pActionData = iter.value();
+        if(pActionData->m_iInBitNum >= 0)
+            bInState = readInputState(pActionData);
+        else
+            qWarning("No input set for action %i", iActionID);
+    }
+    else
+        qWarning("readInputState: iActionId %i not found!", iActionID);
+    return bInState;
+}
+
+bool QActuaSensePrivate::hasReachedDestinationState(QActuaSenseIOData *pActionData)
+{
+    // In case no input pin was set: use timeout
+    if(pActionData->m_iInBitNum < 0)
+        return hasTimedOut(pActionData);
+    return pActionData->m_bInStateDesired == readInputState(pActionData);
+}
+
+bool QActuaSensePrivate::hasTimedOut(QActuaSenseIOData *pActionData)
+{
+    return pActionData->m_iMsSinceLastSet >= pActionData->m_iTimeoutMs;
+}
+
+void QActuaSensePrivate::onPollTimer()
+{
+    int iTimeSinceLastPoll = m_TimerElapsedLastPoll.restart();
+    bool bActiveError = false;
+    bool bLongTermError = false;
+    bool bOneOrMoreFinished = false;
+    // 1st loop over all action arrays
+    for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
+        iter != m_PoolIOData.end();
+        iter++)
+    {
+        QActuaSenseIOData* pActionData = iter.value();
+        // active actions
+        if(!m_bInAddingActions && pActionData->m_eActionState == ACTION_STATE_ACTIVE)
+        {
+            pActionData->m_iMsSinceLastSet += iTimeSinceLastPoll;
+            // action finished?
+            if(hasReachedDestinationState(pActionData))
+            {
+                bOneOrMoreFinished = true;
+                // Drop OK string
+                if(!pActionData->m_strOK.isEmpty())
+                    qInfo(pActionData->m_strOK.toLatin1());
+                // pass to long term observation if error notification is desired
+                if(!pActionData->m_strLongTermErr.isEmpty())
+                    pActionData->m_eActionState = ACTION_STATE_LONG_OBSERVE;
+                // pass to inactive
+                else
+                    pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+            }
+            // action timed out?
+            else if(hasTimedOut(pActionData))
+            {
+                bOneOrMoreFinished = true;
+                // treat as error only for error string set
+                if(!pActionData->m_strErr.isEmpty())
+                {
+                    bActiveError = true;
+                    qCritical(pActionData->m_strErr.toLatin1());
+                }
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+            }
+        }
+        // long term observation
+        if(pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE)
+        {
+            // Lost it's destination state?
+            if(!hasReachedDestinationState(pActionData))
+            {
+                qCritical(pActionData->m_strLongTermErr.toLatin1());
+                bLongTermError = true;
+                // pass to long observe error
+                pActionData->m_eActionState = ACTION_STATE_LONG_OBSERVE_ERR;
+            }
+        }
+    }
+
+    // another loop
+    // 1. in case of active error: move all remaining active actions -> inactive to avoid multiple fire
+    // 2. no more active left -> notify
+    bool bActivePending = false;
+    for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
+        iter != m_PoolIOData.end();
+        iter++)
+    {
+        QActuaSenseIOData* pActionData = iter.value();
+        if(pActionData->m_eActionState == ACTION_STATE_ACTIVE)
+        {
+            // 1.
+            if(bActiveError)
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+            // 2.
+            else
+                bActivePending = true;
+        }
+    }
+
+    Q_Q(QActuaSense);
+    // active actions finished -> notification
+    if(bOneOrMoreFinished && !bActivePending)
+        emit q->multiActionFinished(bActiveError);
+
+    // notify for long term errors
+    if(bLongTermError)
+        emit q->longTermObservationError();
+
+}
+
+bool QActuaSensePrivate::readInputState(QActuaSenseIOData *pActionData)
+{
+    bool bInState = false;
+    if(!pActionData->m_bDemoMode)
+        bInState = m_pInBitArr->at(pActionData->m_iInBitNum);
     // demo mode
     else
     {
         // full input demo
-        if(pAction->m_pIOParams->m_pDemoBitArrIn && pAction->m_pIOParams->m_iDemoBitNumIn >=0)
-            bInState = pAction->m_pIOParams->m_pDemoBitArrIn->at(pAction->m_pIOParams->m_iDemoBitNumIn);
+        if(pActionData->m_pDemoBitArrIn && pActionData->m_iDemoBitNumIn >=0)
+            bInState = pActionData->m_pDemoBitArrIn->at(pActionData->m_iDemoBitNumIn);
         // demo error
-        else if(pAction->m_pIOParams->m_bDemoError)
-            bInState = !pAction->m_bInStateDesired;
+        else if(pActionData->m_bDemoError)
+            bInState = !pActionData->m_bInStateDesired;
         // standard demo
         else
         {
             // standard demo reaches desired state at half timeout
-            if(pAction->m_iMsSinceLastSet >= pAction->m_iTimeoutMs/2 )
-                bInState = pAction->m_bInStateDesired;
+            if(pActionData->m_iMsSinceLastSet >= pActionData->m_iTimeoutMs/2 )
+                bInState = pActionData->m_bInStateDesired;
             else
-                bInState = !pAction->m_bInStateDesired;
+                bInState = !pActionData->m_bInStateDesired;
         }
     }
     return bInState;
 }
 
-QActuaSenseIOParams* QActuaSensePrivate::findOrCreateIOParam(int iActionID, QObject* pParent)
+void QActuaSensePrivate::removeFromLongObserv(int iActionID)
 {
-    QActuaSenseIOParamsIntHash::iterator iter = m_PoolIOData.find(iActionID);
-    QActuaSenseIOParams* pIOParams;
+    QActuaSenseIODataIntHash::iterator iter;
+    QActuaSenseIOData* pActionData;
+    // one
+    if(iActionID != -1)
+    {
+        iter = m_PoolIOData.find(iActionID);
+        if(iter != m_PoolIOData.end())
+        {
+            pActionData = iter.value();
+            if( pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE ||
+                pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR )
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+        }
+    }
+    // all
+    else
+    {
+        for(iter = m_PoolIOData.begin();
+            iter != m_PoolIOData.end();
+            iter++)
+        {
+            pActionData = iter.value();
+            if( pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE ||
+                pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR )
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+        }
+    }
+
+}
+
+QActuaSenseIOData* QActuaSensePrivate::findOrCreateIOParam(int iActionID, QObject* pParent)
+{
+    QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.find(iActionID);
+    QActuaSenseIOData* pActionData;
     if(iter == m_PoolIOData.end())
     {
         // create a new parameter
-        pIOParams = new QActuaSenseIOParams(pParent);
-        m_PoolIOData[iActionID] = pIOParams;
+        pActionData = new QActuaSenseIOData(pParent);
+        m_PoolIOData[iActionID] = pActionData;
     }
     else
-        pIOParams = iter.value();
-    return pIOParams;
+        pActionData = iter.value();
+    return pActionData;
 }
 
 // ********************************* QActuaSense *********************************
@@ -182,21 +348,15 @@ void QActuaSense::setStartLowLayerCallback(ActuaSenseStartLowLayerSwitchFunction
 void QActuaSense::addAtomicIn(int iActionID, int iInBitNum)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParams* pIOParams = d->findOrCreateIOParam(iActionID, this);
-    pIOParams->setIn(iInBitNum);
-
-    // Do we need to create an action entry?
-    QActuaSenseActionPointerArrayIntHash::iterator iterActionPointerArray = d->m_PoolActionsArray.find(iActionID);
-    if(iterActionPointerArray == d->m_PoolActionsArray.end())
-        d->m_PoolActionsArray[iActionID] =
-                new QActuaSenseActionPointerArray(new QActuaSenseAction(pIOParams));
+    QActuaSenseIOData* pActionData = d->findOrCreateIOParam(iActionID, this);
+    pActionData->m_iInBitNum = iInBitNum;
 }
 
 void QActuaSense::addAtomicOut(int iActionID, int iOutBitNum)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParams* pIOParams = d->findOrCreateIOParam(iActionID, this);
-    pIOParams->setOut(iOutBitNum);
+    QActuaSenseIOData* pActionData = d->findOrCreateIOParam(iActionID, this);
+    pActionData->m_iOutBitNum = iOutBitNum;
     // bitmaps size alignment neccessary?
     if(iOutBitNum+1 > d->m_OutSetBitArr.count())
     {
@@ -215,18 +375,18 @@ void QActuaSense::setBitMaskSize(int iSize)
 void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitArrIn, int iDemoBitNumIn)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter;
-    QActuaSenseIOParams* pIOParams;
+    QActuaSenseIODataIntHash::iterator iter;
+    QActuaSenseIOData* pActionData;
     // one
     if(iActionID != -1)
     {
         iter = d->m_PoolIOData.find(iActionID);
         if(iter != d->m_PoolIOData.end())
         {
-            pIOParams = iter.value();
-            pIOParams->m_bDemoMode = bDemoMode;
-            pIOParams->m_pDemoBitArrIn = pDemoBitArrIn;
-            pIOParams->m_iDemoBitNumIn = iDemoBitNumIn;
+            pActionData = iter.value();
+            pActionData->m_bDemoMode = bDemoMode;
+            pActionData->m_pDemoBitArrIn = pDemoBitArrIn;
+            pActionData->m_iDemoBitNumIn = iDemoBitNumIn;
         }
     }
     // all
@@ -234,10 +394,10 @@ void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitAr
     {
         for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++)
         {
-            pIOParams = iter.value();
-            pIOParams->m_bDemoMode = bDemoMode;
-            pIOParams->m_pDemoBitArrIn = pDemoBitArrIn;
-            pIOParams->m_iDemoBitNumIn = iDemoBitNumIn;
+            pActionData = iter.value();
+            pActionData->m_bDemoMode = bDemoMode;
+            pActionData->m_pDemoBitArrIn = pDemoBitArrIn;
+            pActionData->m_iDemoBitNumIn = iDemoBitNumIn;
         }
     }
 }
@@ -245,16 +405,16 @@ void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitAr
 void QActuaSense::setDemoError(bool bDemoError, int iActionID)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter;
-    QActuaSenseIOParams* pIOParams;
+    QActuaSenseIODataIntHash::iterator iter;
+    QActuaSenseIOData* pActionData;
     // one
     if(iActionID != -1)
     {
         iter = d->m_PoolIOData.find(iActionID);
         if(iter != d->m_PoolIOData.end())
         {
-            pIOParams = iter.value();
-            pIOParams->m_bDemoError = bDemoError;
+            pActionData = iter.value();
+            pActionData->m_bDemoError = bDemoError;
         }
     }
     // all
@@ -262,8 +422,8 @@ void QActuaSense::setDemoError(bool bDemoError, int iActionID)
     {
         for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++)
         {
-            pIOParams = iter.value();
-            pIOParams->m_bDemoError = bDemoError;
+            pActionData = iter.value();
+            pActionData->m_bDemoError = bDemoError;
         }
     }
 }
@@ -286,49 +446,13 @@ void QActuaSense::stopInternalInputPoll()
 void QActuaSense::openMultiAction()
 {
     Q_D(QActuaSense);
-    // if the last multi action failed we have entries left in active
-    // move them to inactive
-    for(QActuaSenseActionPointerArrayIntHash::iterator iter = d->m_PoolActionsArray.begin();
-        iter != d->m_PoolActionsArray.end();
-        iter++)
-    {
-        QActuaSenseActionPointerArray *pActionPointerArray = iter.value();
-        if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE])
-        {
-            pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_INACTIVE] =
-                    pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE];
-            pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE] = NULL;
-        }
-    }
-    d->m_bInAddingActions = true;
+    d->openMultiAction();
 }
 
 void QActuaSense::startOutSet(int iActionID, bool bStateOut)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
-    if(iter != d->m_PoolIOData.end())
-    {
-        QActuaSenseIOParams* pIOParams = iter.value();
-        if(pIOParams->m_iOutBitNum>=0)
-        {
-            d->m_OutEnableBitArr.setBit(pIOParams->m_iOutBitNum);
-            d->m_OutSetBitArr.setBit(pIOParams->m_iOutBitNum, bStateOut);
-            // if we are not in a multi action we transfer now otherwise keep set data
-            // and transfer in closeMultiAction
-            if(!d->m_bInAddingActions && d->m_pLowLayerStartFunc)
-            {
-                // just fire and forget
-                d->m_pLowLayerStartFunc(d->m_OutEnableBitArr, d->m_OutSetBitArr);
-                // avoid setting this bit in next transaction
-                d->m_OutEnableBitArr.setBit(pIOParams->m_iOutBitNum, false);
-            }
-        }
-        else
-            qWarning("startOutSet: iActionId %i no out information set!", iActionID);
-    }
-    else
-        qWarning("startOutSet: iActionId %i not found!", iActionID);
+    d->startOutSet(iActionID, bStateOut);
 }
 
 void QActuaSense::startInObserve(int iActionID,
@@ -337,205 +461,29 @@ void QActuaSense::startInObserve(int iActionID,
                                  QString strOK, QString strErr, QString strLongTermErr)
 {
     Q_D(QActuaSense);
-    QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
-    if(iter != d->m_PoolIOData.end())
-    {
-        QActuaSenseAction *pAction = NULL;
-        // We are inside a transaction -> active
-        if(d->m_bInAddingActions)
-            pAction = d->m_PoolActionsArray[iActionID]->moveActionTo(ACTION_POOL_TYPE_ACTIVE);
-        // outside transaction
-        else
-        {
-            // move to long term if error message is set
-            if(!strLongTermErr.isEmpty())
-                pAction = d->m_PoolActionsArray[iActionID]->moveActionTo(ACTION_POOL_TYPE_LONG_OBSERVE);
-            // move to inactive
-            else
-                pAction = d->m_PoolActionsArray[iActionID]->moveActionTo(ACTION_POOL_TYPE_INACTIVE);
-        }
-        if(pAction)
-        {
-            pAction->m_iTimeoutMs = iTimeoutMs;
-            pAction->m_iMsSinceLastSet = 0;
-            pAction->m_bInStateDesired = bStateInDesired;
-            pAction->m_strOK = strOK;
-            pAction->m_strErr = strErr;
-            pAction->m_strLongTermErr = strLongTermErr;
-        }
-    }
-    else
-        qWarning("startInObserve: iActionId %i not found!", iActionID);
+    d->startInObserve(iActionID, bStateInDesired, iTimeoutMs, strOK, strErr, strLongTermErr);
 }
 
 void QActuaSense::closeMultiAction()
 {
     Q_D(QActuaSense);
-    d->m_bInAddingActions = false;
-    if(d->m_pLowLayerStartFunc && d->m_OutEnableBitArr.count(true) != 0)
-    {
-        // start low layer transaction
-        // note: we don't care if low layer call does block or not - multiActionFinished by
-        // input conditions polled
-        d->m_pLowLayerStartFunc(d->m_OutEnableBitArr, d->m_OutSetBitArr);
-        // reset flags to avoid setting in next transaction
-        d->m_OutEnableBitArr.fill(false);
-    }
+    d->closeMultiAction();
 }
 
 bool QActuaSense::readInputState(int iActionID)
 {
     Q_D(QActuaSense);
-    bool bInState = false;
-    QActuaSenseIOParamsIntHash::iterator iter = d->m_PoolIOData.find(iActionID);
-    if(iter != d->m_PoolIOData.end())
-    {
-
-        QActuaSenseIOParams* pIOParams = iter.value();
-        if(pIOParams->m_iInBitNum >= 0)
-        {
-            // The following is a bit weird: One could ask 'why
-            // does ::readInputState require an action as parameter?'
-            // Answer: to support smooth demo behaviour
-            // So we need to find where the action is found
-            QActuaSenseAction *pAction = NULL;
-            QActuaSenseActionPointerArrayIntHash::iterator iterActionPointerArrays = d->m_PoolActionsArray.find(iActionID);
-            if(iterActionPointerArrays != d->m_PoolActionsArray.end())
-                pAction = iterActionPointerArrays.value()->find();
-            bInState = d->readInputState(pAction);
-        }
-        else
-            qWarning("No input set for action %i", iActionID);
-    }
-    else
-        qWarning("readInputState: iActionId %i not found!", iActionID);
-    return bInState;
+    return d->readInputState(iActionID);
 }
 
 void QActuaSense::removeFromLongObserv(int iActionID)
 {
     Q_D(QActuaSense);
-    QActuaSenseActionPointerArrayIntHash::iterator iterActionPointerArray;
-    QActuaSenseActionPointerArray* pActionPointerArray;
-    // one
-    if(iActionID != -1)
-    {
-        iterActionPointerArray = d->m_PoolActionsArray.find(iActionID);
-        if(iterActionPointerArray != d->m_PoolActionsArray.end())
-        {
-            pActionPointerArray = iterActionPointerArray.value();
-            if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE])
-            {
-                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_INACTIVE] =
-                        pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE];
-                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE] = NULL;
-            }
-        }
-    }
-    // all
-    else
-    {
-        for(iterActionPointerArray = d->m_PoolActionsArray.begin();
-            iterActionPointerArray != d->m_PoolActionsArray.end();
-            iterActionPointerArray++)
-        {
-            pActionPointerArray = iterActionPointerArray.value();
-            if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE])
-            {
-                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_INACTIVE] =
-                        pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE];
-                pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE] = NULL;
-            }
-        }
-    }
-
+    d->removeFromLongObserv(iActionID);
 }
 
 void QActuaSense::onPollTimer()
 {
     Q_D(QActuaSense);
-    int iTimeSinceLastPoll = d->m_TimerElapsedLastPoll.restart();
-    bool bActiveError = false;
-    bool bLongTermError = false;
-    bool bOneOrMoreFinished = false;
-    // 1st loop over all action arrays
-    for(QActuaSenseActionPointerArrayIntHash::iterator iter = d->m_PoolActionsArray.begin();
-        iter != d->m_PoolActionsArray.end();
-        iter++)
-    {
-        QActuaSenseAction* pAction = NULL;
-        QActuaSenseActionPointerArray* pActionPointerArray = iter.value();
-        // active actions
-        if(!d->m_bInAddingActions && pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE])
-        {
-            pAction = pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE];
-            pAction->m_iMsSinceLastSet += iTimeSinceLastPoll;
-            // action finished?
-            if(d->hasReachedDestinationState(pAction))
-            {
-                bOneOrMoreFinished = true;
-                // Drop OK string
-                if(!pAction->m_strOK.isEmpty())
-                    qInfo(pAction->m_strOK.toLatin1());
-                // pass to long term observation if error notification is desired
-                if(!pAction->m_strLongTermErr.isEmpty())
-                    pActionPointerArray->moveActionTo(ACTION_POOL_TYPE_LONG_OBSERVE);
-                // pass to inactive
-                else
-                    pActionPointerArray->moveActionTo(ACTION_POOL_TYPE_INACTIVE);
-            }
-            // action timed out?
-            else if(d->hasTimedOut(pAction))
-            {
-                bOneOrMoreFinished = true;
-                // treat as error only for error string set
-                if(!pAction->m_strErr.isEmpty())
-                {
-                    bActiveError = true;
-                    qCritical(pAction->m_strErr.toLatin1());
-                }
-                // pass to inactive
-                pActionPointerArray->moveActionTo(ACTION_POOL_TYPE_INACTIVE);
-            }
-        }
-        // long term observation
-        if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE])
-        {
-            pAction = pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_LONG_OBSERVE];
-            // Lost it's destination state?
-            if(!d->hasReachedDestinationState(pAction))
-            {
-                if(!pAction->m_strLongTermErr.isEmpty())
-                    qCritical(pAction->m_strLongTermErr.toLatin1());
-                bLongTermError = true;
-                // pass to inactive
-                pActionPointerArray->moveActionTo(ACTION_POOL_TYPE_INACTIVE);
-            }
-        }
-    }
-
-    // another loop
-    // 1. in case of active error: move all remaining active actions -> inactive to avoid multiple fire
-    // 2. no more active left -> notify
-    bool bActivePending = false;
-    for(QActuaSenseActionPointerArrayIntHash::iterator iter = d->m_PoolActionsArray.begin();
-        iter != d->m_PoolActionsArray.end();
-        iter++)
-    {
-        QActuaSenseActionPointerArray* pActionPointerArray = iter.value();
-        // 1.
-        if(bActiveError && pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE])
-            pActionPointerArray->moveActionTo(ACTION_POOL_TYPE_INACTIVE);
-        // 2.
-        if(pActionPointerArray->m_arrpAction[ACTION_POOL_TYPE_ACTIVE])
-            bActivePending = true;
-    }
-
-    // active actions finished -> notification
-    if(bOneOrMoreFinished && !bActivePending)
-        emit multiActionFinished(bActiveError);
-
-    // notify for long term errors
-    if(bLongTermError)
-        emit longTermObservationError();
+    d->onPollTimer();
 }

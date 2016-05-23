@@ -6,7 +6,7 @@
 #include "actuasense_global.h"
 
 class QActuaSensePrivate;
-class QActuaSenseIOParams;
+class QActuaSenseIOData;
 
 // Callback function for lower layer transaction
 //  * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
