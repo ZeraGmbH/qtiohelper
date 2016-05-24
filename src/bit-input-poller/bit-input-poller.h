@@ -22,7 +22,7 @@ class QTBITINPUTPOLLERSHARED_EXPORT QBitInputPoller : public QObject
 {
     Q_OBJECT
 public:
-    QBitInputPoller(QObject *parent = NULL);
+    QBitInputPoller(QObject *parent = Q_NULLPTR);
     void setupInputMask(int iCountBits, const QBitArray& mask = QBitArray());
     const QBitArray* getInputBitmask();
     void setStartBitReadFunction(StartBitReadFunction pFunc);

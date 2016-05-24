@@ -5,7 +5,7 @@
 
 QRelayMapperPrivate::QRelayMapperPrivate()
 {
-    pLogicalInfoArray = NULL;
+    pLogicalInfoArray = Q_NULLPTR;
     ui16MaxPhysicalPinHandled = 0;
 }
 

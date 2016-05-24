@@ -22,7 +22,7 @@ class QActuaSenseIOData : public QObject
     Q_OBJECT
 public:
     QActuaSenseIOData(QObject* pParent);
-    void setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn = NULL, int iDemoBitNumIn=-1);
+    void setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn = Q_NULLPTR, int iDemoBitNumIn=-1);
 
     int m_iOutBitNum;
     int m_iInBitNum;

@@ -16,7 +16,7 @@ class QTACTUASENSESHARED_EXPORT QActuaSense : public QObject
 {
     Q_OBJECT
 public:
-    QActuaSense(QObject *parent = NULL);
+    QActuaSense(QObject *parent = Q_NULLPTR);
 
     // setup
     void setInBitMask(const QBitArray *pInBitArr);
@@ -29,7 +29,7 @@ public:
 
     // setup demo
     // note iActionID == -1 all currently found
-    void setupDemo(bool bDemoMode, int iActionID = -1, QBitArray *pDemoBitArrIn = NULL, int iDemoBitNumIn=-1);
+    void setupDemo(bool bDemoMode, int iActionID = -1, QBitArray *pDemoBitArrIn = Q_NULLPTR, int iDemoBitNumIn=-1);
     void setDemoError(bool bDemoError, int iActionID);
 
     // optional internal in poll timer - can be handled externally

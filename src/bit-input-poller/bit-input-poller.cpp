@@ -5,7 +5,7 @@
 
 QBitInputPollerPrivate::QBitInputPollerPrivate()
 {
-    m_pStartBitReadFunction = NULL;
+    m_pStartBitReadFunction = Q_NULLPTR;
 }
 
 QBitInputPollerPrivate::~QBitInputPollerPrivate()
