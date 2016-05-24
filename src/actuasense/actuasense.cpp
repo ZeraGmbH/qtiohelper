@@ -28,7 +28,7 @@ void QActuaSenseIOData::setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn, in
 
 
 // ********************************* QActuaSensePrivate *********************************
-QActuaSensePrivate::QActuaSensePrivate()
+QActuaSensePrivate::QActuaSensePrivate(QActuaSense *pPublic) : q_ptr(pPublic)
 {
     m_pInBitArr = NULL;
     m_pLowLayerStartFunc = NULL;
@@ -350,7 +350,7 @@ QActuaSenseIOData* QActuaSensePrivate::findOrCreateIOParam(int iActionID, QObjec
 
 QActuaSense::QActuaSense(QObject *parent) :
     QObject(parent),
-    d_ptr(new QActuaSensePrivate())
+    d_ptr(new QActuaSensePrivate(this))
 {
 }
 

@@ -47,8 +47,9 @@ typedef QHash<int, QActuaSenseIOData*> QActuaSenseIODataIntHash;
 
 class QActuaSensePrivate
 {
+    Q_DECLARE_PUBLIC(QActuaSense)
 public:
-    QActuaSensePrivate();
+    QActuaSensePrivate(QActuaSense* pPublic);
     virtual ~QActuaSensePrivate();
 
     void openMultiAction();
@@ -82,7 +83,6 @@ private:
     QTimer m_IoPollTimer;
 
     QActuaSense *q_ptr;
-    Q_DECLARE_PUBLIC(QActuaSense)
 };
 
 #endif // QActuaSense_P_H
