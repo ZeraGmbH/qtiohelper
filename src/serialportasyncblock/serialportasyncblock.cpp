@@ -29,6 +29,8 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
 {
     Q_D(QSerialPortAsyncBlock);
     d->m_dataSend = dataSend;
+    // avoid data cumulation
+    pDataReceive->resize(0);
     d->m_pDataReceive = pDataReceive;
     if(d->m_iMsReceiveFirst > 0)
         d->m_TimerForFirst.start(d->m_iMsReceiveFirst);
