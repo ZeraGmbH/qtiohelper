@@ -15,5 +15,5 @@ SOURCES += main.cpp
 target.path = /usr/bin
 INSTALLS += target
 
-LIBS += -L../../../lib -lQt5SpiDevice
+LIBS += -L../../../lib -lQt5SpiDevice -lQt5IoRemoteCommon
 INCLUDEPATH +=  ../../../include ../../../include/QtSpiDevice
