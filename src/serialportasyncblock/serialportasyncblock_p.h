@@ -20,6 +20,8 @@ public:
 
     QTimer m_TimerForFirst;
     QTimer m_TimerForBetweenTwoBytes;
+
+    bool m_bIoPending;
 };
 #endif // QTSERIALPORTASYNCBLOCK_P_H
 

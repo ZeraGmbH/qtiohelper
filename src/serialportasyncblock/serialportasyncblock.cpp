@@ -9,6 +9,7 @@ QSerialPortAsyncBlockPrivate::QSerialPortAsyncBlockPrivate()
     m_iMsReceiveFirst = 0;
     m_iMsBetweenTwoBytes = 0;
     m_iBlockLenReceive = 0;
+    m_bIoPending = false;
 }
 
 // ************************** QSerialPortAsyncBlock
@@ -38,6 +39,7 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
     // empty send: read only
     if(dataSend.size() > 0)
         write(dataSend);
+    d->m_bIoPending = true;
 }
 
 void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes)
@@ -54,6 +56,12 @@ void QSerialPortAsyncBlock::setBlockEndCriteria(int iBlockLenReceive, QByteArray
     d->m_endBlock = endBlock;
 }
 
+bool QSerialPortAsyncBlock::isIOPending()
+{
+    Q_D(QSerialPortAsyncBlock);
+    return d->m_bIoPending;
+}
+
 void QSerialPortAsyncBlock::onTimeout()
 {
     Q_D(QSerialPortAsyncBlock);
@@ -61,6 +69,7 @@ void QSerialPortAsyncBlock::onTimeout()
     clear(AllDirections);
     d->m_TimerForFirst.stop();
     d->m_TimerForBetweenTwoBytes.stop();
+    d->m_bIoPending = false;
     emit ioFinished();
 }
 
@@ -89,6 +98,7 @@ void QSerialPortAsyncBlock::onReadyRead()
         {
             d->m_TimerForFirst.stop();
             d->m_TimerForBetweenTwoBytes.stop();
+            d->m_bIoPending = false;
             emit ioFinished();
         }
         // check further with inter char timeout
