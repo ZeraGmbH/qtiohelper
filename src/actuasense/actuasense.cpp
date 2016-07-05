@@ -163,7 +163,7 @@ bool QActuaSensePrivate::hasTimedOut(QActuaSenseIOData *pActionData)
     return pActionData->m_iMsSinceLastSet >= pActionData->m_iTimeoutMs;
 }
 
-bool QActuaSensePrivate::getLongTermStatus(QString &strErr)
+bool QActuaSensePrivate::getLongTermStatus(QString &strErr, bool bNotifyOnce)
 {
     bool bLongTermError = false;
     strErr.clear();
@@ -179,6 +179,8 @@ bool QActuaSensePrivate::getLongTermStatus(QString &strErr)
                 strErr = pActionData->m_strLongTermErr;
             else
                 strErr += QLatin1String(" / ") + pActionData->m_strLongTermErr;
+            if(bNotifyOnce)
+                pActionData->m_eActionState = ACTION_STATE_INACTIVE;
         }
     }
     return bLongTermError;
