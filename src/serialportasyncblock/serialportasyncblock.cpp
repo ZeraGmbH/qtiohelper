@@ -33,13 +33,22 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
     // avoid data cumulation
     pDataReceive->resize(0);
     d->m_pDataReceive = pDataReceive;
-    if(d->m_iMsReceiveFirst > 0)
-        d->m_TimerForFirst.start(d->m_iMsReceiveFirst);
-    clear(AllDirections);
-    // empty send: read only
-    if(dataSend.size() > 0)
-        write(dataSend);
-    d->m_bIoPending = true;
+    d->m_bIoPending = clear(AllDirections);
+    if(d->m_bIoPending)
+    {
+        // empty send: read only
+        if(dataSend.size() > 0)
+        {
+            if(write(dataSend) == -1)
+                d->m_bIoPending = false;
+        }
+        if(d->m_bIoPending && d->m_iMsReceiveFirst > 0)
+            d->m_TimerForFirst.start(d->m_iMsReceiveFirst);
+    }
+    // if nothing is started: end up here. This cannot be done by timeout
+    // due to missing call of timeout slot
+    if(!d->m_bIoPending)
+        emit ioFinished();
 }
 
 void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes)
