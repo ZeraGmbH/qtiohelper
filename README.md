@@ -166,7 +166,7 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   Example setup:
   
   ```cpp
-  QSPIDevice(1, 0) spiDev; /* use bus=0 / channel=1 */
+  QSPIDevice spiDev(1, 0); /* use bus=0 / channel=1 */
   QString strOpenErrorSpiDev;
   // SPI open data
   if(spiDev.open(QIODevice::ReadWrite))
