@@ -85,7 +85,9 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   ```cpp
     void longTermObservationError();
   ```
-  
+
+---
+
 * **QT += bit-input-poller (see bit-input-poller.h):**
 
   A very simple module to poll an array of input bits periodically.
@@ -114,9 +116,13 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   ```
   if fired.
 
+---
+
 * **QT += relay-mapper (see relay-mapper.h):**
 
   TODO
+
+---
 
 * **QT += serialportasyncblock (see serialportasyncblock.h):**
 
@@ -154,6 +160,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   ```cpp
   serialIO.sendAndReceive(QByteArray(), &m_ReceivedRaw);
   ```
+
+---
   
 * **QT += spidevice (see spidevice.h):**
 
