@@ -120,7 +120,40 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
 * **QT += serialportasyncblock (see serialportasyncblock.h):**
 
-  TODO
+  QSerialPortAsyncBlock extends QSerialPort by detection of end condition when sending and receiving serial data. An end condition can be a timeout, a pattern in data received or both.
+  
+  Example:
+  ```cpp
+  /* RS232 open */
+  QSerialPortAsyncBlock serialIO;
+  serialIO.setPortName("ttyUSB0");
+  serialIO.open(QIODevice::ReadWrite);
+
+  /* 9600 Baud / 7E1 / 1 StopBit */
+  serialIO.setBaudRate(9600);
+  serialIO.setDataBits(QSerialPort::Data7);
+  serialIO.setParity(QSerialPort::EvenParity);
+  serialIO.setStopBits(QSerialPort::OneStop);
+
+  /* set up block end detection conditions */
+  QByteArray dataEnd("\r\n");
+  int iResponseTimeout = 2000; /* 2000ms offset till first byte received */
+  int iTimeoutBetweenBytes = 100; /* 100ms maximum time between two received bytes */
+  serialIO.setReadTimeout(iResponseTimeout, iTimeoutBetweenBytes);
+  serialIO.setBlockEndCriteria(0, dataEnd); /* iBlockLenReceive=0: we have varying response lengths */
+
+  /* start I/O */
+  QByteArray dataSend("/?!\r\n");
+  m_pSerialPort->sendAndReceive(dataSend, &m_ReceivedRaw);
+  ```
+  End of send and receive is notified by firing signal:
+  ```cpp
+  void ioFinished();
+  ```
+  Just receiving data without sending can be started by calling sendAndReceive with empty buffer:
+  ```cpp
+  serialIO.sendAndReceive(QByteArray(), &m_ReceivedRaw);
+  ```
   
 * **QT += spidevice (see spidevice.h):**
 
