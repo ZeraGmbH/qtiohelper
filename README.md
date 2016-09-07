@@ -96,7 +96,7 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   class GpioInOut
   {
     public:
-      void GetDigitalInputs(QBitArray inputMask);
+      void GetDigitalInputs(QBitArray *inputMask);
   }
   
   ...
