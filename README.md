@@ -166,19 +166,21 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   Example setup:
   
   ```cpp
-  QString strOpenErrorSPIData;
+  QSPIDevice(1, 0) spiDev; /* use bus=0 / channel=1 */
+  QString strOpenErrorSpiDev;
   // SPI open data
-  if(spiData.open(QIODevice::ReadWrite))
+  if(spiDev.open(QIODevice::ReadWrite))
   {
-    spiData.setBitSpeed(25000000);
-    spiData.setMode(3);
-    spiData.setLSBFirst(false);
-    spiData.setBitsPerWord(8);
+    /* for more information see kernel linux/spi/spidev.h or Documentation/spi/spidev */
+    spiDev.setBitSpeed(25000000);
+    spiDev.setMode(3);
+    spiDev.setLSBFirst(false);
+    spiDev.setBitsPerWord(8);
   }
   else
   {
-    strOpenErrorSPIData.sprintf("Device %s could not be opened!", qPrintable(spiData.fileName()));
-    qWarning(qPrintable(strOpenErrorSPIData));
+    strOpenErrorSpiDev.sprintf("Device %s could not be opened!", qPrintable(spiDev.fileName()));
+    qWarning(qPrintable(strOpenErrorSpiDev));
   }
   ```
   **One very very important feature** is the remote access e.g to develop/debug an appliaction on PC using SPI on a development board connected by network without cross building necessary until packing. For remote SPI access do:
