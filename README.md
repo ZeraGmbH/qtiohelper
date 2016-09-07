@@ -47,11 +47,10 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
                                     )
 
                 {
+                    /* A finished action is indirectly detected by sensors.
+                    So we don't care for blocked/unblocked here */
                     gpioInOut.StartDigitalOut(EnableMask, SetMask);
                 });
-
-      
-      
   }
   ```
   
@@ -94,12 +93,21 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
   Example setup:
   ```cpp
+  class GpioInOut
+  {
+    public:
+      void GetDigitalInputs(QBitArray inputMask);
+  }
+  
+  ...
+  GpioInOut gpioInOut;
+  ...
   QBitInputPoller bitInputPoller;
   QBitArray invertMask(4, true); /* invert bit 0-3 */
   bitInputPoller.setupInputMask(SPS_IN_BIT_COUNT, &invertMask);
   bitInputPoller.setStartBitReadFunction([&] (QBitArray *pDigitalInMask)
       {
-        fpgaInOut.GetDigitalInputs(pDigitalInMask);
+        gpioInOut.GetDigitalInputs(pDigitalInMask);
         /* blocking */
         return false;
       });
@@ -120,8 +128,64 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
 * **QT += relay-mapper (see relay-mapper.h):**
 
-  TODO
+  QRelayMapper handles arrays of logical relays as objects of QBitArray. A logical relay is the uniform representation of a physical relay and abstracts away:
+  * mono-/bistable relays: Monostable (one coil / loosing 'on' state on power off) and bistable (two coils / switch on only during state change / keeping current state on power off) relays are switched in the same way (see startSet implementations). For bistable relays QRelayMapper takes care for correct timing of coils.
+  * all relays are switched on by value 'true' ond off by value 'false'
+  * when all transitions are finished QRelayMapper fires signal idle().
+  * current relay state is kept: In case a client calls 'startSet' with the same state as currently set, no action is performed and in case not further actions are pending an idle() signal is fired.
+Example setup:
+  ```cpp
+  class GpioInOut
+  {
+    public:
+      void StartDigitalOut(const QBitArray& EnableMask, const QBitArray& SetMask);
+  }
+  
+  ...
+  GpioInOut gpioInOut;
+  ...
+  
+  enum
+  {
+    LOGICAL_RELAY_BISTABLE_FOO = 0,  
+    LOGICAL_RELAY_MONOSTABLE_FOO,
+    
+    LOGICAL_RELAY_COUNT
+  };
+  
+  const struct TLogicalRelaisEntry arrRelayMapperSetup[LOGICAL_RELAIS_COUNT] =
+  {
+    { /* LOGICAL_RELAY_BISTABLE_FOO */
+      .ui16OnPosition  = 0, /* on coil is connected to bit 0 of output array */
+      .ui16OffPosition = 1, /* off coil is connected to bit 1 of output array */
+      .ui8Flags = RELAIS_PHYS_FLAGS(true, false, false),  /* bistable no inverting pins */
+      .ui8OnTime = 2, // 20ms @ 10ms tick
+    },
+  
+    { /* LOGICAL_RELAY_MONOSTABLE_FOO */
+      .ui16OnPosition  = 2, /* on coil is connected to bit 2 of output array */
+      .ui8Flags = RELAIS_PHYS_FLAGS(false, true, false),  /* monotable no inverting pin */
+    }
+  };
 
+    QRelayMapper relayMapper;
+    relayMapper.setup(LOGICAL_RELAY_COUNT,
+                      arrRelayMapperSetup,
+                      10,   // 10ms
+                      [&]
+                      (
+                        const QBitArray& EnableMask,
+                        const QBitArray& SetMask,
+                        const QObject* pCaller      /* pointer to relayMapper */
+                      )
+
+                {
+                    gpioInOut.StartDigitalOut(EnableMask, SetMask);
+                    return false;
+                });
+  
+  ```
+  
 ---
 
 * **QT += serialportasyncblock (see serialportasyncblock.h):**
