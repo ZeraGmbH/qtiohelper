@@ -9,6 +9,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
   Example setup:
   ```cpp
+  #include <QActuaSense>
+  
   class GpioInOut
   {
     public:
@@ -93,6 +95,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
   Example setup:
   ```cpp
+  #include <QBitInputPoller>
+  
   class GpioInOut
   {
     public:
@@ -136,6 +140,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   
   Example setup:
   ```cpp
+  #include <QRelayMapper>
+  
   class GpioInOut
   {
     public:
@@ -200,6 +206,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   
   Example:
   ```cpp
+  #include <QSerialPortAsyncBlock>
+  
   /* RS232 open */
   QSerialPortAsyncBlock serialIO;
   serialIO.setPortName("ttyUSB0");
@@ -238,13 +246,15 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   A Qt Wrapper controlling SPI devices. All unidirectional I/O is performed by blocking (kernel currenly only supports blocking accesses but SPI transactions are usually fast) read/write calls. For Bidirectional I/O use the function
   
   ```cpp
+  #include <QSPIDevice>
+  
   bool sendReceive(QByteArray& dataSend, QByteArray& dataReceive);
   ```
   
   Example setup:
   
   ```cpp
-  QSPIDevice spiDev(1, 0); /* use bus=0 / channel=1 */
+  QSPIDevice spiDev(1, 0); /* use bus=1 / channel=0 */
   QString strOpenErrorSpiDev;
   // SPI open data
   if(spiDev.open(QIODevice::ReadWrite))
