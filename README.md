@@ -131,9 +131,10 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
   QRelayMapper handles arrays of logical relays as objects of QBitArray. A logical relay is the uniform representation of a physical relay and abstracts away:
   * mono-/bistable relays: Monostable (one coil / loosing 'on' state on power off) and bistable (two coils / switch on only during state change / keeping current state on power off) relays are switched in the same way (see startSet implementations). For bistable relays QRelayMapper takes care for correct timing of coils.
   * all relays are switched on by value 'true' ond off by value 'false'
-  * when all transitions are finished QRelayMapper fires signal idle().
+  * when all transitions are finished QRelayMapper **fires signal idle()**.
   * current relay state is kept: In case a client calls 'startSet' with the same state as currently set, no action is performed and in case not further actions are pending an idle() signal is fired.
-Example setup:
+  
+  Example setup:
   ```cpp
   class GpioInOut
   {
@@ -168,22 +169,27 @@ Example setup:
     }
   };
 
-    QRelayMapper relayMapper;
-    relayMapper.setup(LOGICAL_RELAY_COUNT,
-                      arrRelayMapperSetup,
-                      10,   // 10ms
-                      [&]
-                      (
-                        const QBitArray& EnableMask,
-                        const QBitArray& SetMask,
-                        const QObject* pCaller      /* pointer to relayMapper */
-                      )
+  QRelayMapper relayMapper;
+  relayMapper.setup(LOGICAL_RELAY_COUNT,
+                    arrRelayMapperSetup,
+                    10,   // 10ms
+                    [&]
+                    (
+                      const QBitArray& EnableMask,
+                      const QBitArray& SetMask,
+                      const QObject* pCaller      /* pointer to relayMapper */
+                    )
 
-                {
-                    gpioInOut.StartDigitalOut(EnableMask, SetMask);
-                    return false;
-                });
-  
+              {
+                  gpioInOut.StartDigitalOut(EnableMask, SetMask);
+                  return false;
+              });
+  ```
+
+  Example Action:
+  ```cpp
+  relayMapper.startSet(LOGICAL_RELAY_BISTABLE_FOO, true);
+  relayMapper.startSet(LOGICAL_RELAY_MONOSTABLE_FOO, false);
   ```
   
 ---
