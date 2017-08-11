@@ -16,28 +16,24 @@ QRelayMapperPrivate::~QRelayMapperPrivate()
 // ************************** QRelayMapper
 
 QRelayMapper::QRelayMapper(QObject *parent) :
-    QObject(parent),
-    d_ptr(new QRelayMapperPrivate())
+    QRelayBase(parent, new QRelayMapperPrivate())
 {
     Q_D(QRelayMapper);
+
     connect(&d->m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
 }
 
 void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
                          const struct TLogicalRelaisEntry *pLogicalInfoArray,
                          int iMsecSlice,
-                         RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
+                         RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
 {
     Q_D(QRelayMapper);
 
-    d->CallbackStartLowLayerSwitch = CallbackStartLowLayerSwitch;
+    QRelayBase::setup(ui16LogicalArrayInfoCount, CallbackStartLowLayerSwitch);
 
     // Setup logical bitmap sizes / workers
-    d->logicalSetMask = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalEnableMaskNext = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalSetMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->arrPinDelayCounter.resize(ui16LogicalArrayInfoCount);
-    d->logicalBusyMask = QBitArray(ui16LogicalArrayInfoCount);
 
     // estimate max physical bit number
     for(quint16 ui16Entry=0; ui16Entry<ui16LogicalArrayInfoCount; ui16Entry++)
@@ -48,63 +44,44 @@ void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
     // keep pointer to setup data
     d->pLogicalInfoArray = pLogicalInfoArray;
 
-    // setup out slice timer
+    // setup our slice timer
     d->m_SliceTimer.setSingleShot(false);
     d->m_SliceTimer.setInterval(iMsecSlice);
 }
 
-quint16 QRelayMapper::getLogicalRelayCount()
-{
-    Q_D(QRelayMapper);
-    return d->logicalSetMask.count();
-}
 
-void QRelayMapper::startSet(const QBitArray& logicalEnableMask,
-                            const QBitArray& logicalSetMask,
+void QRelayMapper::startSet(quint16 ui16BitNo,
+                            bool bSet,
                             bool bForce)
 {
-    Q_D(QRelayMapper);
-    int iMaxBitEnable = qMin(logicalEnableMask.size(), d->logicalEnableMaskNext.size());
-    int iMaxBitSet = qMin(logicalSetMask.size(), d->logicalSetMaskNext.size());
-    int iMaxBit = qMin(iMaxBitEnable, iMaxBitSet);
+    QRelayBase::startSet(ui16BitNo, bSet, bForce);
 
-    for(int iBit=0; iBit<iMaxBit; iBit++)
-    {
-        // set bit data for enabled and (forced) changing bits only
-        if( logicalEnableMask.at(iBit) &&
-            (bForce || logicalSetMask.at(iBit) != d->logicalSetMask.at(iBit)))
-        {
-            d->logicalEnableMaskNext.setBit(iBit);
-            d->logicalSetMaskNext.setBit(iBit, logicalSetMask.at(iBit));
-        }
-    }
+    Q_D(QRelayMapper);
+    // relay mapper performs all activity on slice timer
     if(!d->m_SliceTimer.isActive())
         d->m_SliceTimer.start();
 }
 
-void QRelayMapper::startSet(quint16 ui16BitNo, bool bSet, bool bForce)
+void QRelayMapper::idleCleanup()
 {
+    QRelayBase::idleCleanup();
+
     Q_D(QRelayMapper);
-    quint16 ui16BitCount = getLogicalRelayCount();
-    if(ui16BitNo < ui16BitCount)
-    {
-        QBitArray logicalEnableMask(ui16BitCount);
-        QBitArray logicalSetMask(ui16BitCount);
-        logicalEnableMask.setBit(ui16BitNo);
-        logicalSetMask.setBit(ui16BitNo, bSet);
-        startSet(logicalEnableMask, logicalSetMask, bForce);
-    }
+    d->m_SliceTimer.stop();
 }
 
 void QRelayMapper::onSliceTimer()
 {
     Q_D(QRelayMapper);
+    // in case low layer is still busy - wait for next slice
+    if(d->CallbackQueryLowLayerBusy && d->CallbackQueryLowLayerBusy())
+        return;
     // prepare output data
     QBitArray physicalEnableMask(d->ui16MaxPhysicalPinHandled+1);
     QBitArray physicalSetMask(d->ui16MaxPhysicalPinHandled+1);
     // loop all logical bits
     bool bLowerIORequested = false;
-    for(int iBit=0; iBit<d->logicalSetMaskNext.count(); iBit++)
+    for(int iBit=0; iBit<getLogicalRelayCount(); iBit++)
     {
         const TLogicalRelaisEntry& logicalPinInfoEntry = d->pLogicalInfoArray[iBit];
         // 1. Handle changes since last slice
@@ -149,7 +126,7 @@ void QRelayMapper::onSliceTimer()
             // mark busy
             d->logicalBusyMask.setBit(iBit);
             // keep state
-            d->logicalSetMask.setBit(iBit, d->logicalSetMaskNext.at(iBit));
+            d->logicalSetMaskCurrent.setBit(iBit, d->logicalSetMaskNext.at(iBit));
             // set handled
             d->logicalEnableMaskNext.clearBit(iBit);
             // we need a low layer transaction
@@ -169,7 +146,7 @@ void QRelayMapper::onSliceTimer()
                 {
                     uint16_t ui16OutBitPosition;
                     bool bSetOutput = true;
-                    if(d->logicalSetMask.at(iBit))
+                    if(d->logicalSetMaskCurrent.at(iBit))
                     {
                         // It is ON
                         ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
@@ -202,28 +179,6 @@ void QRelayMapper::onSliceTimer()
             bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
     }
     if(!bLowerLayerBusy)
-        onLowLayerFinish(this);
-}
-
-void QRelayMapper::onLowLayerFinish(const QObject *pSignalHandler)
-{
-    if(pSignalHandler == this)
-    {
-        Q_D(QRelayMapper);
-        // check if all pins are idle
-        bool bOneOrMoreBusy = false;
-        for(int iBit=0; iBit<d->logicalSetMask.count(); iBit++)
-        {
-            if(d->logicalBusyMask.at(iBit))
-            {
-                bOneOrMoreBusy = true;
-                break;
-            }
-        }
-        if(!bOneOrMoreBusy)
-        {
-            d->m_SliceTimer.stop();
-            emit idle();
-        }
-    }
+        // low layer signalled blocked call -> finish
+        onLowLayerIdle();
 }

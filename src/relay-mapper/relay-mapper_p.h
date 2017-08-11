@@ -1,22 +1,15 @@
 #ifndef QRelayMapper_P_H
 #define QRelayMapper_P_H
 
-#include <QObject>
-#include <QTimer>
 #include "relay-mapper.h"
+#include "relay-base_p.h"
+#include <QTimer>
 
-class QRelayMapperPrivate
+class QRelayMapperPrivate : public QRelayBasePrivate
 {
 public:
     QRelayMapperPrivate();
     virtual ~QRelayMapperPrivate();
-
-    // Current state logical (size -> number of logical bits)
-    QBitArray logicalSetMask;
-
-    // Next state logical
-    QBitArray logicalEnableMaskNext;
-    QBitArray logicalSetMaskNext;
 
     // Setup info
     const TLogicalRelaisEntry *pLogicalInfoArray;
@@ -26,12 +19,8 @@ public:
 
     // Working vars
     QByteArray arrPinDelayCounter;
-    QBitArray logicalBusyMask;
 
-    // Low layer callback
-    RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch;
-
-    // Optional timer
+    // Slice timer
     QTimer m_SliceTimer;
 };
 

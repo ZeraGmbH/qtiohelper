@@ -4,7 +4,8 @@
 #include <QObject>
 #include <QBitArray>
 #include <functional>
-#include "relay-mapper_global.h"
+#include "relay_global.h"
+#include "relay-base.h"
 
 struct TLogicalRelaisEntry
 {
@@ -38,16 +39,7 @@ enum enLogicalRelaisFlags
 
 class QRelayMapperPrivate;
 
-// Callback function for lower layer
-//  * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
-//  * NON-BLOCKING:
-//      -return value true
-//      -low layer must keep pSignalHandler and send it with onLowLayerFinish for the transaction caused by us
-//  * BLOCKING:
-//      -return value false - onLowLayerFinish is never called
-typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask, const QObject *pSignalHandler)> RelayMapperStartLowLayerSwitchFunction;
-
-class QTRELAYSSHARED_EXPORT QRelayMapper : public QObject
+class QTRELAYSSHARED_EXPORT QRelayMapper : public QRelayBase
 {
     Q_OBJECT
 public:
@@ -55,27 +47,19 @@ public:
     void setup(quint16 ui16LogicalArrayInfoCount,
                const struct TLogicalRelaisEntry *pLogicalInfoArray,
                int iMsecSlice,
-               RelayMapperStartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
-    quint16 getLogicalRelayCount();
+               RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
 
-    void startSet(const QBitArray& logicalEnableMask,
-                  const QBitArray& logicalSetMask,
-                  bool bForce = false);
-    void startSet(quint16 ui16BitNo,
-                  bool bSet,
-                  bool bForce = false);
+    virtual void startSet(quint16 ui16BitNo,
+                          bool bSet,
+                          bool bForce = false);
 
-signals:
-    void idle();
-
-public slots:
-    void onLowLayerFinish(const QObject *pSignalHandler);
+protected:
+    virtual void idleCleanup();
 
 private slots:
     void onSliceTimer();
 
 private:
-    QRelayMapperPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QRelayMapper)
 };
 
