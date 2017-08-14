@@ -5,12 +5,16 @@
 
 QRelayBasePrivate::QRelayBasePrivate()
 {
-    CallbackQueryLowLayerBusy = nullptr;
-    CallbackStartLowLayerSwitch = nullptr;
 }
 
 QRelayBasePrivate::~QRelayBasePrivate()
 {
+}
+
+// ************************** QRelayUpperBasePrivate
+QRelayUpperBasePrivate::QRelayUpperBasePrivate()
+{
+    lowRelayLayer = nullptr;
 }
 
 // ************************** QRelayBase
@@ -26,35 +30,17 @@ QRelayBase::~QRelayBase()
     delete d_ptr;
 }
 
-void QRelayBase::setupCallbackLowLayerBusy(RelayQueryLowLayerBusy callback)
+quint16 QRelayBase::getLogicalRelayCount()
 {
-    Q_D(QRelayBase);
-
-    d->CallbackQueryLowLayerBusy = callback;
+    return getLogicalRelayState().size();
 }
 
-void QRelayBase::setup(quint16 ui16LogicalArrayInfoCount, RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch)
+void QRelayBase::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 {
     Q_D(QRelayBase);
-
-    d->CallbackStartLowLayerSwitch = CallbackStartLowLayerSwitch;
     d->logicalEnableMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalSetMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalBusyMask = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalSetMaskCurrent = QBitArray(ui16LogicalArrayInfoCount);
-}
-
-quint16 QRelayBase::getLogicalRelayCount()
-{
-    Q_D(QRelayBase);
-
-    return d->logicalSetMaskCurrent.count();
-}
-
-const QBitArray &QRelayBase::getLogicalRelayState()
-{
-    Q_D(QRelayBase);
-    return d->logicalSetMaskCurrent;
 }
 
 void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
@@ -62,7 +48,6 @@ void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
                                bool bForce)
 {
     Q_D(QRelayBase);
-
     for(int iBit=0;
         iBit<logicalEnableMask.size() && iBit<getLogicalRelayCount();
         iBit++)
@@ -74,10 +59,9 @@ void QRelayBase::startSet(quint16 ui16BitNo,
                           bool bForce)
 {
     Q_D(QRelayBase);
-
     if(ui16BitNo < getLogicalRelayCount())
     {
-        if(bForce || bSet != d->logicalSetMaskCurrent.at(ui16BitNo))
+        if(bForce || bSet != getLogicalRelayState().at(ui16BitNo))
         {
             d->logicalEnableMaskNext.setBit(ui16BitNo);
             d->logicalSetMaskNext.setBit(ui16BitNo, bSet);
@@ -88,11 +72,9 @@ void QRelayBase::startSet(quint16 ui16BitNo,
 bool QRelayBase::isBusy()
 {
     Q_D(QRelayBase);
-
-    QBitArray allZeros = QBitArray(getLogicalRelayCount());
     return
-        d->logicalEnableMaskNext != allZeros && // not yet started
-        d->logicalBusyMask != allZeros;         // in progress
+        d->logicalEnableMaskNext.count(true) || // not yet started
+        d->logicalBusyMask.count(true);         // in progress
 }
 
 void QRelayBase::onLowLayerIdle()
@@ -104,4 +86,63 @@ void QRelayBase::onLowLayerIdle()
         idleCleanup();
         emit idle();
     }
+}
+
+// ************************** QRelayUpperBase
+QRelayUpperBase::QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp) :
+    QRelayBase(parent, dp)
+
+{
+    Q_D(QRelayUpperBase);
+    // setup out idle timer
+    d->m_IdleTimer.setSingleShot(true);
+    d->m_IdleTimer.setInterval(0);
+    connect(&d->m_IdleTimer, &QTimer::timeout, this, &QRelayUpperBase::onIdleTimer);
+}
+
+void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
+{
+    Q_D(QRelayUpperBase);
+    d->lowRelayLayer = lowRelayLayer;
+    setupBaseBitmaps(getLogicalRelayCount());
+}
+
+void QRelayUpperBase::startSet(quint16 ui16BitNo,
+                               bool bSet,
+                               bool bForce)
+{
+    QRelayBase::startSet(ui16BitNo, bSet, bForce);
+    Q_D(QRelayUpperBase);
+    d->m_IdleTimer.start();
+}
+
+const QBitArray &QRelayUpperBase::getLogicalRelayState()
+{
+    Q_D(QRelayUpperBase);
+    // segfault for unset lower layer is ok
+    return d->lowRelayLayer->getLogicalRelayState();
+}
+
+void QRelayUpperBase::onIdleTimer()
+{
+    Q_D(QRelayUpperBase);
+    // in case low layer is still busy - wait for next idle
+    if(d->lowRelayLayer && d->lowRelayLayer->isBusy())
+        return;
+    // A transaction starts
+    process();
+}
+
+void QRelayUpperBase::onLowLayerIdle()
+{
+    Q_D(QRelayBase);
+    if(!isBusy())
+    {
+        // All transactions done -> give notification
+        idleCleanup();
+        emit idle();
+    }
+    else
+        // Transaction continues
+        process();
 }

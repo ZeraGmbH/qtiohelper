@@ -6,17 +6,6 @@
 #include <functional>
 #include "relay_global.h"
 
-// Callback function for asking if lower layer is busy
-typedef std::function<bool()> RelayQueryLowLayerBusy;
-
-// Callback function for switching lower layer
-//  * Only bits which are set in EnableMask are handled - other bits in SetMask are ignored
-//  * NON-BLOCKING:
-//      -return value true (=busy)
-//      -low layer signal idle should be connected to onLowLayerIdle
-//  * BLOCKING:
-//      -return value false - onLowLayerIdle within current layer itself
-typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask, const QObject *pSignalHandler)> RelayStartLowLayerSwitchFunction;
 
 class QRelayBasePrivate;
 
@@ -27,12 +16,9 @@ public:
     QRelayBase(QObject *parent, QRelayBasePrivate *dp);
     virtual ~QRelayBase();
 
-    // setup busy callback
-    void setupCallbackLowLayerBusy(RelayQueryLowLayerBusy callback);
-
     // setup get
-    quint16 getLogicalRelayCount();
-    const QBitArray& getLogicalRelayState();
+    virtual quint16 getLogicalRelayCount();
+    virtual const QBitArray& getLogicalRelayState() = 0;
 
     // and action
     void startSetMulti(const QBitArray& logicalEnableMask,  // our implementation should work for all -> not virtual
@@ -54,10 +40,35 @@ public slots:
 protected:
     virtual void idleCleanup() {}
 
-    void setup(quint16 ui16LogicalArrayInfoCount, RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
+    void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
 
     QRelayBasePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QRelayBase)
+};
+
+class QRelayUpperBasePrivate;
+
+// base class for all layers which have a relay object as lower layer
+class QTRELAYSSHARED_EXPORT QRelayUpperBase : public QRelayBase
+{
+    Q_OBJECT
+public:
+    QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp);
+    void SetLowLayer(QRelayBase* lowRelayLayer);
+    virtual void startSet(quint16 ui16BitNo,
+                          bool bSet,
+                          bool bForce = false);
+    virtual const QBitArray& getLogicalRelayState();
+protected:
+    virtual void process() {}
+
+public slots:
+    virtual void onLowLayerIdle();
+
+private slots:
+    void onIdleTimer();
+
+    Q_DECLARE_PRIVATE(QRelayUpperBase)
 };
 
 #endif // QRelayBase_H

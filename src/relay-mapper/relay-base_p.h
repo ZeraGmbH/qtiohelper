@@ -1,7 +1,7 @@
 #ifndef QRelayBase_P_H
 #define QRelayBase_P_H
 
-#include <QObject>
+#include <QTimer>
 #include "relay-base.h"
 
 class QRelayBasePrivate
@@ -14,17 +14,21 @@ public:
     QBitArray logicalEnableMaskNext;
     QBitArray logicalSetMaskNext;
 
-    // Current state logical (size -> number of logical bits)
-    QBitArray logicalSetMaskCurrent;
-
-    // Low layer callbacks
-    RelayQueryLowLayerBusy CallbackQueryLowLayerBusy;
-    RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch;
-
     // Working vars
     QBitArray logicalBusyMask;
 };
 
+class QRelayUpperBasePrivate : public QRelayBasePrivate
+{
+public:
+    QRelayUpperBasePrivate();
+
+    // collect all startSet and start on idle
+    QTimer m_IdleTimer;
+    // Low layer
+    QRelayBase *lowRelayLayer;
+
+};
 
 #endif // QRelayBase_P_H
 

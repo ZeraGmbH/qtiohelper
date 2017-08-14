@@ -160,18 +160,18 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
     LOGICAL_RELAY_COUNT
   };
   
-  const struct TLogicalRelaisEntry arrRelayMapperSetup[LOGICAL_RELAIS_COUNT] =
+  const struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT] =
   {
     { /* LOGICAL_RELAY_BISTABLE_FOO */
       .ui16OnPosition  = 0, /* on coil is connected to bit 0 of output array */
       .ui16OffPosition = 1, /* off coil is connected to bit 1 of output array */
-      .ui8Flags = RELAIS_PHYS_FLAGS(true, false, false),  /* bistable no inverting pins */
+      .ui8Flags = RELAY_PHYS_FLAGS(true, false, false),  /* bistable no inverting pins */
       .ui8OnTime = 2, // 20ms @ 10ms tick
     },
   
     { /* LOGICAL_RELAY_MONOSTABLE_FOO */
       .ui16OnPosition  = 2, /* on coil is connected to bit 2 of output array */
-      .ui8Flags = RELAIS_PHYS_FLAGS(false, true, false),  /* monotable no inverting pin */
+      .ui8Flags = RELAY_PHYS_FLAGS(false, true, false),  /* monotable no inverting pin */
     }
   };
 

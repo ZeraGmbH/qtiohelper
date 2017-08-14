@@ -4,13 +4,13 @@
 #include "relay-base.h"
 #include <QVector>
 
-enum enRelaisSequencerSwitchTypes
+enum enRelaySequencerSwitchTypes
 {
     /* SWITCH_TRANSPARENT example transition:
      * Initial    Intermediate    End
      * 0000 --------------------> 1010
      */
-    SWITCH_TRANSPARENT = 0, // only for test
+    SWITCH_TRANSPARENT = 0, // default if bit is not member of any group
 
     /* SWITCH_OVERLAPPED_ON example transition:
      * Initial    Intermediate    End
@@ -24,44 +24,44 @@ enum enRelaisSequencerSwitchTypes
      */
     SWITCH_OVERLAPPED_OFF,
 
-    /* SWITCH_PASS_ON example transition:
+    /* SWITCH_PASS_OFF example transition:
      * Initial    Intermediate    End
-     * 1001 --->  1111 ---------> 0101
+     * 1001 --->  0000 ---------> 0101
      */
     SWITCH_PASS_OFF,
 
     /* SWITCH_PASS_ON example transition:
      * Initial    Intermediate    End
-     * 1001 --->  0000 ---------> 0101
+     * 1001 --->  1111 ---------> 0101
      */
     SWITCH_PASS_ON,
 
     SWITCH_UNDEF
 };
 
+struct TRelaySequencerGroup
+{
+    TRelaySequencerGroup(enum enRelaySequencerSwitchTypes relaySequencerSwitchType_, QVector<quint16> arrui16MemberLogRelayNums_ )
+    {
+        relaySequencerSwitchType = relaySequencerSwitchType_;
+        arrui16MemberLogRelayNums = arrui16MemberLogRelayNums_;
+    }
+    enum enRelaySequencerSwitchTypes relaySequencerSwitchType;
+    QVector<quint16> arrui16MemberLogRelayNums;
+};
 
 class QRelaySequencerPrivate;
 
-class QTRELAYSSHARED_EXPORT QRelaySequencer : public QRelayBase
+class QTRELAYSSHARED_EXPORT QRelaySequencer : public QRelayUpperBase
 {
     Q_OBJECT
 public:
     QRelaySequencer(QObject *parent = Q_NULLPTR);
-    // A group of pins set in arrui16MemberRelayNums switches as set in relaisSequencerSwitchType
-    void setup(quint16 ui16LogicalArrayInfoCount,
-               enum enRelaisSequencerSwitchTypes relaisSequencerSwitchType,
-               QVector<quint16> arrui16MemberLogRelayNums,
-               RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch);
 
-    virtual void startSet(quint16 ui16BitNo,
-                          bool bSet,
-                          bool bForce = false);
+    void AddGroup(TRelaySequencerGroup& group);
 
-public slots:
-    virtual void onLowLayerIdle();
-
-private slots:
-    void onIdleTimer();
+protected:
+    virtual void process();
 
 private:
     Q_DECLARE_PRIVATE(QRelaySequencer)
