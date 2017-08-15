@@ -51,7 +51,10 @@ void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
     for(int iBit=0;
         iBit<logicalEnableMask.size() && iBit<getLogicalRelayCount();
         iBit++)
-        startSet(iBit, iBit<logicalSetMask.size() ? logicalSetMask.at(iBit) : false, bForce);
+    {
+        if(logicalEnableMask.at(iBit))
+            startSet(iBit, iBit<logicalSetMask.size() ? logicalSetMask.at(iBit) : false, bForce);
+    }
 }
 
 void QRelayBase::startSet(quint16 ui16BitNo,
