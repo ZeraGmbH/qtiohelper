@@ -467,6 +467,16 @@ int main(int argc, char *argv[])
         );
         for(;currTestCase<testCases.count(); currTestCase++)
         {
+            // For the case that signals are not emitted / handled the application might
+            // hang. To catch this we add a timeout
+            QTimer::singleShot(10000,[&]
+                               ()
+            {   // singleshot timer callback begin
+                qWarning() << "";
+                qWarning("Error!!! Test application seems to hang and is terminated");
+                a.exit(-1);
+            }); // singleshot timer callback end
+
             currCallback = 0;
             bSingleTestError = false;
             timerElapsedTestCase.start();
