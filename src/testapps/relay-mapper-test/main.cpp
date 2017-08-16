@@ -456,6 +456,12 @@ int main(int argc, char *argv[])
     QTimer::singleShot(300,[&]
                        ()
     {   // Timer callback begin
+        int idleCount = 0;
+        // Simple idle counter
+        QObject::connect(
+            &relayMapper, &QRelayMapper::idle,
+            [&]() { idleCount++; }
+        );
         for(;currTestCase<testCases.count(); currTestCase++)
         {
             currCallback = 0;
@@ -491,6 +497,14 @@ int main(int argc, char *argv[])
                 qInfo() << "Actual mask logical Error!!!";
                 qInfo() << "Expected: " << expectedLogicalMask << "reported: " << actualLogicalMask;
             }
+        }
+        // correct number of idles received?
+        if(idleCount==testCases.count())
+            qInfo() << "Idle signals received" << idleCount;
+        else
+        {
+            bTestError = true;
+            qInfo() << "Idle signals received" << idleCount << "Expected: " << testCases.count();
         }
         // End message
         qInfo() << "";
