@@ -28,7 +28,8 @@ public:
     QByteArray arrPinDelayCounter;
 
     // Slice timer
-    QTimer m_SliceTimer;
+    QTimer sliceTimer;
+    int slicePeriod;
 };
 
 

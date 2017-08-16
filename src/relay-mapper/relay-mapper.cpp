@@ -22,7 +22,7 @@ QRelayMapper::QRelayMapper(QObject *parent) :
 {
     Q_D(QRelayMapper);
 
-    connect(&d->m_SliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
+    connect(&d->sliceTimer, &QTimer::timeout, this, &QRelayMapper::onSliceTimer);
 }
 
 void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
@@ -48,9 +48,8 @@ void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
     // keep pointer to setup data
     d->pLogicalInfoArray = pLogicalInfoArray;
 
-    // setup our slice timer
-    d->m_SliceTimer.setSingleShot(false);
-    d->m_SliceTimer.setInterval(iMsecSlice);
+    // keep slice period
+    d->slicePeriod = iMsecSlice;
 }
 
 void QRelayMapper::setupCallbackLowLayerBusy(RelayQueryLowLayerBusy callback)
@@ -73,8 +72,12 @@ void QRelayMapper::startSet(quint16 ui16BitNo,
 
     Q_D(QRelayMapper);
     // relay mapper performs all activity on slice timer
-    if(!d->m_SliceTimer.isActive())
-        d->m_SliceTimer.start();
+    if(!d->sliceTimer.isActive())
+    {
+        d->sliceTimer.setInterval(0);
+        d->sliceTimer.setSingleShot(true);
+        d->sliceTimer.start();
+    }
 }
 
 void QRelayMapper::idleCleanup()
@@ -82,7 +85,7 @@ void QRelayMapper::idleCleanup()
     QRelayBase::idleCleanup();
 
     Q_D(QRelayMapper);
-    d->m_SliceTimer.stop();
+    d->sliceTimer.stop();
 }
 
 void QRelayMapper::onSliceTimer()
@@ -91,6 +94,13 @@ void QRelayMapper::onSliceTimer()
     // in case low layer is still busy - wait for next slice
     if(d->CallbackQueryLowLayerBusy && d->CallbackQueryLowLayerBusy())
         return;
+    // First timer -> turn on periodic
+    if(d->sliceTimer.interval() == 0)
+    {
+        d->sliceTimer.setInterval(d->slicePeriod);
+        d->sliceTimer.setSingleShot(false);
+        d->sliceTimer.start();
+    }
     // prepare output data
     QBitArray physicalEnableMask(d->ui16MaxPhysicalPinHandled+1);
     QBitArray physicalSetMask(d->ui16MaxPhysicalPinHandled+1);
