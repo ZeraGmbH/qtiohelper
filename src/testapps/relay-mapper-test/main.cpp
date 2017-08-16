@@ -142,8 +142,6 @@ int main(int argc, char *argv[])
 
     parser.process(a);
 
-    const int sliceTimerPeriod = 100;   // 100ms
-
     int currTestCase = 0;
     int currCallback = 0;
     QElapsedTimer timer;
@@ -172,7 +170,7 @@ int main(int argc, char *argv[])
     // switch 1
     resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // switch 2
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
@@ -194,7 +192,7 @@ int main(int argc, char *argv[])
     // switch 1
     resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // switch 2
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
@@ -217,7 +215,7 @@ int main(int argc, char *argv[])
     // switch 1
     resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // switch 2
     resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, false);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200));
@@ -245,7 +243,7 @@ int main(int argc, char *argv[])
     resultSetMask.setBit(PIN_BISTABLE_500_1_ON, true);
     resultEnableMask.setBit(PIN_BISTABLE_200_1_ON, true);
     resultSetMask.setBit(PIN_BISTABLE_200_1_ON, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // switch 2
     resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, false);
     resultSetMask.setBit(PIN_BISTABLE_500_1_ON, false);
@@ -278,7 +276,7 @@ int main(int argc, char *argv[])
     // switch 1
     resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // switch 2
     resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
@@ -289,7 +287,32 @@ int main(int argc, char *argv[])
     /* define test case */
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.Description = "Forced Monostable1+3->1";
+    testCase.Description = "Force Monostable1+3->0";
+    testCase.bForce = true;
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_1, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_1, false);     // switch MONOSTABLE_1 -> 0
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_3, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_3, false);     // switch MONOSTABLE_3 -> 0
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_1, false);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_3, false);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
+    expectedData.clear();
+    // switch 1
+    resultEnableMask.setBit(PIN_MONOSTABLE_1, true);
+    resultSetMask.setBit(PIN_MONOSTABLE_1, false);
+    resultEnableMask.setBit(PIN_MONOSTABLE_3, true);
+    resultSetMask.setBit(PIN_MONOSTABLE_3, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.Description = "Monostable1+3->1";
     testCase.bForce = false;
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_1, true);     // switch MONOSTABLE_1 -> 1
@@ -306,7 +329,51 @@ int main(int argc, char *argv[])
     resultSetMask.setBit(PIN_MONOSTABLE_1, true);
     resultEnableMask.setBit(PIN_MONOSTABLE_3, true);
     resultSetMask.setBit(PIN_MONOSTABLE_3, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, sliceTimerPeriod));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.Description = "Monostable1+3->0";
+    testCase.bForce = false;
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_1, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_1, false);     // switch MONOSTABLE_1 -> 0
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_3, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_3, false);     // switch MONOSTABLE_3 -> 0
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_1, false);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_3, false);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
+    expectedData.clear();
+    // switch 1
+    resultEnableMask.setBit(PIN_MONOSTABLE_1, true);
+    resultSetMask.setBit(PIN_MONOSTABLE_1, false);
+    resultEnableMask.setBit(PIN_MONOSTABLE_3, true);
+    resultSetMask.setBit(PIN_MONOSTABLE_3, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.Description = "No OP: Monostable1+3->0 Bistable 200ms->1 / 500ms->0";
+    testCase.bForce = false;
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_1, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_1, false);     // switch MONOSTABLE_1 -> 0
+    testCase.EnableMask.setBit(RELAY_MONOSTABLE_3, true);
+    testCase.SetMask.setBit(RELAY_MONOSTABLE_3, false);     // switch MONOSTABLE_3 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);     // switch RELAY_BISTABLE_500_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, true);     // switch RELAY_BISTABLE_200_1 -> 1
+    // we don't expect callbacks
+    expectedData.clear();
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -317,7 +384,7 @@ int main(int argc, char *argv[])
     InitRelayMapperSetup();
     relayMapper.setup(LOGICAL_RELAY_COUNT,
                       arrRelayMapperSetup,
-                      sliceTimerPeriod,
+                      100,  // 100ms
                       [&]
                       (
                         const QBitArray& EnableMask,
@@ -336,14 +403,17 @@ int main(int argc, char *argv[])
         {
             if(currCallback < testCases[currTestCase].expectedData.size())
             {
-                // Check deviation
-                double expectedDelay = testCases[currTestCase].expectedData[currCallback].msSinceLast;
-                double actualDelay = elapsed;
-                double deviation = (actualDelay-expectedDelay)/expectedDelay;
-                if(fabs(deviation) > 0.1 /* 10 % */)
+                if(testCases[currTestCase].expectedData[currCallback].msSinceLast != 0)
                 {
-                    bTestError = true;
-                    evaluationElapsed = "Error: delay out of limit!!!";
+                    // Check delay deviation
+                    double expectedDelay = testCases[currTestCase].expectedData[currCallback].msSinceLast;
+                    double actualDelay = elapsed;
+                    double deviation = (actualDelay-expectedDelay)/expectedDelay;
+                    if(fabs(deviation) > 0.1 /* 10 % */)
+                    {
+                        bTestError = true;
+                        evaluationElapsed = "Error: delay out of limit!!!";
+                    }
                 }
                 // keep masks
                 expectedEnableMask = testCases[currTestCase].expectedData[currCallback].EnableMask;
