@@ -127,7 +127,7 @@ void QRelayMapper::onSliceTimer()
             }
             else
             {
-                // OFF state Different behaviour for uni-/bistable
+                // OFF state Different behaviour for mono-/bistable
                 if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_BISTABLE))
                 {
                     ui16OutBitPosition = logicalPinInfoEntry.ui16OffPosition;
