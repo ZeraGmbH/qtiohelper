@@ -129,10 +129,10 @@ static void initTestCases(QList<TTestCase> &testCases)
     QBitArray resultSetMask;
 
     /* define test case */
+    testCase.Description = "Forced bistable 500ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.Description = "Forced bistable 500ms->0";
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.expectedFinalDelay = 0; // bistable only
