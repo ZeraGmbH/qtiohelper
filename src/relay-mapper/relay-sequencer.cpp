@@ -26,7 +26,7 @@ void QRelaySequencer::AddGroup(TRelaySequencerGroup &group)
     d->listGroups.append(group);
 }
 
-void QRelaySequencer::process()
+bool QRelaySequencer::process()
 {
     Q_D(QRelaySequencer);
     bool idleOut = false;
@@ -128,10 +128,12 @@ void QRelaySequencer::process()
         idleOut = true;
         break;
     }
-    if(idleOut)
-    {
-        d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
-        d->logicalBusyMask.fill(false);
-        emit idle();
-    }
+    return !idleOut;
+}
+
+void QRelaySequencer::idleCleanup()
+{
+    Q_D(QRelaySequencer);
+    d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
+    d->logicalBusyMask.fill(false);
 }

@@ -133,20 +133,26 @@ void QRelayUpperBase::onIdleTimer()
     // in case low layer is still busy - wait for next idle
     if(d->lowRelayLayer && d->lowRelayLayer->isBusy())
         return;
-    // A transaction starts
-    process();
+    // Does transaction start?
+    if(!process())
+    {
+        // No -> give notification
+        idleCleanup();
+        emit idle();
+    }
 }
 
 void QRelayUpperBase::onLowLayerIdle()
 {
     Q_D(QRelayBase);
-    if(!isBusy())
+    if(isBusy())
     {
-        // All transactions done -> give notification
-        idleCleanup();
-        emit idle();
+        // Transaction continues?
+        if(!process())
+        {
+            // No -> give notification
+            idleCleanup();
+            emit idle();
+        }
     }
-    else
-        // Transaction continues
-        process();
 }

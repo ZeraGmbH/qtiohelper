@@ -61,7 +61,8 @@ public:
     void AddGroup(TRelaySequencerGroup& group);
 
 protected:
-    virtual void process();
+    virtual bool process();
+    virtual void idleCleanup();
 
 private:
     Q_DECLARE_PRIVATE(QRelaySequencer)

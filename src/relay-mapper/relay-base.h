@@ -60,7 +60,7 @@ public:
                           bool bForce = false);
     virtual const QBitArray& getLogicalRelayState();
 protected:
-    virtual void process() {}
+    virtual bool process() = 0;   // true: this layer is still busy
 
 public slots:
     virtual void onLowLayerIdle();
