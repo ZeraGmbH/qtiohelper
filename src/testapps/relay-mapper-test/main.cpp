@@ -5,8 +5,16 @@
 #include <QElapsedTimer>
 #include <math.h>
 #include "../../relay-mapper/relay-mapper.h"
+#include "../../relay-mapper/relay-sequencer.h"
 
-enum enLogicalRelayDefinition
+// slice timer period should be
+// * less than 1/5 of shortest relay
+// * a common divider for all delays
+const int sliceTimerPeriod = 10;
+
+//////////////////////////////////////////////////////////////////
+/// Relay setup for relay mapper only tests
+enum enLogicalRelayDefinitionForMapper
 {
     RELAY_BISTABLE_100_1 = 0,
     RELAY_BISTABLE_100_2,
@@ -21,7 +29,7 @@ enum enLogicalRelayDefinition
     LOGICAL_RELAY_COUNT
 };
 
-enum enPhysPins
+enum enPhysPinsForMapper
 {
     PIN_BISTABLE_100_1_ON = 0,
     PIN_BISTABLE_100_1_OFF,
@@ -39,11 +47,6 @@ enum enPhysPins
 
     PHYSICAL_PIN_COUNT
 };
-
-// slice timer period should be
-// * less than 1/5 of shortest relay
-// * a common divider for all delays
-const int sliceTimerPeriod = 10;
 
 struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
 
@@ -100,6 +103,195 @@ static void initRelayMapperSetup()
     pEntry->ui8OnTime = 600/sliceTimerPeriod; // 600ms
 }
 
+//////////////////////////////////////////////////////////////////
+/// Relay setup for relay mapper + sequenceronly tests
+enum enLogicalRelayDefinitionForSequencer
+{
+    RELAY_TRANSPARENT_1 = 0,
+    RELAY_TRANSPARENT_2,
+    RELAY_TRANSPARENT_3,
+    RELAY_TRANSPARENT_4,
+
+    RELAY_OVERLAPPED_ON_1,
+    RELAY_OVERLAPPED_ON_2,
+    RELAY_OVERLAPPED_ON_3,
+    RELAY_OVERLAPPED_ON_4,
+
+    RELAY_OVERLAPPED_OFF_1,
+    RELAY_OVERLAPPED_OFF_2,
+    RELAY_OVERLAPPED_OFF_3,
+    RELAY_OVERLAPPED_OFF_4,
+
+    RELAY_PASS_ON_1,
+    RELAY_PASS_ON_2,
+    RELAY_PASS_ON_3,
+    RELAY_PASS_ON_4,
+
+    RELAY_PASS_OFF_1,
+    RELAY_PASS_OFF_2,
+    RELAY_PASS_OFF_3,
+    RELAY_PASS_OFF_4,
+
+    LOGICAL_RELAY_COUNT_SEQUENCER
+};
+
+enum enPhysPinsForSequencer
+{
+    PIN_TRANSPARENT_1 = 0,
+    PIN_TRANSPARENT_2,
+    PIN_TRANSPARENT_3,
+    PIN_TRANSPARENT_4,
+
+    PIN_OVERLAPPED_ON_1,
+    PIN_OVERLAPPED_ON_2,
+    PIN_OVERLAPPED_ON_3,
+    PIN_OVERLAPPED_ON_4,
+
+    PIN_OVERLAPPED_OFF_1,
+    PIN_OVERLAPPED_OFF_2,
+    PIN_OVERLAPPED_OFF_3,
+    PIN_OVERLAPPED_OFF_4,
+
+    PIN_PASS_ON_1,
+    PIN_PASS_ON_2,
+    PIN_PASS_ON_3,
+    PIN_PASS_ON_4,
+
+    PIN_PASS_OFF_1,
+    PIN_PASS_OFF_2,
+    PIN_PASS_OFF_3,
+    PIN_PASS_OFF_4,
+
+    PHYSICAL_PIN_COUNT_SEQUENCER
+};
+
+struct TLogicalRelayEntry arrRelayMapperSetupSequencer[LOGICAL_RELAY_COUNT_SEQUENCER];
+
+static void initRelayMapperSetupSequencer()
+{
+    TLogicalRelayEntry* pEntry;
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_1;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_1;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_1;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_2;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_2;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_2;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_3;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_3;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_3;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_4;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_4;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_1;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_1;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_1;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_2;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_2;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_2;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_3;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_3;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_3;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_4;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_4;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_1;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_1;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_1;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_2;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_2;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_2;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_3;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_3;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_3;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_4;
+    pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_4;
+    pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_1;
+    pEntry->ui16OnPosition  = PIN_PASS_ON_1;
+    pEntry->ui16OffPosition = PIN_PASS_ON_1;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_2;
+    pEntry->ui16OnPosition  = PIN_PASS_ON_2;
+    pEntry->ui16OffPosition = PIN_PASS_ON_2;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_3;
+    pEntry->ui16OnPosition  = PIN_PASS_ON_3;
+    pEntry->ui16OffPosition = PIN_PASS_ON_3;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_4;
+    pEntry->ui16OnPosition  = PIN_PASS_ON_4;
+    pEntry->ui16OffPosition = PIN_PASS_ON_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_1;
+    pEntry->ui16OnPosition  = PIN_PASS_OFF_1;
+    pEntry->ui16OffPosition = PIN_PASS_OFF_1;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_2;
+    pEntry->ui16OnPosition  = PIN_PASS_OFF_2;
+    pEntry->ui16OffPosition = PIN_PASS_OFF_2;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_3;
+    pEntry->ui16OnPosition  = PIN_PASS_OFF_3;
+    pEntry->ui16OffPosition = PIN_PASS_OFF_3;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_4;
+    pEntry->ui16OnPosition  = PIN_PASS_OFF_4;
+    pEntry->ui16OffPosition = PIN_PASS_OFF_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+}
+
 struct TExpectedLowLayerData
 {
     TExpectedLowLayerData(QBitArray &EnableMask_, QBitArray &SetMask_,  int delaySinceLast_)
@@ -126,7 +318,7 @@ struct TTestCase
     QList<TExpectedLowLayerData> expectedData;
 };
 
-static void initTestCases(QList<TTestCase> &testCases)
+static void appendTestCasesMapper(QList<TTestCase> &testCases)
 {
     QList<TExpectedLowLayerData> expectedData;
     TTestCase testCase;
@@ -532,8 +724,37 @@ static void initTestCases(QList<TTestCase> &testCases)
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
+}
 
+static void appendTestCasesSequencer(QList<TTestCase> &testCases)
+{
+    QList<TExpectedLowLayerData> expectedData;
+    TTestCase testCase;
+    QBitArray resultEnableMask;
+    QBitArray resultSetMask;
 
+    /* define test case */
+    testCase.Description = "Transparent->1";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_TRANSPARENT_1, true);
+    testCase.SetMask.setBit(RELAY_TRANSPARENT_1, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
+    resultSetMask.setBit(PIN_TRANSPARENT_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
 }
 
 int main(int argc, char *argv[])
@@ -557,7 +778,10 @@ int main(int argc, char *argv[])
 
     // Setup test cases
     QList<TTestCase> testCases;
-    initTestCases(testCases);
+    appendTestCasesMapper(testCases);
+    int relayMapperTestCases = testCases.count();
+    appendTestCasesSequencer(testCases);
+    int relaySequencerTestCases = testCases.count() - relayMapperTestCases;
 
     bool bSingleTestError = false;
     bool bTotalTestError = false;
@@ -574,15 +798,12 @@ int main(int argc, char *argv[])
     {
         return timerForUnblocked.isActive();
     });
-    relayMapper.setup(LOGICAL_RELAY_COUNT,
-                      arrRelayMapperSetup,
-                      sliceTimerPeriod,
-                      [&]
-                      (
-                        const QBitArray& EnableMask,
-                        const QBitArray& SetMask,
-                        const QObject* pCaller
-                      )
+
+    // Relay mapper callback
+    RelayStartLowLayerSwitchFunction CallbackStartLowLayerSwitch = [&] (
+              const QBitArray& EnableMask,
+              const QBitArray& SetMask,
+              const QObject* pCaller)
     {   // relay callback begin
         Q_UNUSED(pCaller)
         qint64 elapsed = timerElapsedTestCase.elapsed();
@@ -648,20 +869,40 @@ int main(int argc, char *argv[])
             timerForUnblocked.start(testCases[currTestCase].lowLayerUnblockedDelayMs);
             return true;
         }
+    };  // relay callback end
 
-    }); // relay callback end
+    relayMapper.setup(LOGICAL_RELAY_COUNT,
+                      arrRelayMapperSetup,
+                      sliceTimerPeriod,
+                      CallbackStartLowLayerSwitch);
 
+    // Relay sequencer
+    QRelaySequencer relaySequencer;
+    initRelayMapperSetupSequencer();
+    relaySequencer.SetLowLayer(&relayMapper);
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
     QTimer::singleShot(300,[&]
                        ()
     {   // singleshot timer callback begin
-        int idleCount = 0;
-        // Simple idle counter
+        int idleCountMapper = 0;
+        int idleCountSequencer = 0;
+        // Simple idle counter for mapper
         QObject::connect(
             &relayMapper, &QRelayMapper::idle,
-            [&]() { idleCount++; }
-        );
+            [&]()
+        {
+            // do not count upper layer signals
+            if(currTestCase<relayMapperTestCases)
+                idleCountMapper++;
+        });
+        // Simple idle counter for sequencer
+        QObject::connect(
+            &relaySequencer, &QRelaySequencer::idle,
+            [&]()
+        {
+            idleCountSequencer++;
+        });
 
         // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
@@ -680,14 +921,24 @@ int main(int argc, char *argv[])
             bSingleTestError = false;
             timerElapsedTestCase.start();
 
-            // run relay mapper blocked
+            // run relay layers blocked by helper event loop
             QEventLoop loop;
-            QObject::connect(&relayMapper, &QRelayMapper::idle, &loop, &QEventLoop::quit);
+            QRelayBase *currentLayer;
+            if(currTestCase<relayMapperTestCases)
+            {
+                currentLayer = &relayMapper;
+                QObject::connect(currentLayer, &QRelayMapper::idle, &loop, &QEventLoop::quit);
+            }
+            else
+            {
+                currentLayer = &relaySequencer;
+                QObject::connect(currentLayer, &QRelaySequencer::idle, &loop, &QEventLoop::quit);
+            }
             if(currTestCase > 0)
                 qInfo() << "";
             qInfo() << "Starting test case:" << testCases[currTestCase].Description;
             if(!testCases[currTestCase].bSetMasksBitByBit)
-                relayMapper.startSetMulti(
+                currentLayer->startSetMulti(
                             testCases[currTestCase].EnableMask,
                             testCases[currTestCase].SetMask,
                             testCases[currTestCase].bForce);
@@ -695,13 +946,13 @@ int main(int argc, char *argv[])
             {
                 qInfo() << "Performing test by bit by bit call";
                 for(qint16 logRelay=0;
-                    logRelay<testCases[currTestCase].EnableMask.size() && logRelay<relayMapper.getLogicalRelayCount();
+                    logRelay<testCases[currTestCase].EnableMask.size() && logRelay<currentLayer->getLogicalRelayCount();
                     logRelay++)
                 {
                     if(testCases[currTestCase].EnableMask.at(logRelay))
                     {
                         bool bSet = logRelay<testCases[currTestCase].SetMask.size() ? testCases[currTestCase].SetMask.at(logRelay) : false;
-                        relayMapper.startSet(logRelay, bSet, testCases[currTestCase].bForce);
+                        currentLayer->startSet(logRelay, bSet, testCases[currTestCase].bForce);
                     }
                 }
             }
@@ -737,7 +988,7 @@ int main(int argc, char *argv[])
             }
             // Check if the logical state is as expected
             QBitArray expectedLogicalMask = testCases[currTestCase].expectedLogicalCurrentMask;
-            QBitArray actualLogicalMask = relayMapper.getLogicalRelayState();
+            QBitArray actualLogicalMask = currentLayer->getLogicalRelayState();
             if(actualLogicalMask == expectedLogicalMask)
                 qInfo() << "Actual mask logical:" << actualLogicalMask;
             else
@@ -750,27 +1001,32 @@ int main(int argc, char *argv[])
         } // test case loop end
 
         // correct number of idles received?
-        if(idleCount==testCases.count())
-        {
-            qInfo() << "";
-            qInfo() << "Idle signals received:" << idleCount;
-        }
+        qInfo() << "";
+        if(idleCountMapper==relayMapperTestCases)
+            qInfo() << "Mapper idle signals:" << idleCountMapper << "OK";
         else
         {
             bTotalTestError = true;
-            qWarning() << "Error!!! Idle signals received" << idleCount << "expected:" << testCases.count();
+            qWarning() << "Error!!! Mapper Idle signals" << idleCountMapper << "expected:" << relayMapperTestCases;
         }
+        if(idleCountSequencer==relaySequencerTestCases)
+            qInfo() << "Sequencer idle signals:" << idleCountSequencer << "OK";
+        else
+        {
+            bTotalTestError = true;
+            qWarning() << "Error!!! Sequencer Idle signals" << idleCountSequencer << "expected:" << relaySequencerTestCases;
+        }
+
+        qInfo() << "";
         qInfo() << "All tests took" << timerElapsedApplication.elapsed()/1000 << "s";
         // End message
         if(!bTotalTestError)
         {
-            qInfo() << "";
             qInfo() << "All tests passed.";
             a.exit(0);
         }
         else
         {
-            qWarning() << "";
             qWarning() << "Error(s) occured!!!";
             a.exit(-1);
         }
