@@ -107,6 +107,7 @@ void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
 {
     Q_D(QRelayUpperBase);
     d->lowRelayLayer = lowRelayLayer;
+    QObject::connect(lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
     setupBaseBitmaps(getLogicalRelayCount());
 }
 
