@@ -525,6 +525,8 @@ int main(int argc, char *argv[])
                         bSingleTestError = true;
                         qWarning() <<  "Error!!! delay out of limit expected:" << delaySinceLast << "actual" << elapsed;
                     }
+                    else
+                        qInfo() <<  "Delay since last:" << elapsed;
                 }
                 // TDB: limits check for 0-delay case?
                 else
