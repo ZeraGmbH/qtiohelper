@@ -24,17 +24,17 @@ enum enRelaySequencerSwitchTypes
      */
     SWITCH_OVERLAPPED_OFF,
 
-    /* SWITCH_PASS_OFF example transition:
-     * Initial    Intermediate    End
-     * 1001 --->  0000 ---------> 0101
-     */
-    SWITCH_PASS_OFF,
-
     /* SWITCH_PASS_ON example transition:
      * Initial    Intermediate    End
      * 1001 --->  1111 ---------> 0101
      */
     SWITCH_PASS_ON,
+
+    /* SWITCH_PASS_OFF example transition:
+     * Initial    Intermediate    End
+     * 1001 --->  0000 ---------> 0101
+     */
+    SWITCH_PASS_OFF,
 
     SWITCH_UNDEF
 };
