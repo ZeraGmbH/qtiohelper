@@ -40,7 +40,7 @@ public slots:
 protected:
     virtual void idleCleanup() {}
 
-    void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
+    virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
 
     QRelayBasePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QRelayBase)

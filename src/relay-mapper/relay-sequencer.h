@@ -61,6 +61,7 @@ public:
     void AddGroup(TRelaySequencerGroup& group);
 
 protected:
+    virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
     virtual bool process();
     virtual void idleCleanup();
 
