@@ -662,6 +662,8 @@ int main(int argc, char *argv[])
             &relayMapper, &QRelayMapper::idle,
             [&]() { idleCount++; }
         );
+
+        // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
         {
             // For the case that signals are not emitted / handled the application might
@@ -677,6 +679,8 @@ int main(int argc, char *argv[])
             currCallback = 0;
             bSingleTestError = false;
             timerElapsedTestCase.start();
+
+            // run relay mapper blocked
             QEventLoop loop;
             QObject::connect(&relayMapper, &QRelayMapper::idle, &loop, &QEventLoop::quit);
             if(currTestCase > 0)
@@ -702,6 +706,7 @@ int main(int argc, char *argv[])
                 }
             }
             loop.exec();
+
             // Check for final delay
             qint64 elapsed = timerElapsedTestCase.elapsed();
             qint64 expectedFinalDelay = testCases[currTestCase].expectedFinalDelay;
@@ -742,7 +747,8 @@ int main(int argc, char *argv[])
             }
             if(bSingleTestError)
                 bTotalTestError = true;
-        }
+        } // test case loop end
+
         // correct number of idles received?
         if(idleCount==testCases.count())
         {
