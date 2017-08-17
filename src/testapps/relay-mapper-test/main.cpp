@@ -40,6 +40,8 @@ enum enPhysPins
     PHYSICAL_PIN_COUNT
 };
 
+const int sliceTimerPeriod = 50;
+
 struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
 
 static void InitRelayMapperSetup()
@@ -50,49 +52,49 @@ static void InitRelayMapperSetup()
     pEntry->ui16OnPosition  = PIN_BISTABLE_500_1_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_500_1_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 5; // 500ms
+    pEntry->ui8OnTime = 500/sliceTimerPeriod; // 500ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_500_2;
     pEntry->ui16OnPosition  = PIN_BISTABLE_500_2_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_500_2_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, true /*on     inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 5; // 500ms
+    pEntry->ui8OnTime = 500/sliceTimerPeriod; // 500ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_200_1;
     pEntry->ui16OnPosition  = PIN_BISTABLE_200_1_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_200_1_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 2; // 200ms
+    pEntry->ui8OnTime = 200/sliceTimerPeriod; // 200ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_200_2;
     pEntry->ui16OnPosition  = PIN_BISTABLE_200_2_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_200_2_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, true /* off      inverted*/),
-    pEntry->ui8OnTime = 2; // 200ms
+    pEntry->ui8OnTime = 200/sliceTimerPeriod; // 200ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_300_1;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_300_1;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_300_1;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 3; // 300ms
+    pEntry->ui8OnTime = 300/sliceTimerPeriod; // 300ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_300_2;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_300_2;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_300_2;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, true /*on     inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 3; // 300ms
+    pEntry->ui8OnTime = 300/sliceTimerPeriod; // 300ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_600_1;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_600_1;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_600_1;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 6; // 600ms
+    pEntry->ui8OnTime = 600/sliceTimerPeriod; // 600ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_600_2;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_600_2;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_600_2;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, true /* off inverted -> should not cause any effect*/),
-    pEntry->ui8OnTime = 6; // 600ms
+    pEntry->ui8OnTime = 600/sliceTimerPeriod; // 600ms
 }
 
 struct TExpectedLowLayerData
@@ -483,11 +485,12 @@ int main(int argc, char *argv[])
     int currCallback = 0;
     QElapsedTimer timerElapsedTestCase;
 
-    // Setup test cases
+    // Timers are not that precise so accept some deviation
     const double maxDelayDeviation = 0.1; /* 10 % */
+
+    // Setup test cases
     QList<TTestCase> testCases;
     initTestCases(testCases);
-
 
     bool bSingleTestError = false;
     bool bTotalTestError = false;
@@ -496,7 +499,7 @@ int main(int argc, char *argv[])
     InitRelayMapperSetup();
     relayMapper.setup(LOGICAL_RELAY_COUNT,
                       arrRelayMapperSetup,
-                      100,  // 100ms
+                      sliceTimerPeriod,
                       [&]
                       (
                         const QBitArray& EnableMask,
