@@ -44,7 +44,7 @@ const int sliceTimerPeriod = 50;
 
 struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
 
-static void InitRelayMapperSetup()
+static void initRelayMapperSetup()
 {
     TLogicalRelayEntry* pEntry;
 
@@ -119,9 +119,9 @@ struct TTestCase
     qint64 expectedFinalDelay;
     bool bForce;
     bool bSetMasksBitByBit;
+    int lowLayerUnblockedDelayMs; // =0 -> blocked otherwise unblocked with delay set here
     QList<TExpectedLowLayerData> expectedData;
 };
-
 
 static void initTestCases(QList<TTestCase> &testCases)
 {
@@ -137,6 +137,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);    // force RELAY_BISTABLE_200_1 -> 0
@@ -161,6 +162,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);    // force RELAY_BISTABLE_200_1 -> 0
     // init compare masks
@@ -184,6 +186,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_200_1, false); // force RELAY_BISTABLE_200_1 -> 0
@@ -209,6 +212,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_500_1, true);     // switch RELAY_BISTABLE_500_1 -> 1
@@ -247,6 +251,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);     // switch RELAY_BISTABLE_500_1 -> 0
@@ -274,6 +279,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600; // monostable max(300,600)
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_300_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
@@ -301,6 +307,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600; // monostable max(300,600)
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_300_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, true);     // switch MONOSTABLE_300_1 -> 1
@@ -328,6 +335,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600; // monostable max(300,600)
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_300_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
@@ -355,6 +363,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // no OP
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_300_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
@@ -376,6 +385,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(true,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = true;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600-500; // monostable max - bistable max
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT);
     // init compare masks
@@ -424,6 +434,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(true,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = true;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600-500; // monostable max - bistable max
     testCase.expectedLogicalCurrentMask.fill(true,LOGICAL_RELAY_COUNT);
     // init compare masks
@@ -467,6 +478,59 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
+    /* define test case */
+    testCase.Description = "Unblocked bistable 500ms->0";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_500_1, false);
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 500; // unblocked
+    testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
+    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // low layer callback 2
+    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500+testCase.lowLayerUnblockedDelayMs));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
+    testCase.Description = "Unblocked bistable 200ms->0";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_200_1, false);
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
+    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, false);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // low layer callback 2
+    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200+testCase.lowLayerUnblockedDelayMs));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+
 }
 
 int main(int argc, char *argv[])
@@ -494,9 +558,19 @@ int main(int argc, char *argv[])
 
     bool bSingleTestError = false;
     bool bTotalTestError = false;
+
+    // Timer to simulate unblocked low layer
+    QTimer timerForUnblocked;
+    timerForUnblocked.setSingleShot(true);
+
     /* setup relay mapper */
     QRelayMapper relayMapper;
-    InitRelayMapperSetup();
+    initRelayMapperSetup();
+    QObject::connect(&timerForUnblocked, &QTimer::timeout, &relayMapper, &QRelayMapper::onLowLayerIdle);
+    relayMapper.setupCallbackLowLayerBusy([&]()
+    {
+        return timerForUnblocked.isActive();
+    });
     relayMapper.setup(LOGICAL_RELAY_COUNT,
                       arrRelayMapperSetup,
                       sliceTimerPeriod,
@@ -526,14 +600,14 @@ int main(int argc, char *argv[])
                     if(fabs(deviation) > maxDelayDeviation)
                     {
                         bSingleTestError = true;
-                        qWarning() <<  "Error!!! delay out of limit expected:" << delaySinceLast << "actual" << elapsed;
+                        qWarning() <<  "Error!!! delay out of limit:" << elapsed << "expected:" << delaySinceLast;
                     }
                     else
-                        qInfo() <<  "Delay since last:" << elapsed;
+                        qInfo() <<  "Delay since last:" << elapsed << "expected:" << delaySinceLast;
                 }
                 // TDB: limits check for 0-delay case?
                 else
-                    qInfo() <<  "Delay since last:" << elapsed;
+                    qInfo() <<  "Delay since last:" << elapsed << "expected:" << delaySinceLast;
 
                 QBitArray expectedEnableMask = testCases[currTestCase].expectedData[currCallback].EnableMask;
                 QBitArray expectedSetMask = testCases[currTestCase].expectedData[currCallback].SetMask;
@@ -564,7 +638,14 @@ int main(int argc, char *argv[])
             qWarning() <<  "Error!!! Test case out of limit";
         }
         currCallback++;
-        return false;
+        if(testCases[currTestCase].lowLayerUnblockedDelayMs==0)
+            return false;
+        else
+        {
+            timerForUnblocked.start(testCases[currTestCase].lowLayerUnblockedDelayMs);
+            return true;
+        }
+
     }); // relay callback end
 
 
@@ -633,11 +714,11 @@ int main(int argc, char *argv[])
                     qWarning() << "Error!!! Final delay out of limit:" << elapsed << "expected:" << expectedFinalDelay;
                 }
                 else
-                    qInfo() << "Final delay:" << elapsed;
+                    qInfo() << "Final delay:" << elapsed << "expected:" << expectedFinalDelay;
             }
             else
                 // TDB: limits check for 0-delay case?
-                qInfo() << "Final delay:" << elapsed;
+                qInfo() << "Final delay:" << elapsed << "expected:" << expectedFinalDelay;
 
             // Check if all expected callbacks were called
             int expectedCallbacks = testCases[currTestCase].expectedData.size();
