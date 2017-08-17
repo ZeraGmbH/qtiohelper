@@ -907,22 +907,23 @@ int main(int argc, char *argv[])
         // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
         {
-            // For the case that signals are not emitted / handled the application might
-            // hang. To catch this we add a timeout
-            QTimer::singleShot(10000,[&]
-                               ()
-            {   // singleshot timer callback begin
-                qWarning() << "";
-                qWarning("Error!!! Test application seems to hang and is terminated");
-                a.exit(-1);
-            }); // singleshot timer callback end
-
             currCallback = 0;
             bSingleTestError = false;
             timerElapsedTestCase.start();
 
             // run relay layers blocked by helper event loop
             QEventLoop loop;
+            // For the case that signals are not emitted / handled the application might
+            // hang. To catch this we add a timeout
+            bool Timeout = false;
+            QTimer timeoutTimer;
+            QObject::connect(&timeoutTimer, &QTimer::timeout, &loop, &QEventLoop::quit);
+            QObject::connect(&timeoutTimer, &QTimer::timeout,
+            [&]()
+            {
+                qWarning("Error!!! Timeout: due to missing idle signals");
+                Timeout = true;
+            });
             QRelayBase *currentLayer;
             if(currTestCase<relayMapperTestCases)
             {
@@ -937,6 +938,7 @@ int main(int argc, char *argv[])
             if(currTestCase > 0)
                 qInfo() << "";
             qInfo() << "Starting test case:" << testCases[currTestCase].Description;
+            timeoutTimer.start(1000);
             if(!testCases[currTestCase].bSetMasksBitByBit)
                 currentLayer->startSetMulti(
                             testCases[currTestCase].EnableMask,
@@ -957,6 +959,8 @@ int main(int argc, char *argv[])
                 }
             }
             loop.exec();
+            if(Timeout)
+                continue;
 
             // Check for final delay
             qint64 elapsed = timerElapsedTestCase.elapsed();
