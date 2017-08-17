@@ -8,10 +8,10 @@
 
 enum enLogicalRelayDefinition
 {
-    RELAY_BISTABLE_500_1 = 0,
-    RELAY_BISTABLE_500_2,
-    RELAY_BISTABLE_200_1,
-    RELAY_BISTABLE_200_2,
+    RELAY_BISTABLE_100_1 = 0,
+    RELAY_BISTABLE_100_2,
+    RELAY_BISTABLE_50_1,
+    RELAY_BISTABLE_50_2,
 
     RELAY_MONOSTABLE_300_1,
     RELAY_MONOSTABLE_300_2,
@@ -23,14 +23,14 @@ enum enLogicalRelayDefinition
 
 enum enPhysPins
 {
-    PIN_BISTABLE_500_1_ON = 0,
-    PIN_BISTABLE_500_1_OFF,
-    PIN_BISTABLE_500_2_ON,
-    PIN_BISTABLE_500_2_OFF,
-    PIN_BISTABLE_200_1_ON,
-    PIN_BISTABLE_200_1_OFF,
-    PIN_BISTABLE_200_2_ON,
-    PIN_BISTABLE_200_2_OFF,
+    PIN_BISTABLE_100_1_ON = 0,
+    PIN_BISTABLE_100_1_OFF,
+    PIN_BISTABLE_100_2_ON,
+    PIN_BISTABLE_100_2_OFF,
+    PIN_BISTABLE_50_1_ON,
+    PIN_BISTABLE_50_1_OFF,
+    PIN_BISTABLE_50_2_ON,
+    PIN_BISTABLE_50_2_OFF,
 
     PIN_MONOSTABLE_300_1,
     PIN_MONOSTABLE_300_2,
@@ -40,7 +40,10 @@ enum enPhysPins
     PHYSICAL_PIN_COUNT
 };
 
-const int sliceTimerPeriod = 50;
+// slice timer period should be
+// * less than 1/5 of shortest relay
+// * a common divider for all delays
+const int sliceTimerPeriod = 10;
 
 struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
 
@@ -48,29 +51,29 @@ static void initRelayMapperSetup()
 {
     TLogicalRelayEntry* pEntry;
 
-    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_500_1;
-    pEntry->ui16OnPosition  = PIN_BISTABLE_500_1_ON;
-    pEntry->ui16OffPosition = PIN_BISTABLE_500_1_OFF;
+    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_100_1;
+    pEntry->ui16OnPosition  = PIN_BISTABLE_100_1_ON;
+    pEntry->ui16OffPosition = PIN_BISTABLE_100_1_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 500/sliceTimerPeriod; // 500ms
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
-    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_500_2;
-    pEntry->ui16OnPosition  = PIN_BISTABLE_500_2_ON;
-    pEntry->ui16OffPosition = PIN_BISTABLE_500_2_OFF;
+    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_100_2;
+    pEntry->ui16OnPosition  = PIN_BISTABLE_100_2_ON;
+    pEntry->ui16OffPosition = PIN_BISTABLE_100_2_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, true /*on     inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 500/sliceTimerPeriod; // 500ms
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
-    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_200_1;
-    pEntry->ui16OnPosition  = PIN_BISTABLE_200_1_ON;
-    pEntry->ui16OffPosition = PIN_BISTABLE_200_1_OFF;
+    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_50_1;
+    pEntry->ui16OnPosition  = PIN_BISTABLE_50_1_ON;
+    pEntry->ui16OffPosition = PIN_BISTABLE_50_1_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, false /* off not inverted*/),
-    pEntry->ui8OnTime = 200/sliceTimerPeriod; // 200ms
+    pEntry->ui8OnTime = 50/sliceTimerPeriod; // 50ms
 
-    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_200_2;
-    pEntry->ui16OnPosition  = PIN_BISTABLE_200_2_ON;
-    pEntry->ui16OffPosition = PIN_BISTABLE_200_2_OFF;
+    pEntry = arrRelayMapperSetup + RELAY_BISTABLE_50_2;
+    pEntry->ui16OnPosition  = PIN_BISTABLE_50_2_ON;
+    pEntry->ui16OffPosition = PIN_BISTABLE_50_2_OFF;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, true /* off      inverted*/),
-    pEntry->ui8OnTime = 200/sliceTimerPeriod; // 200ms
+    pEntry->ui8OnTime = 50/sliceTimerPeriod; // 50ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_300_1;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_300_1;
@@ -131,7 +134,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     QBitArray resultSetMask;
 
     /* define test case */
-    testCase.Description = "Forced bistable 500ms->0";
+    testCase.Description = "Forced bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -139,136 +142,136 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);    // force RELAY_BISTABLE_200_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);    // force RELAY_BISTABLE_50_1 -> 0
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Forced bistable 500ms->0 (2nd time: check force)";
+    testCase.Description = "Forced bistable 100ms->0 (2nd time: check force)";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);    // force RELAY_BISTABLE_200_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);    // force RELAY_BISTABLE_50_1 -> 0
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Forced bistable 200ms->0 + ignore 500ms->1";
+    testCase.Description = "Forced bistable 50ms->0 + ignore 100ms->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, false); // force RELAY_BISTABLE_200_1 -> 0
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, false);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, true);  // ignore RELAY_BISTABLE_500_1 -> 1 (ignored)
+    testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_50_1, false); // force RELAY_BISTABLE_50_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, false);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, true);  // ignore RELAY_BISTABLE_100_1 -> 1 (ignored)
     expectedData.clear();
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200));
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Bistable 200ms->1 / 500ms->1";
+    testCase.Description = "Bistable 50ms->1 / 100ms->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, true);     // switch RELAY_BISTABLE_500_1 -> 1
-    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, true);     // switch RELAY_BISTABLE_200_1 -> 1
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_200_1, true);
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, true);     // switch RELAY_BISTABLE_100_1 -> 1
+    testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_50_1, true);     // switch RELAY_BISTABLE_50_1 -> 1
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_50_1, true);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_ON, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, false);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_ON, false);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200));
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, false);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_ON, false);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
     // low layer callback 3
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_ON, false);
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_ON, false);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500-200));
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_ON, false);
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, false);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Bistable 200ms->1 (no change) / 500ms-> 0";
+    testCase.Description = "Bistable 50ms->1 (no change) / 100ms-> 0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 0; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);     // switch RELAY_BISTABLE_500_1 -> 0
-    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, true);     // switch RELAY_BISTABLE_200_1 -> 1 (no change)
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_500_1, false);
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);     // switch RELAY_BISTABLE_100_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_50_1, true);     // switch RELAY_BISTABLE_50_1 -> 1 (no change)
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, false);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500));
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -358,7 +361,7 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "No OP: Monostable300+600->0 Bistable 200ms->1 / 500ms->0";
+    testCase.Description = "No OP: Monostable300+600->0 Bistable 50ms->1 / 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
@@ -369,10 +372,10 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_600_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_600_1, false);     // switch MONOSTABLE_600_1 -> 0
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);     // switch RELAY_BISTABLE_500_1 -> 0
-    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, true);     // switch RELAY_BISTABLE_200_1 -> 1
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);     // switch RELAY_BISTABLE_100_1 -> 0
+    testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_50_1, true);     // switch RELAY_BISTABLE_50_1 -> 1
     // we don't expect callbacks here
     expectedData.clear();
     // add testcase
@@ -386,21 +389,21 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = true;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
-    testCase.expectedFinalDelay = 600-500; // monostable max - bistable max
+    testCase.expectedFinalDelay = 600-100; // monostable max - bistable max
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultEnableMask.setBit(PIN_BISTABLE_500_2_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_2_OFF, true);
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    resultEnableMask.setBit(PIN_BISTABLE_200_2_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_2_OFF, false); // inverted
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_2_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_2_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_50_2_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_2_OFF, false); // inverted
     resultEnableMask.setBit(PIN_MONOSTABLE_300_1, true);
     resultSetMask.setBit(PIN_MONOSTABLE_300_1, false);
     resultEnableMask.setBit(PIN_MONOSTABLE_300_2, true);
@@ -413,17 +416,17 @@ static void initTestCases(QList<TTestCase> &testCases)
     // low layer callback 2
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, false);
-    resultEnableMask.setBit(PIN_BISTABLE_200_2_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_2_OFF, true); // inverted
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200));
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
+    resultEnableMask.setBit(PIN_BISTABLE_50_2_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_2_OFF, true); // inverted
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
     // low layer callback 3
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultEnableMask.setBit(PIN_BISTABLE_500_2_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500-200));
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_2_OFF, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -435,21 +438,21 @@ static void initTestCases(QList<TTestCase> &testCases)
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = true;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
-    testCase.expectedFinalDelay = 600-500; // monostable max - bistable max
+    testCase.expectedFinalDelay = 600-100; // monostable max - bistable max
     testCase.expectedLogicalCurrentMask.fill(true,LOGICAL_RELAY_COUNT);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultEnableMask.setBit(PIN_BISTABLE_500_2_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_2_ON, false); // inverted
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_ON, true);
-    resultEnableMask.setBit(PIN_BISTABLE_200_2_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_2_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_2_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_2_ON, false); // inverted
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_50_2_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_2_ON, true);
     resultEnableMask.setBit(PIN_MONOSTABLE_300_1, true);
     resultSetMask.setBit(PIN_MONOSTABLE_300_1, true);
     resultEnableMask.setBit(PIN_MONOSTABLE_300_2, true);
@@ -462,70 +465,70 @@ static void initTestCases(QList<TTestCase> &testCases)
     // low layer callback 2
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_ON, false);
-    resultEnableMask.setBit(PIN_BISTABLE_200_2_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_2_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200));
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
+    resultEnableMask.setBit(PIN_BISTABLE_50_2_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_2_ON, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
     // low layer callback 3
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_ON, true);
-    resultEnableMask.setBit(PIN_BISTABLE_500_2_ON, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_2_ON, true); // inverted
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500-200));
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_2_ON, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_2_ON, true); // inverted
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Unblocked bistable 500ms->0";
+    testCase.Description = "Unblocked bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_500_1, false);
-    testCase.bForce = false;
-    testCase.bSetMasksBitByBit = false;
-    testCase.lowLayerUnblockedDelayMs = 500; // unblocked
-    testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_500_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_500_1, false);
-    // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
-    expectedData.clear();
-    // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
-    // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_500_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 500+testCase.lowLayerUnblockedDelayMs));
-    // add testcase
-    testCase.expectedData = expectedData;
-    testCases.append(testCase);
-
-    /* define test case */
-    testCase.Description = "Unblocked bistable 200ms->0";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_200_1, false);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, false);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 100; // unblocked
     testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
-    testCase.EnableMask.setBit(RELAY_BISTABLE_200_1, true);
-    testCase.SetMask.setBit(RELAY_BISTABLE_200_1, false);
+    testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     expectedData.clear();
     // low layer callback 1
-    resultEnableMask.setBit(PIN_BISTABLE_200_1_OFF, true);
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, true);
+    resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
     // low layer callback 2
-    resultSetMask.setBit(PIN_BISTABLE_200_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 200+testCase.lowLayerUnblockedDelayMs));
+    resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100+testCase.lowLayerUnblockedDelayMs));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
+    testCase.Description = "Unblocked bistable 50ms->0";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_50_1, false);
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
+    testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
+    testCase.SetMask.setBit(RELAY_BISTABLE_50_1, false);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // low layer callback 2
+    resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50+testCase.lowLayerUnblockedDelayMs));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
