@@ -94,11 +94,8 @@ void QRelayBase::onLowLayerIdle()
 {
     Q_D(QRelayBase);
     if(!isBusy())
-    {
         // All transactions done -> give notification
-        idleCleanup();
         emit idle();
-    }
 }
 
 // ************************** QRelayUpperBase
@@ -151,24 +148,15 @@ void QRelayUpperBase::onIdleTimer()
         return;
     // Does transaction start?
     if(!process())
-    {
         // No -> give notification
-        idleCleanup();
         emit idle();
-    }
 }
 
 void QRelayUpperBase::onLowLayerIdle()
 {
     Q_D(QRelayBase);
-    if(isBusy())
-    {
-        // Transaction continues?
-        if(!process())
-        {
-            // No -> give notification
-            idleCleanup();
-            emit idle();
-        }
-    }
+    // Transaction continues?
+    if(isBusy() && !process())
+        // No -> give notification
+        emit idle();
 }

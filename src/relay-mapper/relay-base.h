@@ -38,8 +38,6 @@ public slots:
     virtual void onLowLayerIdle();
 
 protected:
-    virtual void idleCleanup() {}
-
     virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
 
     QRelayBasePrivate *d_ptr;

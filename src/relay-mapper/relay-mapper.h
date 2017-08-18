@@ -68,9 +68,6 @@ public:
                                bool bForce = false);
     virtual const QBitArray& getLogicalRelayState();
 
-protected:
-    virtual void idleCleanup();
-
 private slots:
     void onSliceTimer();
 

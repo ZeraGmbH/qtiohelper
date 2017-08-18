@@ -77,14 +77,6 @@ void QRelayMapper::startSetMulti(const QBitArray &logicalEnableMask, const QBitA
     }
 }
 
-void QRelayMapper::idleCleanup()
-{
-    QRelayBase::idleCleanup();
-
-    Q_D(QRelayMapper);
-    d->sliceTimer.stop();
-}
-
 void QRelayMapper::onSliceTimer()
 {
     Q_D(QRelayMapper);
@@ -201,5 +193,11 @@ void QRelayMapper::onSliceTimer()
     }
     // There is either nothing to do for low layer or low layer signalled blocked call (so it is finished)
     if(!bLowerLayerBusy)
+    {
         onLowLayerIdle();
+        // If upper layer did not start another transaction
+        if(!isBusy())
+            // stop periodic timer
+            d->sliceTimer.stop();
+    }
 }
