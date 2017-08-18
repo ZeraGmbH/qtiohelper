@@ -749,9 +749,10 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     /* define test case */
     testCase.Description = "Transparent->1";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.setBit(PIN_TRANSPARENT_1, true);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -921,6 +922,10 @@ int main(int argc, char *argv[])
         // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
         {
+            if(currTestCase > 0)
+                qInfo() << "";
+            qInfo() << "Starting test case:" << testCases[currTestCase].Description;
+
             currCallback = 0;
             bSingleTestError = false;
             timerElapsedTestCase.start();
@@ -938,6 +943,7 @@ int main(int argc, char *argv[])
                 qWarning("Error!!! Timeout: due to missing idle signals");
                 Timeout = true;
             });
+            // Select the layer we are working on
             QRelayBase *currentLayer;
             if(currTestCase<relayMapperTestCases)
             {
@@ -949,9 +955,18 @@ int main(int argc, char *argv[])
                 currentLayer = &relaySequencer;
                 QObject::connect(currentLayer, &QRelaySequencer::idle, &loop, &QEventLoop::quit);
             }
-            if(currTestCase > 0)
-                qInfo() << "";
-            qInfo() << "Starting test case:" << testCases[currTestCase].Description;
+            // reconfigure relay-mapper
+            if(currTestCase==relayMapperTestCases)
+            {
+                // In real world applications reconfigure of relay-mapper should not be necessary
+                relayMapper.setup(LOGICAL_RELAY_COUNT_SEQUENCER,
+                                  arrRelayMapperSetupSequencer,
+                                  sliceTimerPeriod,
+                                  CallbackStartLowLayerSwitch);
+                // inform relaySequencer that relay-mapper has changed configuration
+                relaySequencer.SetLowLayer(&relayMapper);
+            }
+            // run startSetMulti or / startSet as set in test case
             timeoutTimer.start(1000);
             if(!testCases[currTestCase].bSetMasksBitByBit)
                 currentLayer->startSetMulti(
