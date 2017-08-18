@@ -335,14 +335,20 @@ static void initRelaySequencerSetup(QRelaySequencer &relaySequencer)
 
 struct TExpectedLowLayerData
 {
-    TExpectedLowLayerData(QBitArray &EnableMask_, QBitArray &SetMask_,  int delaySinceLast_)
+    TExpectedLowLayerData(
+            const QBitArray &EnableMask_,
+            const QBitArray &SetMask_,
+            const QBitArray &LogicalMask_,
+            int delaySinceLast_)
     {
         EnableMask = EnableMask_;
         SetMask = SetMask_;
         delaySinceLast = delaySinceLast_;
+        LogicalMask = LogicalMask_;
     }
     QBitArray EnableMask;
     QBitArray SetMask;
+    QBitArray LogicalMask;  // ignore in case of size = 0
     int delaySinceLast;
 };
 
@@ -351,7 +357,6 @@ struct TTestCase
     QString Description;
     QBitArray EnableMask;
     QBitArray SetMask;
-    QBitArray expectedLogicalCurrentMask;
     qint64 expectedFinalDelay;
     bool bForce;
     bool bSetMasksBitByBit;
@@ -365,12 +370,13 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     TTestCase testCase;
     QBitArray resultEnableMask;
     QBitArray resultSetMask;
+    QBitArray resultLogicalMask;
+    resultLogicalMask.resize(LOGICAL_RELAY_COUNT);
 
     // define test case
     testCase.Description = "Forced bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -384,10 +390,10 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(),  0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -408,10 +414,10 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -434,10 +440,10 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -454,8 +460,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_BISTABLE_100_1, true);     // switch RELAY_BISTABLE_100_1 -> 1
     testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_50_1, true);     // switch RELAY_BISTABLE_50_1 -> 1
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, true);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_50_1, true);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -465,18 +469,20 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_BISTABLE_100_1_ON, true);
     resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, true);
     resultSetMask.setBit(PIN_BISTABLE_50_1_ON, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, false);
     resultSetMask.setBit(PIN_BISTABLE_100_1_ON, false);
     resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 50));
     // low layer callback 3
     resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
     resultSetMask.setBit(PIN_BISTABLE_100_1_ON, false);
     resultEnableMask.setBit(PIN_BISTABLE_50_1_ON, false);
     resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
+    resultLogicalMask.setBit(RELAY_BISTABLE_100_1, true);
+    resultLogicalMask.setBit(RELAY_BISTABLE_50_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -493,7 +499,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);     // switch RELAY_BISTABLE_100_1 -> 0
     testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_50_1, true);     // switch RELAY_BISTABLE_50_1 -> 1 (no change)
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, false);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -501,10 +506,11 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
+    resultLogicalMask.setBit(RELAY_BISTABLE_100_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -521,8 +527,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_600_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_600_1, false);     // switch MONOSTABLE_600_1 -> 0
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_300_1, false);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_600_1, false);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -532,7 +536,9 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_MONOSTABLE_300_1, false);
     resultEnableMask.setBit(PIN_MONOSTABLE_600_1, true);
     resultSetMask.setBit(PIN_MONOSTABLE_600_1, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_300_1, false);
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_600_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -549,8 +555,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, true);     // switch MONOSTABLE_300_1 -> 1
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_600_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_600_1, true);     // switch MONOSTABLE_600_1 -> 1
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_300_1, true);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_600_1, true);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -560,7 +564,9 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_MONOSTABLE_300_1, true);
     resultEnableMask.setBit(PIN_MONOSTABLE_600_1, true);
     resultSetMask.setBit(PIN_MONOSTABLE_600_1, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_300_1, true);
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_600_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -577,8 +583,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_MONOSTABLE_300_1, false);     // switch MONOSTABLE_300_1 -> 0
     testCase.EnableMask.setBit(RELAY_MONOSTABLE_600_1, true);
     testCase.SetMask.setBit(RELAY_MONOSTABLE_600_1, false);     // switch MONOSTABLE_600_1 -> 0
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_300_1, false);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_MONOSTABLE_600_1, false);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -588,7 +592,9 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_MONOSTABLE_300_1, false);
     resultEnableMask.setBit(PIN_MONOSTABLE_600_1, true);
     resultSetMask.setBit(PIN_MONOSTABLE_600_1, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_300_1, false);
+    resultLogicalMask.setBit(RELAY_MONOSTABLE_600_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -637,7 +643,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = true;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600-100; // monostable max - bistable max
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -659,7 +664,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_MONOSTABLE_600_1, false);
     resultEnableMask.setBit(PIN_MONOSTABLE_600_2, true);
     resultSetMask.setBit(PIN_MONOSTABLE_600_2, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -667,13 +672,14 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
     resultEnableMask.setBit(PIN_BISTABLE_50_2_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_50_2_OFF, true); // inverted
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 50));
     // low layer callback 3
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     resultEnableMask.setBit(PIN_BISTABLE_100_2_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
+    resultLogicalMask.fill(false,LOGICAL_RELAY_COUNT);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -686,7 +692,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = true;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 600-100; // monostable max - bistable max
-    testCase.expectedLogicalCurrentMask.fill(true,LOGICAL_RELAY_COUNT);
     // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -708,7 +713,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_MONOSTABLE_600_1, true);
     resultEnableMask.setBit(PIN_MONOSTABLE_600_2, true);
     resultSetMask.setBit(PIN_MONOSTABLE_600_2, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
@@ -716,14 +721,15 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_BISTABLE_50_1_ON, false);
     resultEnableMask.setBit(PIN_BISTABLE_50_2_ON, true);
     resultSetMask.setBit(PIN_BISTABLE_50_2_ON, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 50));
     // low layer callback 3
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT);
     resultEnableMask.setBit(PIN_BISTABLE_100_1_ON, true);
     resultEnableMask.setBit(PIN_BISTABLE_100_2_ON, true);
     resultSetMask.setBit(PIN_BISTABLE_100_2_ON, true); // inverted
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100-50));
+    resultLogicalMask.fill(true,LOGICAL_RELAY_COUNT);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100-50));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -732,7 +738,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.Description = "Unblocked bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_100_1, false);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 100; // unblocked
@@ -746,10 +751,11 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_100_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_100_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100+testCase.lowLayerUnblockedDelayMs));
+    resultLogicalMask.setBit(RELAY_BISTABLE_100_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100+testCase.lowLayerUnblockedDelayMs));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -758,7 +764,6 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.Description = "Unblocked bistable 50ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_BISTABLE_50_1, false);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 100; // unblocked
@@ -772,10 +777,11 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_BISTABLE_50_1_OFF, true);
     resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultSetMask.setBit(PIN_BISTABLE_50_1_OFF, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 50+testCase.lowLayerUnblockedDelayMs));
+    resultLogicalMask.setBit(RELAY_BISTABLE_50_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 50+testCase.lowLayerUnblockedDelayMs));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -787,13 +793,13 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     TTestCase testCase;
     QBitArray resultEnableMask;
     QBitArray resultSetMask;
+    QBitArray resultLogicalMask;
+    resultLogicalMask.resize(LOGICAL_RELAY_COUNT_SEQUENCER);
 
     // define test case
     testCase.Description = "Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -807,7 +813,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
     resultSetMask.setBit(PIN_TRANSPARENT_1, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_TRANSPARENT_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -816,8 +823,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.Description = "Forced Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -831,7 +836,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
     resultSetMask.setBit(PIN_TRANSPARENT_1, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_TRANSPARENT_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -840,8 +846,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.Description = "Transparent(1)/2/3/4->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -855,7 +859,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.fill(true, PIN_TRANSPARENT_2, PIN_TRANSPARENT_4+1);
     resultSetMask.fill(true, PIN_TRANSPARENT_2, PIN_TRANSPARENT_4+1);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -864,9 +869,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.Description = "Overlapped_On->1001";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.resize(LOGICAL_RELAY_COUNT_SEQUENCER); // keep prev or init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_OVERLAPPED_ON_1, true);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_OVERLAPPED_ON_4, true);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -884,7 +886,9 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_4, true);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_1, true);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_4, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_1, true);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_4, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -893,9 +897,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.Description = "Overlapped_On->0101";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.resize(LOGICAL_RELAY_COUNT_SEQUENCER); // keep prev or init
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_OVERLAPPED_ON_1, false);
-    testCase.expectedLogicalCurrentMask.setBit(RELAY_OVERLAPPED_ON_2, true);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -912,13 +913,15 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_2, true);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_2, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
     // low layer callback 2
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_1, true);
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_2, false);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_1, false);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_2, false);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 100));
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_1, false);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_2, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
@@ -1003,6 +1006,7 @@ int main(int argc, char *argv[])
 
                 QBitArray expectedEnableMask = testCases[currTestCase].expectedData[currCallback].EnableMask;
                 QBitArray expectedSetMask = testCases[currTestCase].expectedData[currCallback].SetMask;
+                QBitArray expectedLogicalMask = testCases[currTestCase].expectedData[currCallback].LogicalMask;
                 if(expectedEnableMask == EnableMask)
                     qInfo() << "EnableMask:" << EnableMask << "OK";
                 else
@@ -1016,6 +1020,18 @@ int main(int argc, char *argv[])
                 {
                     bSingleTestError = true;
                     qWarning() << "Error!!! SetMask:   " << SetMask << "expected" << expectedSetMask;
+                }
+                if(expectedLogicalMask.size() > 0)
+                {
+                    // Check if the logical state is as expected
+                    QBitArray actualLogicalMask = relayMapper.getLogicalRelayState();
+                    if(actualLogicalMask == expectedLogicalMask)
+                        qInfo() << "Actual mask logical:" << actualLogicalMask << "OK";
+                    else
+                    {
+                        bSingleTestError = true;
+                        qWarning() << "Error!!! Actual mask logical expected:" << expectedLogicalMask << "reported:" << actualLogicalMask;
+                    }
                 }
             }
             else
@@ -1178,16 +1194,6 @@ int main(int argc, char *argv[])
             {
                 bSingleTestError = true;
                 qWarning() << "Error!!! To few callback called expected:" << expectedCallbacks << "received:" << currCallback;
-            }
-            // Check if the logical state is as expected
-            QBitArray expectedLogicalMask = testCases[currTestCase].expectedLogicalCurrentMask;
-            QBitArray actualLogicalMask = currentLayer->getLogicalRelayState();
-            if(actualLogicalMask == expectedLogicalMask)
-                qInfo() << "Actual mask logical:" << actualLogicalMask;
-            else
-            {
-                bSingleTestError = true;
-                qWarning() << "Error!!! Actual mask logical expected:" << expectedLogicalMask << "reported:" << actualLogicalMask;
             }
             if(bSingleTestError)
                 bTotalTestError = true;
