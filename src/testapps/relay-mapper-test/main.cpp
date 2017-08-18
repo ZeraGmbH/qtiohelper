@@ -135,14 +135,10 @@ enum enLogicalRelayDefinitionForSequencer
     LOGICAL_RELAY_COUNT_SEQUENCER
 };
 
+// change order to logical relays by intention
 enum enPhysPinsForSequencer
 {
-    PIN_TRANSPARENT_1 = 0,
-    PIN_TRANSPARENT_2,
-    PIN_TRANSPARENT_3,
-    PIN_TRANSPARENT_4,
-
-    PIN_OVERLAPPED_ON_1,
+    PIN_OVERLAPPED_ON_1 = 0,
     PIN_OVERLAPPED_ON_2,
     PIN_OVERLAPPED_ON_3,
     PIN_OVERLAPPED_ON_4,
@@ -161,6 +157,11 @@ enum enPhysPinsForSequencer
     PIN_PASS_OFF_2,
     PIN_PASS_OFF_3,
     PIN_PASS_OFF_4,
+
+    PIN_TRANSPARENT_1,
+    PIN_TRANSPARENT_2,
+    PIN_TRANSPARENT_3,
+    PIN_TRANSPARENT_4,
 
     PHYSICAL_PIN_COUNT_SEQUENCER
 };
