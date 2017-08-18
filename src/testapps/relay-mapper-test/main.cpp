@@ -865,7 +865,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF start)
+    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_ON start)
     testCase.Description = "Overlapped_On->1001";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
@@ -893,7 +893,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF target)
+    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_ON target)
     testCase.Description = "Overlapped_On->0101";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
