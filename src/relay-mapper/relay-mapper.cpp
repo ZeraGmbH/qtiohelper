@@ -73,7 +73,6 @@ void QRelayMapper::startSetMulti(const QBitArray &logicalEnableMask, const QBitA
     if(!d->sliceTimer.isActive())
     {
         d->sliceTimer.setInterval(0);
-        d->sliceTimer.setSingleShot(true);
         d->sliceTimer.start();
     }
 }
@@ -96,7 +95,6 @@ void QRelayMapper::onSliceTimer()
     if(d->sliceTimer.interval() == 0)
     {
         d->sliceTimer.setInterval(d->slicePeriod);
-        d->sliceTimer.setSingleShot(false);
         d->sliceTimer.start();
     }
     // prepare output data
