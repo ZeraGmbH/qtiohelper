@@ -366,7 +366,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     QBitArray resultEnableMask;
     QBitArray resultSetMask;
 
-    /* define test case */
+    // define test case
     testCase.Description = "Forced bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -392,7 +392,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Forced bistable 100ms->0 (2nd time: check force)";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -416,7 +416,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Forced bistable 50ms->0 + ignore 100ms->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -442,7 +442,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Bistable 50ms->1 / 100ms->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -481,7 +481,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Bistable 50ms->1 (no change) / 100ms-> 0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -509,7 +509,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Force Monostable_300+600->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -537,7 +537,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Monostable300+600->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -565,7 +565,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Monostable300+600->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -593,7 +593,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "No OP: Monostable300+600->0 Bistable 50ms->1 / 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -615,7 +615,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "No OP";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -629,7 +629,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Force+Serial all relays -> 0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(true,LOGICAL_RELAY_COUNT); // init
@@ -678,7 +678,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Serial all relays -> 1";
     testCase.SetMask.fill(true,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(true,LOGICAL_RELAY_COUNT); // init
@@ -728,7 +728,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Unblocked bistable 100ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -754,7 +754,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Unblocked bistable 50ms->0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
@@ -788,7 +788,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     QBitArray resultEnableMask;
     QBitArray resultSetMask;
 
-    /* define test case */
+    // define test case
     testCase.Description = "Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
@@ -812,7 +812,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Forced Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
@@ -836,7 +836,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
-    /* define test case */
+    // define test case
     testCase.Description = "Transparent(1)/2/3/4->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
