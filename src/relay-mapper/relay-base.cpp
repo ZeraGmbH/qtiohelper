@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "relay-base.h"
 #include "relay-base_p.h"
 
@@ -48,12 +49,17 @@ void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
                                bool bForce)
 {
     Q_D(QRelayBase);
-    for(int iBit=0;
-        iBit<logicalEnableMask.size() && iBit<getLogicalRelayCount();
-        iBit++)
+    for(int ui16BitNo=0;
+        ui16BitNo<logicalEnableMask.size() && ui16BitNo<getLogicalRelayCount();
+        ui16BitNo++)
     {
-        if(logicalEnableMask.at(iBit))
-            startSet(iBit, iBit<logicalSetMask.size() ? logicalSetMask.at(iBit) : false, bForce);
+        // set bit data for enabled and (forced) changing bits only
+        if( logicalEnableMask.at(ui16BitNo) &&
+            (bForce || logicalSetMask.at(ui16BitNo) != getLogicalRelayState().at(ui16BitNo)))
+        {
+            d->logicalEnableMaskNext.setBit(ui16BitNo);
+            d->logicalSetMaskNext.setBit(ui16BitNo, logicalSetMask.at(ui16BitNo));
+        }
     }
 }
 
@@ -62,14 +68,18 @@ void QRelayBase::startSet(quint16 ui16BitNo,
                           bool bForce)
 {
     Q_D(QRelayBase);
-    if(ui16BitNo < getLogicalRelayCount())
+    quint16 ui16LogicalArrayCount = getLogicalRelayCount();
+    QBitArray logicalEnableMask = QBitArray(ui16LogicalArrayCount);
+    QBitArray logicalSetMask = QBitArray(ui16LogicalArrayCount);
+    if(ui16BitNo < ui16LogicalArrayCount)
     {
-        if(bForce || bSet != getLogicalRelayState().at(ui16BitNo))
-        {
-            d->logicalEnableMaskNext.setBit(ui16BitNo);
-            d->logicalSetMaskNext.setBit(ui16BitNo, bSet);
-        }
+        logicalEnableMask.setBit(ui16BitNo);
+        logicalSetMask.setBit(ui16BitNo, bSet);
     }
+    else
+        qWarning() << "QRelayBase::startSet: ui16BitNo out of range:" << ui16BitNo << "max:" << getLogicalRelayCount();
+    // even if no valid bit was set: start transaction so we get an idle signal
+    startSetMulti(logicalEnableMask, logicalSetMask, bForce);
 }
 
 bool QRelayBase::isBusy()
@@ -111,14 +121,15 @@ void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
     setupBaseBitmaps(getLogicalRelayCount());
 }
 
-void QRelayUpperBase::startSet(quint16 ui16BitNo,
-                               bool bSet,
-                               bool bForce)
+void QRelayUpperBase::startSetMulti(const QBitArray& logicalEnableMask,
+                                    const QBitArray& logicalSetMask,
+                                    bool bForce)
 {
-    QRelayBase::startSet(ui16BitNo, bSet, bForce);
+    QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
     Q_D(QRelayUpperBase);
     d->m_IdleTimer.start();
 }
+
 
 const QBitArray &QRelayUpperBase::getLogicalRelayState()
 {

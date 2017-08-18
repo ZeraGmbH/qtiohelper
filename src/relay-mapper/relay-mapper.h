@@ -63,9 +63,9 @@ public:
     // by callback
     void setupCallbackLowLayerBusy(RelayQueryLowLayerBusy callback);
 
-    virtual void startSet(quint16 ui16BitNo,
-                          bool bSet,
-                          bool bForce = false);
+    virtual void startSetMulti(const QBitArray& logicalEnableMask,
+                               const QBitArray& logicalSetMask,
+                               bool bForce = false);
     virtual const QBitArray& getLogicalRelayState();
 
 protected:
