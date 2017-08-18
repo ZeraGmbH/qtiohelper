@@ -926,6 +926,67 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedData = expectedData;
     testCases.append(testCase);
 
+    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF start)
+    testCase.Description = "Overlapped_Off->1001";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+
+    testCase.EnableMask.fill(true, RELAY_OVERLAPPED_OFF_1, RELAY_OVERLAPPED_OFF_4+1);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
+    // keep compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_OVERLAPPED_OFF_1, true);
+    resultEnableMask.setBit(PIN_OVERLAPPED_OFF_4, true);
+    resultSetMask.setBit(PIN_OVERLAPPED_OFF_1, true);
+    resultSetMask.setBit(PIN_OVERLAPPED_OFF_4, true);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF target)
+    testCase.Description = "Overlapped_Off->0101";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, false);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    // keep compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_OVERLAPPED_OFF_1, true);
+    resultSetMask.setBit(PIN_OVERLAPPED_OFF_1, false);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_OFF_1, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // low layer callback 2
+    resultEnableMask.setBit(PIN_OVERLAPPED_OFF_1, false);
+    resultEnableMask.setBit(PIN_OVERLAPPED_OFF_2, true);
+    resultSetMask.setBit(PIN_OVERLAPPED_OFF_1, false);
+    resultSetMask.setBit(PIN_OVERLAPPED_OFF_2, true);
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
 }
 
 int main(int argc, char *argv[])
