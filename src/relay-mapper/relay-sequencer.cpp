@@ -134,14 +134,9 @@ bool QRelaySequencer::process()
     case SEQUENCER_STATE_END:
         // all work is done
         idleOut = true;
+        d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
+        d->logicalBusyMask.fill(false);
         break;
     }
     return !idleOut;
-}
-
-void QRelaySequencer::idleCleanup()
-{
-    Q_D(QRelaySequencer);
-    d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
-    d->logicalBusyMask.fill(false);
 }

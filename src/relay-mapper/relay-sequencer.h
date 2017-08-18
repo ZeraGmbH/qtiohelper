@@ -63,7 +63,6 @@ public:
 protected:
     virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);
     virtual bool process();
-    virtual void idleCleanup();
 
 private:
     Q_DECLARE_PRIVATE(QRelaySequencer)
