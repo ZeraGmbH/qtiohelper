@@ -20,7 +20,7 @@ QRelaySequencer::QRelaySequencer(QObject *parent) :
     Q_D(QRelaySequencer);
 }
 
-void QRelaySequencer::AddGroup(TRelaySequencerGroup &group)
+void QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
 {
     Q_D(QRelaySequencer);
     d->listGroups.append(group);
