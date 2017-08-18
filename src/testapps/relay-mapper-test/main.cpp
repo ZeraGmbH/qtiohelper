@@ -1026,11 +1026,11 @@ int main(int argc, char *argv[])
                     // Check if the logical state is as expected
                     QBitArray actualLogicalMask = relayMapper.getLogicalRelayState();
                     if(actualLogicalMask == expectedLogicalMask)
-                        qInfo() << "Actual mask logical:" << actualLogicalMask << "OK";
+                        qInfo() << "LogicMask: " << actualLogicalMask << "OK";
                     else
                     {
                         bSingleTestError = true;
-                        qWarning() << "Error!!! Actual mask logical expected:" << expectedLogicalMask << "reported:" << actualLogicalMask;
+                        qWarning() << "Error!!! LogicMask expected:" << expectedLogicalMask << "reported:" << actualLogicalMask;
                     }
                 }
             }
