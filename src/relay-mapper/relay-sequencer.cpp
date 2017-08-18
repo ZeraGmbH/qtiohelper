@@ -28,8 +28,8 @@ void QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
 
 void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 {
-    QRelayUpperBase::setupBaseBitmaps(ui16LogicalArrayInfoCount);
     Q_D(QRelaySequencer);
+    QRelayUpperBase::setupBaseBitmaps(ui16LogicalArrayInfoCount);
     d->enableMask2 = QBitArray(ui16LogicalArrayInfoCount);
     d->setMask2 = QBitArray(ui16LogicalArrayInfoCount);
 }

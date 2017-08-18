@@ -66,9 +66,8 @@ const QBitArray &QRelayMapper::getLogicalRelayState()
 
 void QRelayMapper::startSetMulti(const QBitArray &logicalEnableMask, const QBitArray &logicalSetMask, bool bForce)
 {
-    QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
-
     Q_D(QRelayMapper);
+    QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
     // relay mapper performs all activity on slice timer
     if(!d->sliceTimer.isActive())
     {
