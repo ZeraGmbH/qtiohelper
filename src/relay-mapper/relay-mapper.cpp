@@ -190,10 +190,10 @@ void QRelayMapper::onSliceTimer()
     // There is either nothing to do for low layer or low layer signalled blocked call (so it is finished)
     if(!bLowerLayerBusy)
     {
-        onLowLayerIdle();
-        // If upper layer did not start another transaction
+        // stop periodic timer in case this transaction is over
         if(!isBusy())
-            // stop periodic timer
             d->sliceTimer.stop();
+        // we need to notify -> low layer won't emit idle
+        onLowLayerIdle();
     }
 }
