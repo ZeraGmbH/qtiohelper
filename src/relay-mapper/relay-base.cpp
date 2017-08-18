@@ -116,6 +116,11 @@ QRelayUpperBase::QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp) :
 void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
 {
     Q_D(QRelayUpperBase);
+    // reconnect?
+    if(d->lowRelayLayer)
+        // avoid multiple slot calls - we allow only one lower layer anyway
+        QObject::disconnect(d->lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
+
     d->lowRelayLayer = lowRelayLayer;
     QObject::connect(lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
     setupBaseBitmaps(getLogicalRelayCount());
