@@ -913,14 +913,14 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_2, true);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_2, true);
-    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, QBitArray(), 0));
+    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_2, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // low layer callback 2
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_1, true);
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_2, false);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_1, false);
     resultSetMask.setBit(PIN_OVERLAPPED_ON_2, false);
     resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_1, false);
-    resultLogicalMask.setBit(RELAY_OVERLAPPED_ON_2, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
