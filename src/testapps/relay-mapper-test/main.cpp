@@ -922,8 +922,14 @@ int main(int argc, char *argv[])
         // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
         {
-            if(currTestCase > 0)
+            if(currTestCase==0)
+                qInfo() << "---------------Relay-mapper-tests---------------";
+            if(currTestCase==relayMapperTestCases)
+            {
                 qInfo() << "";
+                qInfo() << "---------------Relay-sequencer-tests------------";
+            }
+            qInfo() << "";
             qInfo() << "Starting test case:" << testCases[currTestCase].Description;
 
             currCallback = 0;
