@@ -16,6 +16,7 @@ QRelayBasePrivate::~QRelayBasePrivate()
 QRelayUpperBasePrivate::QRelayUpperBasePrivate()
 {
     lowRelayLayer = nullptr;
+    bypassToLowerLayerActive = false;
 }
 
 // ************************** QRelayBase
@@ -127,9 +128,18 @@ void QRelayUpperBase::startSetMulti(const QBitArray& logicalEnableMask,
                                     const QBitArray& logicalSetMask,
                                     bool bForce)
 {
-    QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
     Q_D(QRelayUpperBase);
-    d->m_IdleTimer.start();
+    // setting bForce is intended to set initial relay state -> bypass to lowest layer (mapper)
+    if(bForce && d->lowRelayLayer)
+    {
+        d->lowRelayLayer->startSetMulti(logicalEnableMask, logicalSetMask, bForce);
+        d->bypassToLowerLayerActive = true;
+    }
+    else
+    {
+        QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
+        d->m_IdleTimer.start();
+    }
 }
 
 
@@ -154,7 +164,13 @@ void QRelayUpperBase::onIdleTimer()
 
 void QRelayUpperBase::onLowLayerIdle()
 {
-    Q_D(QRelayBase);
+    Q_D(QRelayUpperBase);
+    // special bypass case
+    if(d->bypassToLowerLayerActive)
+    {
+        d->bypassToLowerLayerActive = false;
+        emit idle();
+    }
     // Transaction continues?
     if(isBusy() && !process())
         // No -> give notification

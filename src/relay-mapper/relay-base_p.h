@@ -27,7 +27,7 @@ public:
     QTimer m_IdleTimer;
     // Low layer
     QRelayBase *lowRelayLayer;
-
+    bool bypassToLowerLayerActive;
 };
 
 #endif // QRelayBase_P_H

@@ -770,6 +770,30 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
+
+    /* define test case */
+    testCase.Description = "Forced Transparent->1";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.setBit(PIN_TRANSPARENT_1, true);
+    testCase.bForce = true;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_TRANSPARENT_1, true);
+    testCase.SetMask.setBit(RELAY_TRANSPARENT_1, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
+    resultSetMask.setBit(PIN_TRANSPARENT_1, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
 }
 
 int main(int argc, char *argv[])
