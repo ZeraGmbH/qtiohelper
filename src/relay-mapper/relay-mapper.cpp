@@ -37,7 +37,7 @@ void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
     d->CallbackStartLowLayerSwitch = CallbackStartLowLayerSwitch;
     // Setup logical bitmap sizes / workers
     d->logicalSetMaskCurrent = QBitArray(ui16LogicalArrayInfoCount);
-    d->arrPinDelayCounter.resize(ui16LogicalArrayInfoCount);
+    d->arrPinDelayCounter.fill(0,ui16LogicalArrayInfoCount);
 
     // estimate max physical bit number
     for(quint16 ui16Entry=0; ui16Entry<ui16LogicalArrayInfoCount; ui16Entry++)
