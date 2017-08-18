@@ -134,7 +134,7 @@ void QRelayMapper::onSliceTimer()
             physicalEnableMask.setBit(ui16OutBitPosition, true);
             physicalSetMask.setBit(ui16OutBitPosition, bSetOutput);
 
-            // Setup timer (+1: timer is deleted below - so zero values finish here)
+            // Setup timer (+1: timer is decremented below - so zero values finish here)
             d->arrPinDelayCounter[iBit] = logicalPinInfoEntry.ui8OnTime+1;
             // mark busy
             d->logicalBusyMask.setBit(iBit);
