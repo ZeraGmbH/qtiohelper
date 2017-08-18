@@ -186,11 +186,8 @@ void QRelayMapper::onSliceTimer()
         }
     }
     bool bLowerLayerBusy = false;
-    if(bLowerIORequested)
-    {
-        if(d->CallbackStartLowLayerSwitch)
-            bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
-    }
+    if(bLowerIORequested && d->CallbackStartLowLayerSwitch)
+        bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
     // There is either nothing to do for low layer or low layer signalled blocked call (so it is finished)
     if(!bLowerLayerBusy)
     {
