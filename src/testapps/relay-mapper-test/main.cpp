@@ -749,11 +749,11 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     QBitArray resultSetMask;
 
     /* define test case */
-    testCase.Description = "Transparent->1";
+    testCase.Description = "Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.setBit(PIN_TRANSPARENT_1, true);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -773,11 +773,11 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCases.append(testCase);
 
     /* define test case */
-    testCase.Description = "Forced Transparent->1";
+    testCase.Description = "Forced Transparent1->1";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
     testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
-    testCase.expectedLogicalCurrentMask.setBit(PIN_TRANSPARENT_1, true);
+    testCase.expectedLogicalCurrentMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -795,6 +795,31 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
+
+    /* define test case */
+    testCase.Description = "Transparent(1)/2/3/4->1";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.expectedLogicalCurrentMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
+    testCase.SetMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.fill(true, PIN_TRANSPARENT_2, PIN_TRANSPARENT_4+1);
+    resultSetMask.fill(true, PIN_TRANSPARENT_2, PIN_TRANSPARENT_4+1);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
 }
 
 int main(int argc, char *argv[])
