@@ -575,6 +575,20 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCases.append(testCase);
 
     /* define test case */
+    testCase.Description = "No OP";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 0; // no OP
+    // we don't expect callbacks here
+    expectedData.clear();
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    /* define test case */
     testCase.Description = "Force+Serial all relays -> 0";
     testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
     testCase.EnableMask.fill(true,LOGICAL_RELAY_COUNT); // init
