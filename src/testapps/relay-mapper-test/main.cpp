@@ -293,6 +293,46 @@ static void initRelayMapperSetupSequencer()
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 }
 
+static void initRelaySequencerSetup(QRelaySequencer &relaySequencer)
+{
+    QVector<quint16> arrui16MemberLogRelayNums;
+
+    arrui16MemberLogRelayNums.clear();
+    // we do not set all intentionally to test proper default
+    arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_1);
+    arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_2);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
+
+    arrui16MemberLogRelayNums.clear();
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_1);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_2);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_3);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_4);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums));
+
+    arrui16MemberLogRelayNums.clear();
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_1);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_2);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_3);
+    arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_4);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_OFF, arrui16MemberLogRelayNums));
+
+    arrui16MemberLogRelayNums.clear();
+    arrui16MemberLogRelayNums.append(RELAY_PASS_ON_1);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_ON_2);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_ON_3);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_ON_4);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_ON, arrui16MemberLogRelayNums));
+
+    arrui16MemberLogRelayNums.clear();
+    arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_1);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_2);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_3);
+    arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_4);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_OFF, arrui16MemberLogRelayNums));
+
+}
+
 struct TExpectedLowLayerData
 {
     TExpectedLowLayerData(QBitArray &EnableMask_, QBitArray &SetMask_,  int delaySinceLast_)
@@ -945,6 +985,7 @@ int main(int argc, char *argv[])
     QRelaySequencer relaySequencer;
     initRelayMapperSetupSequencer();
     relaySequencer.SetLowLayer(&relayMapper);
+    initRelaySequencerSetup(relaySequencer);
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
     QTimer::singleShot(300,[&]
