@@ -293,15 +293,25 @@ static void initRelayMapperSetupSequencer()
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 }
 
-static void initRelaySequencerSetup(QRelaySequencer &relaySequencer)
+static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
 {
+    bool checkOK = true;
     QVector<quint16> arrui16MemberLogRelayNums;
 
-    arrui16MemberLogRelayNums.clear();
     // we do not set all intentionally to test proper default
+    arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_1);
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_2);
     relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
+
+    qInfo("Test if multiple adding id denied");
+    if(relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
+    {
+        qWarning("Test failed: incorrect group was accepted!");
+        checkOK = false;
+    }
+    else
+        qInfo("OK Denied succeeded");
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_1);
@@ -331,6 +341,7 @@ static void initRelaySequencerSetup(QRelaySequencer &relaySequencer)
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_4);
     relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_OFF, arrui16MemberLogRelayNums));
 
+    return checkOK;
 }
 
 struct TExpectedLowLayerData
@@ -1128,7 +1139,8 @@ int main(int argc, char *argv[])
     QRelaySequencer relaySequencer;
     initRelayMapperSetupSequencer();
     relaySequencer.SetLowLayer(&relayMapper);
-    initRelaySequencerSetup(relaySequencer);
+    if(!initRelaySequencerSetup(relaySequencer))
+        bTotalTestError = false;
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
     QTimer::singleShot(300,[&]
