@@ -873,7 +873,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 100;
-
     testCase.EnableMask.fill(true, RELAY_OVERLAPPED_ON_1, RELAY_OVERLAPPED_ON_4+1);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_4, true);
@@ -901,11 +900,14 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 100;
-
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_1, true);
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_2, true);
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_3, true);
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_4, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_2, true);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_3, false);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_4, true);
     // keep compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
@@ -934,7 +936,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 100;
-
     testCase.EnableMask.fill(true, RELAY_OVERLAPPED_OFF_1, RELAY_OVERLAPPED_OFF_4+1);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
@@ -962,11 +963,14 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
     testCase.expectedFinalDelay = 100;
-
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_3, true);
+    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_3, false);
+    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
     // keep compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
@@ -986,7 +990,6 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
-
 }
 
 int main(int argc, char *argv[])
