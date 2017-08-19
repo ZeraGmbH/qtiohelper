@@ -887,7 +887,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(true, RELAY_OVERLAPPED_ON_1, RELAY_OVERLAPPED_ON_4+1);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_4, true);
-    // keep compare masks
+    // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     expectedData.clear();
@@ -913,13 +913,9 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedFinalDelay = 100;
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_1, true);
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_2, true);
-    testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_3, true);
-    testCase.EnableMask.setBit(RELAY_OVERLAPPED_ON_4, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_2, true);
-    testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_3, false);
-    testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_4, true);
-    // keep compare masks
+    // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     expectedData.clear();
@@ -950,7 +946,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(true, RELAY_OVERLAPPED_OFF_1, RELAY_OVERLAPPED_OFF_4+1);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
-    // keep compare masks
+    // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     expectedData.clear();
@@ -976,13 +972,9 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.expectedFinalDelay = 100;
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
     testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
-    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_3, true);
-    testCase.EnableMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
-    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_3, false);
-    testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
-    // keep compare masks
+    // init compare masks
     resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
     expectedData.clear();
@@ -997,6 +989,138 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     resultSetMask.setBit(PIN_OVERLAPPED_OFF_1, false);
     resultSetMask.setBit(PIN_OVERLAPPED_OFF_2, true);
     resultLogicalMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case (see relay-sequencer.h SWITCH_PASS_ON start)
+    testCase.Description = "Force Pass_On->1001 unblocked";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = true;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.expectedFinalDelay = 100+100;
+    testCase.EnableMask.fill(true, RELAY_PASS_ON_1, RELAY_PASS_ON_4+1);
+    testCase.SetMask.setBit(RELAY_PASS_ON_1, true);
+    testCase.SetMask.setBit(RELAY_PASS_ON_4, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.fill(true, PIN_PASS_ON_1, PIN_PASS_ON_4+1);
+    resultSetMask.setBit(PIN_PASS_ON_1, true);
+    resultSetMask.setBit(PIN_PASS_ON_4, true);
+    resultLogicalMask.setBit(RELAY_PASS_ON_1, true);
+    resultLogicalMask.setBit(RELAY_PASS_ON_4, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case (see relay-sequencer.h SWITCH_PASS_ON target)
+    testCase.Description = "Pass_On->0101";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_PASS_ON_1, true);
+    testCase.EnableMask.setBit(RELAY_PASS_ON_2, true);
+    testCase.EnableMask.setBit(RELAY_PASS_ON_3, true);
+    testCase.EnableMask.setBit(RELAY_PASS_ON_4, true);
+    testCase.SetMask.setBit(RELAY_PASS_ON_1, false);
+    testCase.SetMask.setBit(RELAY_PASS_ON_2, true);
+    testCase.SetMask.setBit(RELAY_PASS_ON_3, false);
+    testCase.SetMask.setBit(RELAY_PASS_ON_4, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1 (switch on 2+3)
+    resultEnableMask.setBit(PIN_PASS_ON_2, true);
+    resultEnableMask.setBit(PIN_PASS_ON_3, true);
+    resultSetMask.setBit(PIN_PASS_ON_2, true);
+    resultSetMask.setBit(PIN_PASS_ON_3, true);
+    resultLogicalMask.setBit(RELAY_PASS_ON_2, true);
+    resultLogicalMask.setBit(RELAY_PASS_ON_3, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // low layer callback 2
+    resultEnableMask.setBit(PIN_PASS_ON_1, true);
+    resultEnableMask.setBit(PIN_PASS_ON_2, false);
+    resultEnableMask.setBit(PIN_PASS_ON_3, true);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultLogicalMask.setBit(RELAY_PASS_ON_1, false);
+    resultLogicalMask.setBit(RELAY_PASS_ON_3, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case (see relay-sequencer.h SWITCH_PASS_OFF start)
+    testCase.Description = "Pass_Off->1001";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.fill(true, RELAY_PASS_OFF_1, RELAY_PASS_OFF_4+1);
+    testCase.SetMask.setBit(RELAY_PASS_OFF_1, true);
+    testCase.SetMask.setBit(RELAY_PASS_OFF_4, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_PASS_OFF_1, true);
+    resultEnableMask.setBit(PIN_PASS_OFF_4, true);
+    resultSetMask.setBit(PIN_PASS_OFF_1, true);
+    resultSetMask.setBit(PIN_PASS_OFF_4, true);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_1, true);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_4, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case (see relay-sequencer.h SWITCH_PASS_OFF target)
+    testCase.Description = "Pass_Off->0101";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_PASS_OFF_1, true);
+    testCase.EnableMask.setBit(RELAY_PASS_OFF_2, true);
+    testCase.SetMask.setBit(RELAY_PASS_OFF_1, false);
+    testCase.SetMask.setBit(RELAY_PASS_OFF_2, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    expectedData.clear();
+    // low layer callback 1 (switch off 1+4)
+    resultEnableMask.setBit(PIN_PASS_OFF_1, true);
+    resultSetMask.setBit(PIN_PASS_OFF_1, false);
+    resultEnableMask.setBit(PIN_PASS_OFF_4, true);
+    resultSetMask.setBit(PIN_PASS_OFF_4, false);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_1, false);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_4, false);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // low layer callback 2
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.setBit(PIN_PASS_OFF_2, true);
+    resultEnableMask.setBit(PIN_PASS_OFF_4, true);
+    resultSetMask.setBit(PIN_PASS_OFF_2, true);
+    resultSetMask.setBit(PIN_PASS_OFF_4, true);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_2, true);
+    resultLogicalMask.setBit(RELAY_PASS_OFF_4, true);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
     // add testcase
     testCase.expectedData = expectedData;
