@@ -109,6 +109,10 @@ bool QRelaySequencer::process()
                                                 (switchType == SWITCH_PASS_ON && d->setMask2.at(ui16GroupBit) == false) ||
                                                 (switchType == SWITCH_PASS_OFF && d->setMask2.at(ui16GroupBit) == true);
                                         d->enableMask2.setBit(ui16GroupBit, setBit);
+                                        // The bits handled here can be considered as done
+                                        // (a relay can be member only in one group). So avoid
+                                        // rechecking same bits over and over in main loop
+                                        dirtyMask.setBit(ui16GroupBit, false);
                                     }
                                 }
                                 break;
