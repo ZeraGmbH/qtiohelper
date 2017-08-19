@@ -311,7 +311,7 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
         checkOK = false;
     }
     else
-        qInfo("OK bad group was successfully denied");
+        qInfo("OK bad group was denied successfully");
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_1);
@@ -1147,6 +1147,8 @@ int main(int argc, char *argv[])
     const double maxDelayDeviation = 0.1; /* 10 % */
 
     // Setup test cases
+    qInfo() << "------------------Setup-tests-------------------";
+    qInfo() << "";
     QList<TTestCase> testCases;
     appendTestCasesMapper(testCases);
     int relayMapperTestCases = testCases.count();
@@ -1293,7 +1295,10 @@ int main(int argc, char *argv[])
         for(;currTestCase<testCases.count(); currTestCase++)
         {
             if(currTestCase==0)
+            {
+                qInfo() << "";
                 qInfo() << "---------------Relay-mapper-tests---------------";
+            }
             if(currTestCase==relayMapperTestCases)
             {
                 qInfo() << "";
@@ -1301,6 +1306,7 @@ int main(int argc, char *argv[])
             }
             qInfo() << "";
             qInfo() << "Starting test case:" << testCases[currTestCase].Description;
+            qInfo() << timerElapsedApplication.elapsed() << "ms since application start";
 
             currCallback = 0;
             bSingleTestError = false;
@@ -1401,6 +1407,7 @@ int main(int argc, char *argv[])
 
         // correct number of idles received?
         qInfo() << "";
+        qInfo() << timerElapsedApplication.elapsed() << "ms since application start";
         if(idleCountMapper==relayMapperTestCases)
             qInfo() << "Mapper idle signals:" << idleCountMapper << "OK";
         else
@@ -1417,7 +1424,6 @@ int main(int argc, char *argv[])
         }
 
         qInfo() << "";
-        qInfo() << "All tests took" << timerElapsedApplication.elapsed()/1000 << "s";
         // End message
         if(!bTotalTestError)
         {
