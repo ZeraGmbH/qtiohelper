@@ -27,6 +27,8 @@ public:
     QTimer m_IdleTimer;
     // Low layer
     QRelayBase *lowRelayLayer;
+    // Set when startSet is called with bForce=true and signals transparent
+    // bypassing
     bool bypassToLowerLayerActive;
 };
 

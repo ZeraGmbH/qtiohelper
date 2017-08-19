@@ -66,9 +66,15 @@ public:
     // by callback
     void setupCallbackLowLayerBusy(RelayQueryLowLayerBusy callback);
 
-    virtual void startSetMulti(const QBitArray& logicalEnableMask,
-                               const QBitArray& logicalSetMask,
-                               bool bForce = false);
+    virtual void startSetMulti(
+            const QBitArray& logicalEnableMask,
+            const QBitArray& logicalSetMask,
+            bool bForce = false); // =true: perform output to lower layer even if it seems
+                                  // there is not state change. During initialization phase
+                                  // startSet(Multi) should be called with bForce=true to
+                                  // ensure relays are in certain condition. Especially
+                                  // when using bistable relays: They are in the state they
+                                  // had on last power off
     virtual const QBitArray& getLogicalRelayState();
 
 private slots:

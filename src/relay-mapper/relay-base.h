@@ -20,13 +20,16 @@ public:
     quint16 getLogicalRelayCount();
     virtual const QBitArray& getLogicalRelayState() = 0;
 
-    // and action
-    virtual void startSetMulti(const QBitArray& logicalEnableMask,
-                               const QBitArray& logicalSetMask,
-                               bool bForce = false);
-    void startSet(quint16 ui16BitNo,
-                  bool bSet,
-                  bool bForce = false);
+    // the startSet functions collect data to be performed on next
+    // idle of machine (0ms timer).
+    virtual void startSetMulti(
+            const QBitArray& logicalEnableMask, // only bits set here are performed
+            const QBitArray& logicalSetMask,
+            bool bForce = false); // see QRelayUpperBase and QRelayMapper for more details
+    void startSet(
+            quint16 ui16BitNo,
+            bool bSet,
+            bool bForce = false);
 
     // query state
     virtual bool isBusy();
@@ -55,9 +58,11 @@ class QTRELAYSSHARED_EXPORT QRelayUpperBase : public QRelayBase
 public:
     QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp);
     void SetLowLayer(QRelayBase* lowRelayLayer);
-    virtual void startSetMulti(const QBitArray& logicalEnableMask,
-                               const QBitArray& logicalSetMask,
-                               bool bForce = false);
+    virtual void startSetMulti(
+            const QBitArray& logicalEnableMask,
+            const QBitArray& logicalSetMask,
+            bool bForce = false); // =true: This layer passed input transparent
+                                  // to low layer connected
     virtual const QBitArray& getLogicalRelayState();
 protected:
     virtual bool process() = 0;   // return true: this layer is still busy
