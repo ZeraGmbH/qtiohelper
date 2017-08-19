@@ -16,8 +16,8 @@ public:
     QRelayBase(QObject *parent, QRelayBasePrivate *dp);
     virtual ~QRelayBase();
 
-    // setup get
-    virtual quint16 getLogicalRelayCount();
+    // setup getter
+    quint16 getLogicalRelayCount();
     virtual const QBitArray& getLogicalRelayState() = 0;
 
     // and action
