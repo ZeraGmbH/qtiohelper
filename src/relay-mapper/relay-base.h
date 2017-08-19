@@ -32,9 +32,11 @@ public:
     virtual bool isBusy();
 
 signals:
+    // notification for all jobs done
     void idle();
 
 public slots:
+    // an upper layer should connect to lower layer's idle signal
     virtual void onLowLayerIdle();
 
 protected:
@@ -58,7 +60,7 @@ public:
                                bool bForce = false);
     virtual const QBitArray& getLogicalRelayState();
 protected:
-    virtual bool process() = 0;   // true: this layer is still busy
+    virtual bool process() = 0;   // return true: this layer is still busy
 
 public slots:
     virtual void onLowLayerIdle();

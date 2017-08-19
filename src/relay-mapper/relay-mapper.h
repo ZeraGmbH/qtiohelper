@@ -50,6 +50,9 @@ typedef std::function<bool(const QBitArray& EnableMask, const QBitArray& SetMask
 
 class QRelayMapperPrivate;
 
+
+// Within the relay framework QRelayMapper is somewhat special: It is always
+// the lowest layer in the relay layer stack
 class QTRELAYSSHARED_EXPORT QRelayMapper : public QRelayBase
 {
     Q_OBJECT
