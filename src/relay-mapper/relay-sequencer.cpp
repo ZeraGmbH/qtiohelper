@@ -44,15 +44,19 @@ bool QRelaySequencer::process()
         // Start a next transaction?
         if(d->logicalEnableMaskNext.count(true))
         {
+            quint16 ui16Bit;
+            // calculate target state
+            d->setMask2 = getLogicalRelayState();
+            for(ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+                if(d->logicalEnableMaskNext.at(ui16Bit))
+                    d->setMask2.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
             // Buffer enable state -> busy to allow next transaction drop ins
             d->logicalBusyMask = d->logicalEnableMaskNext;
             d->logicalEnableMaskNext.fill(false);
-            d->setMask2 = d->logicalSetMaskNext;
             // calculate bit difference mask
             QBitArray dirtyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
             // filter enabled
             dirtyMask &= d->logicalBusyMask;
-            quint16 ui16Bit;
             // Nothing to be done?
             if(dirtyMask.count(true) == 0)
                 idleOut = true;
@@ -75,12 +79,17 @@ bool QRelaySequencer::process()
                                 // Full on/off groups handled here
                                 if(switchType == SWITCH_PASS_OFF || switchType == SWITCH_PASS_ON)
                                 {
-                                    for(int groupMember=0; groupMember<d->listGroups[group].arrui16MemberLogRelayNums.size(); groupMember++)
+                                    for(int groupMember=0;
+                                        groupMember<d->listGroups[group].arrui16MemberLogRelayNums.size();
+                                        groupMember++)
                                     {
                                         quint16 ui16GroupBit = d->listGroups[group].arrui16MemberLogRelayNums[groupMember];
                                         setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
                                         enableMask1.setBit(ui16GroupBit);
-                                        d->enableMask2.setBit(ui16GroupBit);
+                                        bool setBit =
+                                                (switchType == SWITCH_PASS_ON && d->setMask2.at(ui16GroupBit) == false) ||
+                                                (switchType == SWITCH_PASS_OFF && d->setMask2.at(ui16GroupBit) == true);
+                                        d->enableMask2.setBit(ui16GroupBit, setBit);
                                     }
                                 }
                                 break;
