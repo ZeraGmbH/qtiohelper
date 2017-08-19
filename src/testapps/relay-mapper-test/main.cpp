@@ -311,7 +311,7 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
         checkOK = false;
     }
     else
-        qInfo("OK Denied succeeded");
+        qInfo("OK bad group was successfully denied");
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_1);
@@ -1140,7 +1140,7 @@ int main(int argc, char *argv[])
     initRelayMapperSetupSequencer();
     relaySequencer.SetLowLayer(&relayMapper);
     if(!initRelaySequencerSetup(relaySequencer))
-        bTotalTestError = false;
+        bTotalTestError = true;
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
     QTimer::singleShot(300,[&]
