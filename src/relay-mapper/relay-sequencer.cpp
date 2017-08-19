@@ -1,5 +1,6 @@
 #include "relay-sequencer.h"
 #include "relay-sequencer_p.h"
+#include "QDebug"
 
 // ************************** QRelaySequencerPrivate
 
@@ -20,10 +21,28 @@ QRelaySequencer::QRelaySequencer(QObject *parent) :
     Q_D(QRelaySequencer);
 }
 
-void QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
+bool QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
 {
     Q_D(QRelaySequencer);
-    d->listGroups.append(group);
+    int relay;
+    // relays shall not be members of more than one group - check that
+    bool checkOK = true;
+    for(relay=0; relay<group.arrui16MemberLogRelayNums.size(); relay++)
+    {
+        quint16 relayNum = group.arrui16MemberLogRelayNums[relay];
+        if(d->insertedRelays.contains(relayNum))
+        {
+            checkOK = false;
+            qCritical() << "Relay" << relayNum << "is already member of a relay-sequencer group. Group will be ignored!!";
+        }
+    }
+    if(checkOK)
+    {
+        d->listGroups.append(group);
+        for(relay=0; relay<group.arrui16MemberLogRelayNums.size(); relay++)
+            d->insertedRelays.insert(group.arrui16MemberLogRelayNums[relay]);
+    }
+    return checkOK;
 }
 
 void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
