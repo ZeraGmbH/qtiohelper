@@ -55,94 +55,88 @@ void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 bool QRelaySequencer::process()
 {
     Q_D(QRelaySequencer);
-    bool idleOut = false;
+    bool idleOut = true;
     switch(d->relaySequencerSwitchState)
     {
     case SEQUENCER_STATE_IDLE:
         // Start a next transaction?
-        if(d->logicalEnableMaskNext.count(true))
+        if(startNextTransaction())
         {
-            // Nothing to be done?
-            if(!startNextTransaction())
-                idleOut = true;
-            else
+            idleOut = false;
+            QBitArray enableMask1 = QBitArray(getLogicalRelayCount());
+            QBitArray setMask1 = d->logicalSetMaskNext;
+            // We need a local copy - bits are deleted below
+            QBitArray dirtyMask = d->logicalBusyMask;
+            // loop all bits
+            for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
             {
-                QBitArray enableMask1 = QBitArray(getLogicalRelayCount());
-                QBitArray setMask1 = d->logicalSetMaskNext;
-                // We need a local copy - bits are deleted below
-                QBitArray dirtyMask = d->logicalBusyMask;
-                // loop all bits
-                for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+                if(dirtyMask.at(ui16Bit))
                 {
-                    if(dirtyMask.at(ui16Bit))
+                    enum enRelaySequencerSwitchTypes switchType = SWITCH_TRANSPARENT;
+                    // Find group and handle full group cases
+                    for(int group=0; group<d->listGroups.size(); group++)
                     {
-                        enum enRelaySequencerSwitchTypes switchType = SWITCH_TRANSPARENT;
-                        // Find group and handle full group cases
-                        for(int group=0; group<d->listGroups.size(); group++)
+                        if(d->listGroups[group].arrui16MemberLogRelayNums.contains(ui16Bit))
                         {
-                            if(d->listGroups[group].arrui16MemberLogRelayNums.contains(ui16Bit))
+                            switchType = d->listGroups[group].relaySequencerSwitchType;
+                            // Full on/off groups handled here
+                            if(switchType == SWITCH_PASS_OFF || switchType == SWITCH_PASS_ON)
                             {
-                                switchType = d->listGroups[group].relaySequencerSwitchType;
-                                // Full on/off groups handled here
-                                if(switchType == SWITCH_PASS_OFF || switchType == SWITCH_PASS_ON)
+                                for(int groupMember=0;
+                                    groupMember<d->listGroups[group].arrui16MemberLogRelayNums.size();
+                                    groupMember++)
                                 {
-                                    for(int groupMember=0;
-                                        groupMember<d->listGroups[group].arrui16MemberLogRelayNums.size();
-                                        groupMember++)
-                                    {
-                                        quint16 ui16GroupBit = d->listGroups[group].arrui16MemberLogRelayNums[groupMember];
-                                        setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
-                                        enableMask1.setBit(ui16GroupBit);
-                                        bool setBit =
-                                                (switchType == SWITCH_PASS_ON && d->logicalTargetMask.at(ui16GroupBit) == false) ||
-                                                (switchType == SWITCH_PASS_OFF && d->logicalTargetMask.at(ui16GroupBit) == true);
-                                        d->enableMask2.setBit(ui16GroupBit, setBit);
-                                        // The bits handled here can be considered as done
-                                        // (a relay can be member only in one group). So avoid
-                                        // rechecking same bits over and over in main loop
-                                        dirtyMask.setBit(ui16GroupBit, false);
-                                    }
+                                    quint16 ui16GroupBit = d->listGroups[group].arrui16MemberLogRelayNums[groupMember];
+                                    setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
+                                    enableMask1.setBit(ui16GroupBit);
+                                    bool setBit =
+                                            (switchType == SWITCH_PASS_ON && d->logicalTargetMask.at(ui16GroupBit) == false) ||
+                                            (switchType == SWITCH_PASS_OFF && d->logicalTargetMask.at(ui16GroupBit) == true);
+                                    d->enableMask2.setBit(ui16GroupBit, setBit);
+                                    // The bits handled here can be considered as done
+                                    // (a relay can be member only in one group). So avoid
+                                    // rechecking same bits over and over in main loop
+                                    dirtyMask.setBit(ui16GroupBit, false);
                                 }
-                                break;
                             }
-                        }
-                        // set next bit info
-                        switch(switchType)
-                        {
-                        case SWITCH_TRANSPARENT:
-                        default:
-                            // set at 2nd transaction
-                            d->enableMask2.setBit(ui16Bit);
-                            break;
-                        case SWITCH_OVERLAPPED_ON:
-                            if(d->logicalSetMaskNext.at(ui16Bit))
-                                // switch on during first transation
-                                enableMask1.setBit(ui16Bit);
-                            else
-                                // switch off at 2nd transaction
-                                d->enableMask2.setBit(ui16Bit);
-                            break;
-                        case SWITCH_OVERLAPPED_OFF:
-                            if(!d->logicalSetMaskNext.at(ui16Bit))
-                                // switch off during first transation
-                                enableMask1.setBit(ui16Bit);
-                            else
-                                // switch on at 2nd transaction
-                                d->enableMask2.setBit(ui16Bit);
-                            break;
-                        case SWITCH_PASS_ON:
-                        case SWITCH_PASS_OFF:
-                            // andled above
                             break;
                         }
                     }
+                    // set next bit info
+                    switch(switchType)
+                    {
+                    case SWITCH_TRANSPARENT:
+                    default:
+                        // set at 2nd transaction
+                        d->enableMask2.setBit(ui16Bit);
+                        break;
+                    case SWITCH_OVERLAPPED_ON:
+                        if(d->logicalSetMaskNext.at(ui16Bit))
+                            // switch on during first transation
+                            enableMask1.setBit(ui16Bit);
+                        else
+                            // switch off at 2nd transaction
+                            d->enableMask2.setBit(ui16Bit);
+                        break;
+                    case SWITCH_OVERLAPPED_OFF:
+                        if(!d->logicalSetMaskNext.at(ui16Bit))
+                            // switch off during first transation
+                            enableMask1.setBit(ui16Bit);
+                        else
+                            // switch on at 2nd transaction
+                            d->enableMask2.setBit(ui16Bit);
+                        break;
+                    case SWITCH_PASS_ON:
+                    case SWITCH_PASS_OFF:
+                        // andled above
+                        break;
+                    }
                 }
-                // prepare next state
-                d->relaySequencerSwitchState = SEQUENCER_STATE_2ND;
-                // start low layer action
-                d->lowRelayLayer->startSetMulti(enableMask1, setMask1);
             }
-
+            // prepare next state
+            d->relaySequencerSwitchState = SEQUENCER_STATE_2ND;
+            // start low layer action
+            d->lowRelayLayer->startSetMulti(enableMask1, setMask1);
         }
         break;
     case SEQUENCER_STATE_2ND:
@@ -150,10 +144,10 @@ bool QRelaySequencer::process()
         d->relaySequencerSwitchState = SEQUENCER_STATE_END;
         // start low layer action
         d->lowRelayLayer->startSetMulti(d->enableMask2, d->logicalTargetMask);
+        idleOut = false;
         break;
     case SEQUENCER_STATE_END:
         // all work is done
-        idleOut = true;
         d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
         d->logicalBusyMask.fill(false);
         break;
