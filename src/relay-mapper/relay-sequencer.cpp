@@ -69,20 +69,15 @@ bool QRelaySequencer::process()
             for(ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
                 if(d->logicalEnableMaskNext.at(ui16Bit))
                     d->setMask2.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
-            // Buffer enable state -> busy to allow next transaction drop ins
-            d->logicalBusyMask = d->logicalEnableMaskNext;
-            d->logicalEnableMaskNext.fill(false);
-            // calculate bit difference mask
-            QBitArray dirtyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
-            // filter enabled
-            dirtyMask &= d->logicalBusyMask;
             // Nothing to be done?
-            if(dirtyMask.count(true) == 0)
+            if(!startNextTransaction())
                 idleOut = true;
             else
             {
                 QBitArray enableMask1 = QBitArray(getLogicalRelayCount());
                 QBitArray setMask1 = d->logicalSetMaskNext;
+                // We need a local copy - bits are deleted below
+                QBitArray dirtyMask = d->logicalBusyMask;
                 // loop all bits
                 for(ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
                 {

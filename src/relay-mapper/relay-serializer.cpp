@@ -61,7 +61,11 @@ void QRelaySerializer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 bool QRelaySerializer::process()
 {
     Q_D(QRelaySerializer);
-    bool idleOut = false;
+    bool idleOut = true;
+    if(startNextTransaction())
+    {
 
+        idleOut = false;
+    }
     return !idleOut;
 }

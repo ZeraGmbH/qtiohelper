@@ -83,6 +83,22 @@ void QRelayBase::startSet(quint16 ui16BitNo,
     startSetMulti(logicalEnableMask, logicalSetMask, bForce);
 }
 
+bool QRelayBase::startNextTransaction()
+{
+    Q_D(QRelayBase);
+    // we are not busy check for next transaction
+    if(d->logicalBusyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true))
+    {
+        // calculate bit difference mask
+        d->logicalBusyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
+        // filter enabled
+        d->logicalBusyMask &= d->logicalEnableMaskNext;
+        // everything else goes in next transaction
+        d->logicalEnableMaskNext.fill(false);
+    }
+    return d->logicalBusyMask.count(true);
+}
+
 bool QRelayBase::isBusy()
 {
     Q_D(QRelayBase);
