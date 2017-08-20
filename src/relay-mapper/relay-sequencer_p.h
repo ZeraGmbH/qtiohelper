@@ -26,7 +26,6 @@ public:
     enum enRelaySequencerSwitchState relaySequencerSwitchState;
     // bit set during 2nd state (values those fond at input)
     QBitArray enableMask2;
-    QBitArray setMask2;
     QSet<quint16> insertedRelays;
 };
 

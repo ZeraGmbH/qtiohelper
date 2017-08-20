@@ -50,7 +50,6 @@ void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
     Q_D(QRelaySequencer);
     QRelayUpperBase::setupBaseBitmaps(ui16LogicalArrayInfoCount);
     d->enableMask2 = QBitArray(ui16LogicalArrayInfoCount);
-    d->setMask2 = QBitArray(ui16LogicalArrayInfoCount);
 }
 
 bool QRelaySequencer::process()
@@ -63,12 +62,6 @@ bool QRelaySequencer::process()
         // Start a next transaction?
         if(d->logicalEnableMaskNext.count(true))
         {
-            quint16 ui16Bit;
-            // calculate target state
-            d->setMask2 = getLogicalRelayState();
-            for(ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
-                if(d->logicalEnableMaskNext.at(ui16Bit))
-                    d->setMask2.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
             // Nothing to be done?
             if(!startNextTransaction())
                 idleOut = true;
@@ -79,7 +72,7 @@ bool QRelaySequencer::process()
                 // We need a local copy - bits are deleted below
                 QBitArray dirtyMask = d->logicalBusyMask;
                 // loop all bits
-                for(ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+                for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
                 {
                     if(dirtyMask.at(ui16Bit))
                     {
@@ -101,8 +94,8 @@ bool QRelaySequencer::process()
                                         setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
                                         enableMask1.setBit(ui16GroupBit);
                                         bool setBit =
-                                                (switchType == SWITCH_PASS_ON && d->setMask2.at(ui16GroupBit) == false) ||
-                                                (switchType == SWITCH_PASS_OFF && d->setMask2.at(ui16GroupBit) == true);
+                                                (switchType == SWITCH_PASS_ON && d->logicalTargetMask.at(ui16GroupBit) == false) ||
+                                                (switchType == SWITCH_PASS_OFF && d->logicalTargetMask.at(ui16GroupBit) == true);
                                         d->enableMask2.setBit(ui16GroupBit, setBit);
                                         // The bits handled here can be considered as done
                                         // (a relay can be member only in one group). So avoid
@@ -156,7 +149,7 @@ bool QRelaySequencer::process()
         // prepare next state
         d->relaySequencerSwitchState = SEQUENCER_STATE_END;
         // start low layer action
-        d->lowRelayLayer->startSetMulti(d->enableMask2, d->setMask2);
+        d->lowRelayLayer->startSetMulti(d->enableMask2, d->logicalTargetMask);
         break;
     case SEQUENCER_STATE_END:
         // all work is done

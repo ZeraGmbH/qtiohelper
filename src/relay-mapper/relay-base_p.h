@@ -14,8 +14,10 @@ public:
     QBitArray logicalEnableMaskNext;
     QBitArray logicalSetMaskNext;
 
-    // Working vars
+    // Bits to change in this transaction
     QBitArray logicalBusyMask;
+    // The after transaction target bitmask
+    QBitArray logicalTargetMask;
 };
 
 class QRelayUpperBasePrivate : public QRelayBasePrivate

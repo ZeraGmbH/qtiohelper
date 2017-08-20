@@ -43,6 +43,7 @@ void QRelayBase::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
     d->logicalEnableMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalSetMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalBusyMask = QBitArray(ui16LogicalArrayInfoCount);
+    d->logicalTargetMask = QBitArray(ui16LogicalArrayInfoCount);
 }
 
 void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
@@ -89,6 +90,11 @@ bool QRelayBase::startNextTransaction()
     // we are not busy check for next transaction
     if(d->logicalBusyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true))
     {
+        // calculate target state
+        d->logicalTargetMask = getLogicalRelayState();
+        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+            if(d->logicalEnableMaskNext.at(ui16Bit))
+                d->logicalTargetMask.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
         // calculate bit difference mask
         d->logicalBusyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
         // filter enabled
