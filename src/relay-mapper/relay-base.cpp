@@ -120,8 +120,13 @@ void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
         QObject::disconnect(d->lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
 
     d->lowRelayLayer = lowRelayLayer;
-    QObject::connect(lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
-    setupBaseBitmaps(getLogicalRelayCount());
+    if(lowRelayLayer)
+    {
+        QObject::connect(lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
+        setupBaseBitmaps(getLogicalRelayCount());
+    }
+    else
+        setupBaseBitmaps(0);
 }
 
 void QRelayUpperBase::startSetMulti(const QBitArray& logicalEnableMask,

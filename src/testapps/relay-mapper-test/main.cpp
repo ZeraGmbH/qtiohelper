@@ -1405,6 +1405,9 @@ int main(int argc, char *argv[])
                 bTotalTestError = true;
         } // test case loop end
 
+        // Test zero pointer
+        relaySequencer.SetLowLayer(Q_NULLPTR);
+
         // correct number of idles received?
         qInfo() << "";
         qInfo() << timerElapsedApplication.elapsed() << "ms since application start";
