@@ -40,10 +40,10 @@ quint16 QRelayBase::getLogicalRelayCount()
 void QRelayBase::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 {
     Q_D(QRelayBase);
-    d->logicalEnableMaskNext = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalSetMaskNext = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalDirtyMask = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalTargetMask = QBitArray(ui16LogicalArrayInfoCount);
+    d->logicalEnableMaskNext.fill(false, ui16LogicalArrayInfoCount);
+    d->logicalSetMaskNext.fill(false, ui16LogicalArrayInfoCount);
+    d->logicalDirtyMask.fill(false, ui16LogicalArrayInfoCount);
+    d->logicalTargetMask.fill(false, ui16LogicalArrayInfoCount);
 }
 
 void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
@@ -71,8 +71,8 @@ void QRelayBase::startSet(quint16 ui16BitNo,
 {
     Q_D(QRelayBase);
     quint16 ui16LogicalArrayCount = getLogicalRelayCount();
-    QBitArray logicalEnableMask = QBitArray(ui16LogicalArrayCount);
-    QBitArray logicalSetMask = QBitArray(ui16LogicalArrayCount);
+    QBitArray logicalEnableMask(ui16LogicalArrayCount);
+    QBitArray logicalSetMask(ui16LogicalArrayCount);
     if(ui16BitNo < ui16LogicalArrayCount)
     {
         logicalEnableMask.setBit(ui16BitNo);

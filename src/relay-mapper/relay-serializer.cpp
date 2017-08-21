@@ -67,9 +67,8 @@ bool QRelaySerializer::process()
     // we have bits to switch left over?
     if(d->logicalDirtyMask.count(true))
     {
-        QVector<float> groupLoadCurrent;
-        groupLoadCurrent.resize(d->vecGroups.size());
-        QBitArray nextEnableMask = QBitArray(getLogicalRelayCount());
+        QVector<float> groupLoadCurrent(d->vecGroups.size());
+        QBitArray nextEnableMask(getLogicalRelayCount());
         for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
         {
             if(d->logicalDirtyMask.at(ui16Bit))

@@ -49,7 +49,7 @@ void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 {
     Q_D(QRelaySequencer);
     QRelayUpperBase::setupBaseBitmaps(ui16LogicalArrayInfoCount);
-    d->enableMask2 = QBitArray(ui16LogicalArrayInfoCount);
+    d->enableMask2.fill(false, ui16LogicalArrayInfoCount);
 }
 
 bool QRelaySequencer::process()
@@ -62,7 +62,7 @@ bool QRelaySequencer::process()
         // Start a next transaction?
         if(startNextTransaction())
         {
-            QBitArray enableMask1 = QBitArray(getLogicalRelayCount());
+            QBitArray enableMask1(getLogicalRelayCount());
             QBitArray setMask1 = d->logicalSetMaskNext;
             // We need a local copy - bits are deleted below
             QBitArray dirtyMask = d->logicalDirtyMask;
