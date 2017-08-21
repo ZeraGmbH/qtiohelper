@@ -62,9 +62,57 @@ bool QRelaySerializer::process()
 {
     Q_D(QRelaySerializer);
     bool idleOut = true;
-    if(startNextTransaction())
+    // start new transaction
+    startNextTransaction();
+    // we have bits to switch left over?
+    if(d->logicalBusyMask.count(true))
     {
-
+        QVector<float> groupLoadCurrent;
+        groupLoadCurrent.resize(d->vecGroups.size());
+        QBitArray nextEnableMask = QBitArray(getLogicalRelayCount());
+        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+        {
+            if(d->logicalBusyMask.at(ui16Bit))
+            {
+                bool bitFoundInGroup = false;
+                // is this bit part of a group
+                for(quint16 group=0; group<d->vecGroups.count(); group++)
+                {
+                    for(quint16 relay=0; relay<d->vecGroups[group].arrSerializerRelayData.size();relay++)
+                    {
+                        if(d->vecGroups[group].arrSerializerRelayData[relay].relayNum == ui16Bit)
+                        {
+                            bitFoundInGroup = true;
+                            float newLoad = groupLoadCurrent[group];
+                            if(d->logicalTargetMask.at(ui16Bit))
+                                newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOn;
+                            else
+                                newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOff;
+                            // Load is less or equal allowed sum
+                            if(newLoad <= d->vecGroups[group].powerSupplyMaxCurrent)
+                            {
+                                // keep new sum
+                                groupLoadCurrent[group] = newLoad;
+                                // perform bit action
+                                nextEnableMask.setBit(ui16Bit, true);
+                                // set done for next
+                                d->logicalBusyMask.setBit(ui16Bit, false);
+                            }
+                        }
+                    }
+                }
+                // non group memebers -> transparent out
+                if(!bitFoundInGroup)
+                {
+                    // perform bit action
+                    nextEnableMask.setBit(ui16Bit, true);
+                    // set done for next
+                    d->logicalBusyMask.setBit(ui16Bit, false);
+                }
+            }
+        }
+        // start output
+        d->lowRelayLayer->startSetMulti(nextEnableMask, d->logicalTargetMask);
         idleOut = false;
     }
     return !idleOut;

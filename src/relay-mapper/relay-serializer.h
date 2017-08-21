@@ -6,6 +6,12 @@
 
 struct TSerializerRelayData
 {
+    TSerializerRelayData()
+    {
+        relayNum = 0;
+        supplyCurrentOn = 0.0;
+        supplyCurrentOff = 0.0;
+    }
     TSerializerRelayData(quint16 relayNum_, float supplyCurrentOn_, float supplyCurrentOff_)
     {
         relayNum = relayNum_;
