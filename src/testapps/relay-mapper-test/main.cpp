@@ -1563,7 +1563,7 @@ int main(int argc, char *argv[])
                 relaySerializer.SetLowLayer(&relayMapper);
             }
             // run startSetMulti or / startSet as set in test case
-            //timeoutTimer.start(1000);
+            timeoutTimer.start(1000);
             if(!testCases[currTestCase].bSetMasksBitByBit)
                 currentLayer->startSetMulti(
                             testCases[currTestCase].EnableMask,
