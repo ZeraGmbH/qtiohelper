@@ -76,9 +76,13 @@ bool QRelaySerializer::process()
             {
                 bool bitFoundInGroup = false;
                 // is this bit part of a group
-                for(quint16 group=0; group<d->vecGroups.count(); group++)
+                for(quint16 group=0;
+                    group<d->vecGroups.count() && !bitFoundInGroup;
+                    group++)
                 {
-                    for(quint16 relay=0; relay<d->vecGroups[group].arrSerializerRelayData.size();relay++)
+                    for(quint16 relay=0;
+                        relay<d->vecGroups[group].arrSerializerRelayData.size() && !bitFoundInGroup;
+                        relay++)
                     {
                         if(d->vecGroups[group].arrSerializerRelayData[relay].relayNum == ui16Bit)
                         {
