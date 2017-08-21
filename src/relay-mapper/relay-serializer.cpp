@@ -105,7 +105,7 @@ bool QRelaySerializer::process()
                         }
                     }
                 }
-                // non group memebers -> transparent out
+                // non group members -> transparent out
                 if(!bitFoundInGroup)
                 {
                     // perform bit action
