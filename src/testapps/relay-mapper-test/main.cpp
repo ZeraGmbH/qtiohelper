@@ -6,6 +6,7 @@
 #include <math.h>
 #include "../../relay-mapper/relay-mapper.h"
 #include "../../relay-mapper/relay-sequencer.h"
+#include "../../relay-mapper/relay-serializer.h"
 
 // slice timer period should be
 // * less than 1/5 of shortest relay
@@ -104,13 +105,17 @@ static void initRelayMapperSetup()
 }
 
 //////////////////////////////////////////////////////////////////
-/// Relay setup for relay mapper + sequenceronly tests
-enum enLogicalRelayDefinitionForSequencer
+/// Relay setup for relay mapper + sequencer/serializer only tests
+enum enLogicalRelayDefinitionForSequencerSerializer
 {
     RELAY_TRANSPARENT_1 = 0,
     RELAY_TRANSPARENT_2,
     RELAY_TRANSPARENT_3,
     RELAY_TRANSPARENT_4,
+    RELAY_TRANSPARENT_5,
+    RELAY_TRANSPARENT_6,
+    RELAY_TRANSPARENT_7,
+    RELAY_TRANSPARENT_8,
 
     RELAY_OVERLAPPED_ON_1,
     RELAY_OVERLAPPED_ON_2,
@@ -132,11 +137,11 @@ enum enLogicalRelayDefinitionForSequencer
     RELAY_PASS_OFF_3,
     RELAY_PASS_OFF_4,
 
-    LOGICAL_RELAY_COUNT_SEQUENCER
+    LOGICAL_RELAY_COUNT_SEQ_SERSEQ
 };
 
 // change order to logical relays by intention
-enum enPhysPinsForSequencer
+enum enPhysPinsForSequencerSerializer
 {
     PIN_OVERLAPPED_ON_1 = 0,
     PIN_OVERLAPPED_ON_2,
@@ -162,13 +167,17 @@ enum enPhysPinsForSequencer
     PIN_TRANSPARENT_2,
     PIN_TRANSPARENT_3,
     PIN_TRANSPARENT_4,
+    PIN_TRANSPARENT_5,
+    PIN_TRANSPARENT_6,
+    PIN_TRANSPARENT_7,
+    PIN_TRANSPARENT_8,
 
-    PHYSICAL_PIN_COUNT_SEQUENCER
+    PHYSICAL_PIN_COUNT_SERSEQ
 };
 
-struct TLogicalRelayEntry arrRelayMapperSetupSequencer[LOGICAL_RELAY_COUNT_SEQUENCER];
+struct TLogicalRelayEntry arrRelayMapperSetupSequencer[LOGICAL_RELAY_COUNT_SEQ_SERSEQ];
 
-static void initRelayMapperSetupSequencer()
+static void initRelayMapperSetupSerSeq()
 {
     TLogicalRelayEntry* pEntry;
 
@@ -193,6 +202,30 @@ static void initRelayMapperSetupSequencer()
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_4;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_4;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_4;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_5;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_5;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_5;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_6;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_6;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_6;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_7;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_7;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_7;
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
+
+    pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_8;
+    pEntry->ui16OnPosition  = PIN_TRANSPARENT_8;
+    pEntry->ui16OffPosition = PIN_TRANSPARENT_8;
     pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
@@ -340,6 +373,29 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_3);
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_4);
     relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_OFF, arrui16MemberLogRelayNums));
+
+    return checkOK;
+}
+
+static bool initRelaySerializerSetup(QRelaySerializer &relaySerializer)
+{
+    bool checkOK = true;
+/*    QVector<quint16> arrui16MemberLogRelayNums;
+
+    // we do not set all intentionally to test proper default
+    arrui16MemberLogRelayNums.clear();
+    arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_1);
+    arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_2);
+    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
+
+    qInfo("Test if multiple adding id denied");
+    if(relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
+    {
+        qWarning("Test failed: incorrect group was accepted!");
+        checkOK = false;
+    }
+    else
+        qInfo("OK bad group was denied successfully");*/
 
     return checkOK;
 }
@@ -805,12 +861,12 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     QBitArray resultEnableMask;
     QBitArray resultSetMask;
     QBitArray resultLogicalMask;
-    resultLogicalMask.resize(LOGICAL_RELAY_COUNT_SEQUENCER);
+    resultLogicalMask.resize(LOGICAL_RELAY_COUNT_SEQ_SERSEQ);
 
     // define test case
     testCase.Description = "Transparent1->1";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -818,8 +874,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.SetMask.setBit(RELAY_TRANSPARENT_1, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
@@ -846,8 +902,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case
     testCase.Description = "Transparent1->1 again: no-op";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -855,8 +911,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.SetMask.setBit(RELAY_TRANSPARENT_1, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // add testcase
     testCase.expectedData = expectedData;
@@ -864,8 +920,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case
     testCase.Description = "Forced Transparent1->1";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -873,8 +929,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.setBit(RELAY_TRANSPARENT_1, true);
     testCase.SetMask.setBit(RELAY_TRANSPARENT_1, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_TRANSPARENT_1, true);
@@ -887,8 +943,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case
     testCase.Description = "Transparent(1)/2/3/4->1";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -896,8 +952,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
     testCase.SetMask.fill(true, RELAY_TRANSPARENT_1, RELAY_TRANSPARENT_4+1);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.fill(true, PIN_TRANSPARENT_2, PIN_TRANSPARENT_4+1);
@@ -910,8 +966,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_ON start)
     testCase.Description = "Overlapped_On->1001";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -920,8 +976,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_4, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_1, true);
@@ -937,8 +993,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_ON target)
     testCase.Description = "Overlapped_On->0101";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -948,8 +1004,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_ON_2, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_ON_2, true);
@@ -969,8 +1025,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF start)
     testCase.Description = "Overlapped_Off->1001";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -979,8 +1035,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, true);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_4, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_OFF_1, true);
@@ -996,8 +1052,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_OVERLAPPED_OFF target)
     testCase.Description = "Overlapped_Off->0101";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -1007,8 +1063,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_1, false);
     testCase.SetMask.setBit(RELAY_OVERLAPPED_OFF_2, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_OVERLAPPED_OFF_1, true);
@@ -1028,8 +1084,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_PASS_ON start)
     testCase.Description = "Force Pass_On->1001 unblocked";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 100; // unblocked
@@ -1038,8 +1094,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_PASS_ON_1, true);
     testCase.SetMask.setBit(RELAY_PASS_ON_4, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.fill(true, PIN_PASS_ON_1, PIN_PASS_ON_4+1);
@@ -1054,8 +1110,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_PASS_ON target)
     testCase.Description = "Pass_On->0101";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -1069,8 +1125,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_PASS_ON_3, false);
     testCase.SetMask.setBit(RELAY_PASS_ON_4, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1 (switch on 2+3)
     resultEnableMask.setBit(PIN_PASS_ON_2, true);
@@ -1084,7 +1140,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     resultEnableMask.setBit(PIN_PASS_ON_1, true);
     resultEnableMask.setBit(PIN_PASS_ON_2, false);
     resultEnableMask.setBit(PIN_PASS_ON_3, true);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     resultLogicalMask.setBit(RELAY_PASS_ON_1, false);
     resultLogicalMask.setBit(RELAY_PASS_ON_3, false);
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 100));
@@ -1094,8 +1150,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_PASS_OFF start)
     testCase.Description = "Pass_Off->1001";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -1104,8 +1160,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_PASS_OFF_1, true);
     testCase.SetMask.setBit(RELAY_PASS_OFF_4, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1
     resultEnableMask.setBit(PIN_PASS_OFF_1, true);
@@ -1121,8 +1177,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
 
     // define test case (see relay-sequencer.h SWITCH_PASS_OFF target)
     testCase.Description = "Pass_Off->0101";
-    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER);    // init
-    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQUENCER); // init
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
     testCase.lowLayerUnblockedDelayMs = 0; // blocked
@@ -1132,8 +1188,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.SetMask.setBit(RELAY_PASS_OFF_1, false);
     testCase.SetMask.setBit(RELAY_PASS_OFF_2, true);
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     expectedData.clear();
     // low layer callback 1 (switch off 1+4)
     resultEnableMask.setBit(PIN_PASS_OFF_1, true);
@@ -1145,8 +1201,8 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
     // low layer callback 2
     // init compare masks
-    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
-    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SEQUENCER);
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
     resultEnableMask.setBit(PIN_PASS_OFF_2, true);
     resultEnableMask.setBit(PIN_PASS_OFF_4, true);
     resultSetMask.setBit(PIN_PASS_OFF_2, true);
@@ -1157,6 +1213,95 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     // add testcase
     testCase.expectedData = expectedData;
     testCases.append(testCase);
+}
+
+static void appendTestCasesSerializer(QList<TTestCase> &testCases)
+{
+    QList<TExpectedLowLayerData> expectedData;
+    TTestCase testCase;
+    QBitArray resultEnableMask;
+    QBitArray resultSetMask;
+    QBitArray resultLogicalMask;
+    resultLogicalMask.resize(LOGICAL_RELAY_COUNT_SEQ_SERSEQ);
+
+    // define test case
+    testCase.Description = "Transparent8->1";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_TRANSPARENT_8, true);
+    testCase.SetMask.setBit(RELAY_TRANSPARENT_8, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_TRANSPARENT_8, true);
+    resultSetMask.setBit(PIN_TRANSPARENT_8, true);
+    resultLogicalMask.setBit(RELAY_TRANSPARENT_8, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case
+    testCase.Description = "No OP";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 0; // no OP
+    // we don't expect callbacks here
+    expectedData.clear();
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case
+    testCase.Description = "Transparent8->1 again: no-op";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
+    testCase.bForce = false;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 0;
+    testCase.EnableMask.setBit(RELAY_TRANSPARENT_8, true);
+    testCase.SetMask.setBit(RELAY_TRANSPARENT_8, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    expectedData.clear();
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
+    // define test case
+    testCase.Description = "Forced Transparent8->1";
+    testCase.SetMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ);    // init
+    testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
+    testCase.bForce = true;
+    testCase.bSetMasksBitByBit = false;
+    testCase.lowLayerUnblockedDelayMs = 0; // blocked
+    testCase.expectedFinalDelay = 100;
+    testCase.EnableMask.setBit(RELAY_TRANSPARENT_8, true);
+    testCase.SetMask.setBit(RELAY_TRANSPARENT_8, true);
+    // init compare masks
+    resultEnableMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    resultSetMask.fill(false, PHYSICAL_PIN_COUNT_SERSEQ);
+    expectedData.clear();
+    // low layer callback 1
+    resultEnableMask.setBit(PIN_TRANSPARENT_8, true);
+    resultSetMask.setBit(PIN_TRANSPARENT_8, true);
+    resultLogicalMask.setBit(RELAY_TRANSPARENT_8, true);
+    expectedData.append(TExpectedLowLayerData(resultEnableMask, resultSetMask, resultLogicalMask, 0));
+    // add testcase
+    testCase.expectedData = expectedData;
+    testCases.append(testCase);
+
 }
 
 int main(int argc, char *argv[])
@@ -1186,6 +1331,8 @@ int main(int argc, char *argv[])
     int relayMapperTestCases = testCases.count();
     appendTestCasesSequencer(testCases);
     int relaySequencerTestCases = testCases.count() - relayMapperTestCases;
+    appendTestCasesSerializer(testCases);
+    int relaySerializerTestCases = testCases.count() - relayMapperTestCases - relaySequencerTestCases;
 
     bool bSingleTestError = false;
     bool bTotalTestError = false;
@@ -1295,9 +1442,13 @@ int main(int argc, char *argv[])
 
     // Relay sequencer
     QRelaySequencer relaySequencer;
-    initRelayMapperSetupSequencer();
-    relaySequencer.SetLowLayer(&relayMapper);
+    initRelayMapperSetupSerSeq();
     if(!initRelaySequencerSetup(relaySequencer))
+        bTotalTestError = true;
+
+    // Relay serializer
+    QRelaySerializer relaySerializer;
+    if(!initRelaySerializerSetup(relaySerializer))
         bTotalTestError = true;
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
@@ -1306,6 +1457,7 @@ int main(int argc, char *argv[])
     {   // singleshot timer callback begin
         int idleCountMapper = 0;
         int idleCountSequencer = 0;
+        int idleCountSerializer = 0;
         // Simple idle counter for mapper
         QObject::connect(
             &relayMapper, &QRelayMapper::idle,
@@ -1322,6 +1474,13 @@ int main(int argc, char *argv[])
         {
             idleCountSequencer++;
         });
+        // Simple idle counter for serializer
+        QObject::connect(
+            &relaySerializer, &QRelaySerializer::idle,
+            [&]()
+        {
+            idleCountSerializer++;
+        });
 
         // loop all test cases
         for(;currTestCase<testCases.count(); currTestCase++)
@@ -1335,6 +1494,11 @@ int main(int argc, char *argv[])
             {
                 qInfo() << "";
                 qInfo() << "---------------Relay-sequencer-tests------------";
+            }
+            if(currTestCase==relayMapperTestCases+relaySequencerTestCases)
+            {
+                qInfo() << "";
+                qInfo() << "---------------Relay-serializer-tests------------";
             }
             qInfo() << "";
             qInfo() << "Starting test case:" << testCases[currTestCase].Description;
@@ -1364,21 +1528,39 @@ int main(int argc, char *argv[])
                 currentLayer = &relayMapper;
                 QObject::connect(currentLayer, &QRelayMapper::idle, &loop, &QEventLoop::quit);
             }
-            else
+            else if(currTestCase<relayMapperTestCases+relaySequencerTestCases)
             {
                 currentLayer = &relaySequencer;
                 QObject::connect(currentLayer, &QRelaySequencer::idle, &loop, &QEventLoop::quit);
             }
-            // reconfigure relay-mapper
+            else
+            {
+                currentLayer = &relaySerializer;
+                QObject::connect(currentLayer, &QRelaySerializer::idle, &loop, &QEventLoop::quit);
+            }
+            if(currTestCase==0)
+                relaySequencer.SetLowLayer(&relayMapper);
+            // reconfigure layers
             if(currTestCase==relayMapperTestCases)
             {
                 // In real world applications reconfigure of relay-mapper should not be necessary
-                relayMapper.setup(LOGICAL_RELAY_COUNT_SEQUENCER,
+                relayMapper.setup(LOGICAL_RELAY_COUNT_SEQ_SERSEQ,
                                   arrRelayMapperSetupSequencer,
                                   sliceTimerPeriod,
                                   CallbackStartLowLayerSwitch);
                 // inform relaySequencer that relay-mapper has changed configuration
                 relaySequencer.SetLowLayer(&relayMapper);
+            }
+            if(currTestCase==relayMapperTestCases+relaySequencerTestCases)
+            {
+                // set mapper to initial conditions
+                relayMapper.setup(LOGICAL_RELAY_COUNT_SEQ_SERSEQ,
+                                  arrRelayMapperSetupSequencer,
+                                  sliceTimerPeriod,
+                                  CallbackStartLowLayerSwitch);
+                // new layer config: Serializer->Mapper
+                relaySequencer.SetLowLayer(Q_NULLPTR);
+                relaySerializer.SetLowLayer(&relayMapper);
             }
             // run startSetMulti or / startSet as set in test case
             //timeoutTimer.start(1000);
@@ -1437,9 +1619,6 @@ int main(int argc, char *argv[])
                 bTotalTestError = true;
         } // test case loop end
 
-        // Test zero pointer
-        relaySequencer.SetLowLayer(Q_NULLPTR);
-
         // correct number of idles received?
         qInfo() << "";
         qInfo() << timerElapsedApplication.elapsed() << "ms since application start";
@@ -1457,7 +1636,13 @@ int main(int argc, char *argv[])
             bTotalTestError = true;
             qWarning() << "Error!!! Sequencer Idle signals" << idleCountSequencer << "expected:" << relaySequencerTestCases;
         }
-
+        if(idleCountSerializer==relaySerializerTestCases)
+            qInfo() << "Serializer idle signals:" << idleCountSerializer << "OK";
+        else
+        {
+            bTotalTestError = true;
+            qWarning() << "Error!!! Serializer Idle signals" << idleCountSerializer << "expected:" << relaySerializerTestCases;
+        }
         qInfo() << "";
         // End message
         if(!bTotalTestError)
