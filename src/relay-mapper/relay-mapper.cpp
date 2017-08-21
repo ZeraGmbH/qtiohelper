@@ -135,8 +135,8 @@ void QRelayMapper::onSliceTimer()
 
             // Setup timer (+1: timer is decremented below - so zero values finish here)
             d->arrPinDelayCounter[iBit] = logicalPinInfoEntry.ui8OnTime+1;
-            // mark busy
-            d->logicalBusyMask.setBit(iBit);
+            // mark dirty
+            d->logicalDirtyMask.setBit(iBit);
             // keep state
             d->logicalSetMaskCurrent.setBit(iBit, d->logicalSetMaskNext.at(iBit));
             // set handled
@@ -144,8 +144,8 @@ void QRelayMapper::onSliceTimer()
             // we need a low layer transaction
             bLowerIORequested = true;
         }
-        // 2. Handle busy logical bits
-        if(d->logicalBusyMask.at(iBit))
+        // 2. Handle dirty logical bits
+        if(d->logicalDirtyMask.at(iBit))
         {
             // pin delay finished
             quint8 ui8Counter = d->arrPinDelayCounter[iBit];
@@ -180,7 +180,7 @@ void QRelayMapper::onSliceTimer()
                     bLowerIORequested = true;
                 }
                 // Mark this bit as finished
-                d->logicalBusyMask.clearBit(iBit);
+                d->logicalDirtyMask.clearBit(iBit);
             }
         }
     }

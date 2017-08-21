@@ -42,7 +42,7 @@ void QRelayBase::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
     Q_D(QRelayBase);
     d->logicalEnableMaskNext = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalSetMaskNext = QBitArray(ui16LogicalArrayInfoCount);
-    d->logicalBusyMask = QBitArray(ui16LogicalArrayInfoCount);
+    d->logicalDirtyMask = QBitArray(ui16LogicalArrayInfoCount);
     d->logicalTargetMask = QBitArray(ui16LogicalArrayInfoCount);
 }
 
@@ -88,7 +88,7 @@ bool QRelayBase::startNextTransaction()
 {
     Q_D(QRelayBase);
     // we are not busy check for next transaction
-    if(d->logicalBusyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true))
+    if(d->logicalDirtyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true))
     {
         // calculate target state
         d->logicalTargetMask = getLogicalRelayState();
@@ -96,13 +96,13 @@ bool QRelayBase::startNextTransaction()
             if(d->logicalEnableMaskNext.at(ui16Bit))
                 d->logicalTargetMask.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
         // calculate bit difference mask
-        d->logicalBusyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
+        d->logicalDirtyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
         // filter enabled
-        d->logicalBusyMask &= d->logicalEnableMaskNext;
+        d->logicalDirtyMask &= d->logicalEnableMaskNext;
         // everything else goes in next transaction
         d->logicalEnableMaskNext.fill(false);
     }
-    return d->logicalBusyMask.count(true);
+    return d->logicalDirtyMask.count(true);
 }
 
 bool QRelayBase::isBusy()
@@ -110,7 +110,7 @@ bool QRelayBase::isBusy()
     Q_D(QRelayBase);
     return
         d->logicalEnableMaskNext.count(true) || // not yet started
-        d->logicalBusyMask.count(true);         // in progress
+        d->logicalDirtyMask.count(true);        // in progress
 }
 
 void QRelayBase::onLowLayerIdle()
@@ -177,15 +177,22 @@ const QBitArray &QRelayUpperBase::getLogicalRelayState()
     return d->lowRelayLayer->getLogicalRelayState();
 }
 
+bool QRelayUpperBase::isBusy()
+{
+    Q_D(QRelayUpperBase);
+    return d->lowLayerTransactionStarted || QRelayBase::isBusy();
+}
+
 void QRelayUpperBase::onIdleTimer()
 {
     Q_D(QRelayUpperBase);
     // in case low layer is still busy - wait for next idle
     if(d->lowRelayLayer && d->lowRelayLayer->isBusy())
         return;
-    // Does transaction start?
-    if(!process())
-        // No -> give notification
+    // does this layer start a low layer transaction?
+    d->lowLayerTransactionStarted = process();
+    if(!d->lowLayerTransactionStarted)
+        // no -> finish -> give notification
         emit idle();
 }
 
@@ -198,8 +205,13 @@ void QRelayUpperBase::onLowLayerIdle()
         d->bypassToLowerLayerActive = false;
         emit idle();
     }
-    // Transaction continues?
-    if(isBusy() && !process())
-        // No -> give notification
-        emit idle();
+    // transaction pending?
+    if(isBusy())
+    {
+        // does this layer start a low layer transaction?
+        d->lowLayerTransactionStarted = process();
+        if(!d->lowLayerTransactionStarted)
+            // no -> finish -> give notification
+            emit idle();
+    }
 }

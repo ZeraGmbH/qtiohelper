@@ -15,7 +15,7 @@ public:
     QBitArray logicalSetMaskNext;
 
     // Bits to change in this transaction
-    QBitArray logicalBusyMask;
+    QBitArray logicalDirtyMask;
     // The after transaction target bitmask
     QBitArray logicalTargetMask;
 };
@@ -32,6 +32,8 @@ public:
     // Set when startSet is called with bForce=true and signals transparent
     // bypassing
     bool bypassToLowerLayerActive;
+    // we started a low layer transaction
+    bool lowLayerTransactionStarted;
 };
 
 #endif // QRelayBase_P_H

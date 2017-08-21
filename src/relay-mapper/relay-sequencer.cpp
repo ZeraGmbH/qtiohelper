@@ -55,18 +55,17 @@ void QRelaySequencer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 bool QRelaySequencer::process()
 {
     Q_D(QRelaySequencer);
-    bool idleOut = true;
+    bool startedLowLayerTransaction = false;
     switch(d->relaySequencerSwitchState)
     {
     case SEQUENCER_STATE_IDLE:
         // Start a next transaction?
         if(startNextTransaction())
         {
-            idleOut = false;
             QBitArray enableMask1 = QBitArray(getLogicalRelayCount());
             QBitArray setMask1 = d->logicalSetMaskNext;
             // We need a local copy - bits are deleted below
-            QBitArray dirtyMask = d->logicalBusyMask;
+            QBitArray dirtyMask = d->logicalDirtyMask;
             // loop all bits
             for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
             {
@@ -137,6 +136,7 @@ bool QRelaySequencer::process()
             d->relaySequencerSwitchState = SEQUENCER_STATE_2ND;
             // start low layer action
             d->lowRelayLayer->startSetMulti(enableMask1, setMask1);
+            startedLowLayerTransaction = true;
         }
         break;
     case SEQUENCER_STATE_2ND:
@@ -144,13 +144,13 @@ bool QRelaySequencer::process()
         d->relaySequencerSwitchState = SEQUENCER_STATE_END;
         // start low layer action
         d->lowRelayLayer->startSetMulti(d->enableMask2, d->logicalTargetMask);
-        idleOut = false;
+        startedLowLayerTransaction = true;
         break;
     case SEQUENCER_STATE_END:
         // all work is done
         d->relaySequencerSwitchState = SEQUENCER_STATE_IDLE;
-        d->logicalBusyMask.fill(false);
+        d->logicalDirtyMask.fill(false);
         break;
     }
-    return !idleOut;
+    return startedLowLayerTransaction;
 }

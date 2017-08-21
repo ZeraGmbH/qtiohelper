@@ -65,6 +65,7 @@ public:
             bool bForce = false); // =true: This layer passed input transparent
                                   // to low layer connected
     virtual const QBitArray& getLogicalRelayState();
+    virtual bool isBusy();
 protected:
     virtual bool process() = 0;   // return true: this layer is still busy
 

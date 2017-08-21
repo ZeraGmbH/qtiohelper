@@ -61,18 +61,18 @@ void QRelaySerializer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 bool QRelaySerializer::process()
 {
     Q_D(QRelaySerializer);
-    bool idleOut = true;
+    bool startedLowLayerTransaction = false;
     // start new transaction
     startNextTransaction();
     // we have bits to switch left over?
-    if(d->logicalBusyMask.count(true))
+    if(d->logicalDirtyMask.count(true))
     {
         QVector<float> groupLoadCurrent;
         groupLoadCurrent.resize(d->vecGroups.size());
         QBitArray nextEnableMask = QBitArray(getLogicalRelayCount());
         for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
         {
-            if(d->logicalBusyMask.at(ui16Bit))
+            if(d->logicalDirtyMask.at(ui16Bit))
             {
                 bool bitFoundInGroup = false;
                 // is this bit part of a group
@@ -96,7 +96,7 @@ bool QRelaySerializer::process()
                                 // perform bit action
                                 nextEnableMask.setBit(ui16Bit, true);
                                 // set done for next
-                                d->logicalBusyMask.setBit(ui16Bit, false);
+                                d->logicalDirtyMask.setBit(ui16Bit, false);
                             }
                         }
                     }
@@ -107,13 +107,13 @@ bool QRelaySerializer::process()
                     // perform bit action
                     nextEnableMask.setBit(ui16Bit, true);
                     // set done for next
-                    d->logicalBusyMask.setBit(ui16Bit, false);
+                    d->logicalDirtyMask.setBit(ui16Bit, false);
                 }
             }
         }
         // start output
         d->lowRelayLayer->startSetMulti(nextEnableMask, d->logicalTargetMask);
-        idleOut = false;
+        startedLowLayerTransaction = true;
     }
-    return !idleOut;
+    return startedLowLayerTransaction;
 }
