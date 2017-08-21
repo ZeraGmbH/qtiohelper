@@ -3,7 +3,7 @@
 
 #include "relay-base_p.h"
 #include "relay-sequencer.h"
-#include <QList>
+#include <QVector>
 #include <QSet>
 
 enum enRelaySequencerSwitchState
@@ -20,7 +20,7 @@ public:
     virtual ~QRelaySequencerPrivate();
 
     // Sequence groups
-    QList<TRelaySequencerGroup> listGroups;
+    QVector<TRelaySequencerGroup> vecGroups;
 
     // current state
     enum enRelaySequencerSwitchState relaySequencerSwitchState;

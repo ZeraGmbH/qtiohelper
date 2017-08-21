@@ -41,6 +41,10 @@ enum enRelaySequencerSwitchTypes
 
 struct TRelaySequencerGroup
 {
+    TRelaySequencerGroup()
+    {
+        relaySequencerSwitchType = SWITCH_TRANSPARENT;
+    }
     TRelaySequencerGroup(enum enRelaySequencerSwitchTypes relaySequencerSwitchType_, QVector<quint16> arrui16MemberLogRelayNums_ )
     {
         relaySequencerSwitchType = relaySequencerSwitchType_;

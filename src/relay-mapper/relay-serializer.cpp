@@ -44,7 +44,7 @@ bool QRelaySerializer::AddGroup(const TRelaySerializerGroup &group)
     }
     if(checkOK)
     {
-        d->listGroups.append(group);
+        d->vecGroups.append(group);
         for(relay=0; relay<group.arrSerializerRelayData.size(); relay++)
             d->insertedRelays.insert(group.arrSerializerRelayData[relay].relayNum);
     }

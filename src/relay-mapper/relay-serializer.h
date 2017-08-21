@@ -19,6 +19,10 @@ struct TSerializerRelayData
 
 struct TRelaySerializerGroup
 {
+    TRelaySerializerGroup()
+    {
+        powerSupplyMaxCurrent = 0.0;
+    }
     TRelaySerializerGroup(float powerSupplyMaxCurrent_, QVector<TSerializerRelayData> arrSerializerRelayData_ )
     {
         powerSupplyMaxCurrent = powerSupplyMaxCurrent_;

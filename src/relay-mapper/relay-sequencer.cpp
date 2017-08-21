@@ -38,7 +38,7 @@ bool QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
     }
     if(checkOK)
     {
-        d->listGroups.append(group);
+        d->vecGroups.append(group);
         for(relay=0; relay<group.arrui16MemberLogRelayNums.size(); relay++)
             d->insertedRelays.insert(group.arrui16MemberLogRelayNums[relay]);
     }
@@ -74,19 +74,19 @@ bool QRelaySequencer::process()
                 {
                     enum enRelaySequencerSwitchTypes switchType = SWITCH_TRANSPARENT;
                     // Find group and handle full group cases
-                    for(int group=0; group<d->listGroups.size(); group++)
+                    for(int group=0; group<d->vecGroups.size(); group++)
                     {
-                        if(d->listGroups[group].arrui16MemberLogRelayNums.contains(ui16Bit))
+                        if(d->vecGroups[group].arrui16MemberLogRelayNums.contains(ui16Bit))
                         {
-                            switchType = d->listGroups[group].relaySequencerSwitchType;
+                            switchType = d->vecGroups[group].relaySequencerSwitchType;
                             // Full on/off groups handled here
                             if(switchType == SWITCH_PASS_OFF || switchType == SWITCH_PASS_ON)
                             {
                                 for(int groupMember=0;
-                                    groupMember<d->listGroups[group].arrui16MemberLogRelayNums.size();
+                                    groupMember<d->vecGroups[group].arrui16MemberLogRelayNums.size();
                                     groupMember++)
                                 {
-                                    quint16 ui16GroupBit = d->listGroups[group].arrui16MemberLogRelayNums[groupMember];
+                                    quint16 ui16GroupBit = d->vecGroups[group].arrui16MemberLogRelayNums[groupMember];
                                     setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
                                     enableMask1.setBit(ui16GroupBit);
                                     bool setBit =

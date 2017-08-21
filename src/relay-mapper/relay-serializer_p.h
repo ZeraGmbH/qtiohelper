@@ -4,7 +4,7 @@
 #include "relay-base_p.h"
 #include "relay-serializer.h"
 #include <QSet>
-#include <QList>
+#include <QVector>
 
 class QRelaySerializerPrivate : public QRelayUpperBasePrivate
 {
@@ -12,7 +12,7 @@ public:
     QRelaySerializerPrivate();
     virtual ~QRelaySerializerPrivate();
 
-    QList<TRelaySerializerGroup> listGroups;
+    QVector<TRelaySerializerGroup> vecGroups;
     QSet<quint16> insertedRelays;
 };
 
