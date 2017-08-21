@@ -73,7 +73,7 @@ void QActuaSensePrivate::startOutSet(int iActionID, bool bStateOut)
                 // just fire and forget
                 m_pLowLayerStartFunc(m_OutEnableBitArr, m_OutSetBitArr);
                 // avoid setting this bit in next transaction
-                m_OutEnableBitArr.setBit(pActionData->m_iOutBitNum, false);
+                m_OutEnableBitArr.clearBit(pActionData->m_iOutBitNum);
             }
         }
         else
@@ -278,13 +278,13 @@ bool QActuaSensePrivate::readInputState(QActuaSenseIOData *pActionData)
 {
     bool bInState = false;
     if(!pActionData->m_bDemoMode)
-        bInState = m_pInBitArr->at(pActionData->m_iInBitNum);
+        bInState = m_pInBitArr->testBit(pActionData->m_iInBitNum);
     // demo mode
     else
     {
         // full input demo
         if(pActionData->m_pDemoBitArrIn && pActionData->m_iDemoBitNumIn >=0)
-            bInState = pActionData->m_pDemoBitArrIn->at(pActionData->m_iDemoBitNumIn);
+            bInState = pActionData->m_pDemoBitArrIn->testBit(pActionData->m_iDemoBitNumIn);
         // demo error
         else if(pActionData->m_bDemoError)
             bInState = !pActionData->m_bInStateDesired;

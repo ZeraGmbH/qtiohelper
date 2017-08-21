@@ -56,11 +56,11 @@ void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
         ui16BitNo++)
     {
         // set bit data for enabled and (forced) changing bits only
-        if( logicalEnableMask.at(ui16BitNo) &&
-            (bForce || logicalSetMask.at(ui16BitNo) != getLogicalRelayState().at(ui16BitNo)))
+        if( logicalEnableMask.testBit(ui16BitNo) &&
+            (bForce || logicalSetMask.testBit(ui16BitNo) != getLogicalRelayState().testBit(ui16BitNo)))
         {
             d->logicalEnableMaskNext.setBit(ui16BitNo);
-            d->logicalSetMaskNext.setBit(ui16BitNo, logicalSetMask.at(ui16BitNo));
+            d->logicalSetMaskNext.setBit(ui16BitNo, logicalSetMask.testBit(ui16BitNo));
         }
     }
 }
@@ -93,8 +93,8 @@ bool QRelayBase::startNextTransaction()
         // calculate target state
         d->logicalTargetMask = getLogicalRelayState();
         for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
-            if(d->logicalEnableMaskNext.at(ui16Bit))
-                d->logicalTargetMask.setBit(ui16Bit, d->logicalSetMaskNext.at(ui16Bit));
+            if(d->logicalEnableMaskNext.testBit(ui16Bit))
+                d->logicalTargetMask.setBit(ui16Bit, d->logicalSetMaskNext.testBit(ui16Bit));
         // calculate bit difference mask
         d->logicalDirtyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
         // filter enabled

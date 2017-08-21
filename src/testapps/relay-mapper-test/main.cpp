@@ -1576,9 +1576,10 @@ int main(int argc, char *argv[])
                     logRelay<testCases[currTestCase].EnableMask.size() && logRelay<currentLayer->getLogicalRelayCount();
                     logRelay++)
                 {
-                    if(testCases[currTestCase].EnableMask.at(logRelay))
+                    if(testCases[currTestCase].EnableMask.testBit(logRelay))
                     {
-                        bool bSet = logRelay<testCases[currTestCase].SetMask.size() ? testCases[currTestCase].SetMask.at(logRelay) : false;
+                        bool bSet = logRelay<testCases[currTestCase].SetMask.size() ?
+                                    testCases[currTestCase].SetMask.testBit(logRelay) : false;
                         currentLayer->startSet(logRelay, bSet, testCases[currTestCase].bForce);
                     }
                 }

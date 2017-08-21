@@ -69,7 +69,7 @@ bool QRelaySequencer::process()
             // loop all bits
             for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
             {
-                if(dirtyMask.at(ui16Bit))
+                if(dirtyMask.testBit(ui16Bit))
                 {
                     enum enRelaySequencerSwitchTypes switchType = SWITCH_TRANSPARENT;
                     // Find group and handle full group cases
@@ -89,13 +89,13 @@ bool QRelaySequencer::process()
                                     setMask1.setBit(ui16GroupBit, switchType == SWITCH_PASS_ON);
                                     enableMask1.setBit(ui16GroupBit);
                                     bool setBit =
-                                            (switchType == SWITCH_PASS_ON && d->logicalTargetMask.at(ui16GroupBit) == false) ||
-                                            (switchType == SWITCH_PASS_OFF && d->logicalTargetMask.at(ui16GroupBit) == true);
+                                            (switchType == SWITCH_PASS_ON && d->logicalTargetMask.testBit(ui16GroupBit) == false) ||
+                                            (switchType == SWITCH_PASS_OFF && d->logicalTargetMask.testBit(ui16GroupBit) == true);
                                     d->enableMask2.setBit(ui16GroupBit, setBit);
                                     // The bits handled here can be considered as done
                                     // (a relay can be member only in one group). So avoid
                                     // rechecking same bits over and over in main loop
-                                    dirtyMask.setBit(ui16GroupBit, false);
+                                    dirtyMask.clearBit(ui16GroupBit);
                                 }
                             }
                             break;
@@ -110,7 +110,7 @@ bool QRelaySequencer::process()
                         d->enableMask2.setBit(ui16Bit);
                         break;
                     case SWITCH_OVERLAPPED_ON:
-                        if(d->logicalSetMaskNext.at(ui16Bit))
+                        if(d->logicalSetMaskNext.testBit(ui16Bit))
                             // switch on during first transation
                             enableMask1.setBit(ui16Bit);
                         else
@@ -118,7 +118,7 @@ bool QRelaySequencer::process()
                             d->enableMask2.setBit(ui16Bit);
                         break;
                     case SWITCH_OVERLAPPED_OFF:
-                        if(!d->logicalSetMaskNext.at(ui16Bit))
+                        if(!d->logicalSetMaskNext.testBit(ui16Bit))
                             // switch off during first transation
                             enableMask1.setBit(ui16Bit);
                         else

@@ -97,7 +97,7 @@ void QRelayMapper::onSliceTimer()
     {
         const TLogicalRelayEntry& logicalPinInfoEntry = d->pLogicalInfoArray[iBit];
         // 1. Handle changes since last slice
-        if(d->logicalEnableMaskNext.at(iBit))
+        if(d->logicalEnableMaskNext.testBit(iBit))
         {
             // set physical pins
             // by using a default the 'else'-part in the decisions below are not
@@ -105,7 +105,7 @@ void QRelayMapper::onSliceTimer()
             bool bSetOutput = true;
             // Check On/off
             quint16 ui16OutBitPosition;
-            if(d->logicalSetMaskNext.at(iBit))
+            if(d->logicalSetMaskNext.testBit(iBit))
             {
                 ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
                 // ON state same for bistable/monostable
@@ -130,7 +130,7 @@ void QRelayMapper::onSliceTimer()
                 }
             }
             // Do set output
-            physicalEnableMask.setBit(ui16OutBitPosition, true);
+            physicalEnableMask.setBit(ui16OutBitPosition);
             physicalSetMask.setBit(ui16OutBitPosition, bSetOutput);
 
             // Setup timer (+1: timer is decremented below - so zero values finish here)
@@ -138,14 +138,14 @@ void QRelayMapper::onSliceTimer()
             // mark dirty
             d->logicalDirtyMask.setBit(iBit);
             // keep state
-            d->logicalSetMaskCurrent.setBit(iBit, d->logicalSetMaskNext.at(iBit));
+            d->logicalSetMaskCurrent.setBit(iBit, d->logicalSetMaskNext.testBit(iBit));
             // set handled
             d->logicalEnableMaskNext.clearBit(iBit);
             // we need a low layer transaction
             bLowerIORequested = true;
         }
         // 2. Handle dirty logical bits
-        if(d->logicalDirtyMask.at(iBit))
+        if(d->logicalDirtyMask.testBit(iBit))
         {
             // pin delay finished
             quint8 ui8Counter = d->arrPinDelayCounter[iBit];
@@ -158,7 +158,7 @@ void QRelayMapper::onSliceTimer()
                 {
                     uint16_t ui16OutBitPosition;
                     bool bSetOutput = true;
-                    if(d->logicalSetMaskCurrent.at(iBit))
+                    if(d->logicalSetMaskCurrent.testBit(iBit))
                     {
                         // It is ON
                         ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
@@ -174,7 +174,7 @@ void QRelayMapper::onSliceTimer()
                     }
 
                     // Do set output
-                    physicalEnableMask.setBit(ui16OutBitPosition, true);
+                    physicalEnableMask.setBit(ui16OutBitPosition);
                     physicalSetMask.setBit(ui16OutBitPosition, bSetOutput);
                     // we need a low layer transaction
                     bLowerIORequested = true;

@@ -71,7 +71,7 @@ bool QRelaySerializer::process()
         QBitArray nextEnableMask(getLogicalRelayCount());
         for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
         {
-            if(d->logicalDirtyMask.at(ui16Bit))
+            if(d->logicalDirtyMask.testBit(ui16Bit))
             {
                 bool bitFoundInGroup = false;
                 // is this bit part of a group
@@ -87,7 +87,7 @@ bool QRelaySerializer::process()
                         {
                             bitFoundInGroup = true;
                             float newLoad = groupLoadCurrent[group];
-                            if(d->logicalTargetMask.at(ui16Bit))
+                            if(d->logicalTargetMask.testBit(ui16Bit))
                                 newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOn;
                             else
                                 newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOff;
@@ -97,9 +97,9 @@ bool QRelaySerializer::process()
                                 // keep new sum
                                 groupLoadCurrent[group] = newLoad;
                                 // perform bit action
-                                nextEnableMask.setBit(ui16Bit, true);
+                                nextEnableMask.setBit(ui16Bit);
                                 // set done for next
-                                d->logicalDirtyMask.setBit(ui16Bit, false);
+                                d->logicalDirtyMask.clearBit(ui16Bit);
                             }
                         }
                     }
@@ -108,9 +108,9 @@ bool QRelaySerializer::process()
                 if(!bitFoundInGroup)
                 {
                     // perform bit action
-                    nextEnableMask.setBit(ui16Bit, true);
+                    nextEnableMask.setBit(ui16Bit);
                     // set done for next
-                    d->logicalDirtyMask.setBit(ui16Bit, false);
+                    d->logicalDirtyMask.clearBit(ui16Bit);
                 }
             }
         }
