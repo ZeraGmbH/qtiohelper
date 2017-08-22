@@ -9,18 +9,18 @@ struct TSerializerRelayData
     TSerializerRelayData()
     {
         relayNum = 0;
-        supplyCurrentOn = 0.0;
-        supplyCurrentOff = 0.0;
+        supplyCurrent = 0.0;
+        switchOn = false;
     }
-    TSerializerRelayData(quint16 relayNum_, float supplyCurrentOn_, float supplyCurrentOff_)
+    TSerializerRelayData(quint16 relayNum_, float supplyCurrent_, bool switchOn_)
     {
         relayNum = relayNum_;
-        supplyCurrentOn = supplyCurrentOn_;
-        supplyCurrentOff = supplyCurrentOff_;
+        supplyCurrent = supplyCurrent_;
+        switchOn = switchOn_;
     }
     quint16 relayNum;
-    float supplyCurrentOn;
-    float supplyCurrentOff;
+    float supplyCurrent;
+    bool switchOn;
 };
 
 struct TRelaySerializerGroup
@@ -47,6 +47,7 @@ public:
     QRelaySerializer(QObject *parent = Q_NULLPTR);
 
     bool AddGroup(const TRelaySerializerGroup &group);
+    void AppendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent);
 
 protected:
     virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);

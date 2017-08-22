@@ -29,14 +29,15 @@ bool QRelaySerializer::AddGroup(const TRelaySerializerGroup &group)
     {
         // relays shall not be members of more than one group - check that
         quint16 relayNum = group.arrSerializerRelayData[relay].relayNum;
-        if(d->insertedRelays.contains(relayNum))
+        bool switchOn = group.arrSerializerRelayData[relay].switchOn;
+        if((switchOn && d->insertedRelaysOn.contains(relayNum)) ||
+           (!switchOn && d->insertedRelaysOff.contains(relayNum)))
         {
             checkOK = false;
             qCritical() << "Relay" << relayNum << "is already member of a relay-serializer group. Group will be ignored!!";
         }
         // relay's current must be less or equal than power supply's current
-        if(group.arrSerializerRelayData[relay].supplyCurrentOff > group.powerSupplyMaxCurrent ||
-           group.arrSerializerRelayData[relay].supplyCurrentOn > group.powerSupplyMaxCurrent)
+        if(group.arrSerializerRelayData[relay].supplyCurrent > group.powerSupplyMaxCurrent)
         {
             checkOK = false;
             qCritical() << "Relay" << relayNum << ": current is larger than supply" << "Group will be ignored!!";
@@ -46,9 +47,20 @@ bool QRelaySerializer::AddGroup(const TRelaySerializerGroup &group)
     {
         d->vecGroups.append(group);
         for(relay=0; relay<group.arrSerializerRelayData.size(); relay++)
-            d->insertedRelays.insert(group.arrSerializerRelayData[relay].relayNum);
+        {
+            if(group.arrSerializerRelayData[relay].switchOn)
+                d->insertedRelaysOn.insert(group.arrSerializerRelayData[relay].relayNum);
+            else
+                d->insertedRelaysOff.insert(group.arrSerializerRelayData[relay].relayNum);
+        }
     }
     return checkOK;
+}
+
+void QRelaySerializer::AppendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent)
+{
+    arrSerializerRelayData.append(TSerializerRelayData(relayNum, supplyCurrent, true));
+    arrSerializerRelayData.append(TSerializerRelayData(relayNum, supplyCurrent, false));
 }
 
 void QRelaySerializer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
@@ -69,49 +81,48 @@ bool QRelaySerializer::process()
     {
         QVector<float> groupLoadCurrent(d->vecGroups.size());
         QBitArray nextEnableMask(getLogicalRelayCount());
-        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+        QBitArray delayedForNextMask(getLogicalRelayCount());
+        // To keep sequence set in groups we loop all group and check if their
+        // relays are part of the transaction
+        for(quint16 group=0; group<d->vecGroups.count(); group++)
         {
-            if(d->logicalDirtyMask.testBit(ui16Bit))
+            for(quint16 relay=0; relay<d->vecGroups[group].arrSerializerRelayData.size();relay++)
             {
-                bool bitFoundInGroup = false;
-                // is this bit part of a group
-                for(quint16 group=0;
-                    group<d->vecGroups.count() && !bitFoundInGroup;
-                    group++)
+                struct TSerializerRelayData &relayData = d->vecGroups[group].arrSerializerRelayData[relay];
+                // does relay number and desired on/off match
+                if(d->logicalDirtyMask.testBit(relayData.relayNum) &&
+                   d->logicalTargetMask.testBit(relayData.relayNum) == relayData.switchOn)
                 {
-                    for(quint16 relay=0;
-                        relay<d->vecGroups[group].arrSerializerRelayData.size() && !bitFoundInGroup;
-                        relay++)
+                    float newLoad = groupLoadCurrent[group];
+                    newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrent;
+                    // Load is less or equal allowed sum
+                    if(newLoad <= d->vecGroups[group].powerSupplyMaxCurrent)
                     {
-                        if(d->vecGroups[group].arrSerializerRelayData[relay].relayNum == ui16Bit)
-                        {
-                            bitFoundInGroup = true;
-                            float newLoad = groupLoadCurrent[group];
-                            if(d->logicalTargetMask.testBit(ui16Bit))
-                                newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOn;
-                            else
-                                newLoad += d->vecGroups[group].arrSerializerRelayData[relay].supplyCurrentOff;
-                            // Load is less or equal allowed sum
-                            if(newLoad <= d->vecGroups[group].powerSupplyMaxCurrent)
-                            {
-                                // keep new sum
-                                groupLoadCurrent[group] = newLoad;
-                                // perform bit action
-                                nextEnableMask.setBit(ui16Bit);
-                                // set done for next
-                                d->logicalDirtyMask.clearBit(ui16Bit);
-                            }
-                        }
+                        // keep new sum
+                        groupLoadCurrent[group] = newLoad;
+                        // perform bit action
+                        nextEnableMask.setBit(relayData.relayNum);
+                        // set done
+                        d->logicalDirtyMask.clearBit(relayData.relayNum);
+                    }
+                    // The bit/on-state matches but power supply load is exceeded
+                    else
+                    {
+                        // we have to keep a reminder to avoid bit being switched in the
+                        // transparent loop below
+                        delayedForNextMask.setBit(relayData.relayNum);
                     }
                 }
-                // non group members -> transparent out
-                if(!bitFoundInGroup)
-                {
-                    // perform bit action
-                    nextEnableMask.setBit(ui16Bit);
-                    // set done for next
-                    d->logicalDirtyMask.clearBit(ui16Bit);
-                }
+            }
+        }
+        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
+        {
+            if(d->logicalDirtyMask.testBit(ui16Bit) && !delayedForNextMask.testBit(ui16Bit))
+            {
+                // perform bit action
+                nextEnableMask.setBit(ui16Bit);
+                // set done for next
+                d->logicalDirtyMask.clearBit(ui16Bit);
             }
         }
         // start output

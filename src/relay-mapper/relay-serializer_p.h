@@ -13,7 +13,8 @@ public:
     virtual ~QRelaySerializerPrivate();
 
     QVector<TRelaySerializerGroup> vecGroups;
-    QSet<quint16> insertedRelays;
+    QSet<quint16> insertedRelaysOn;
+    QSet<quint16> insertedRelaysOff;
 };
 
 
