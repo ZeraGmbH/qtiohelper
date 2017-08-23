@@ -58,7 +58,7 @@ class QTRELAYSSHARED_EXPORT QRelayUpperBase : public QRelayBase
     Q_OBJECT
 public:
     QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp);
-    void SetLowLayer(QRelayBase* lowRelayLayer);
+    void setLowLayer(QRelayBase* lowRelayLayer);
     virtual void startSetMulti(
             const QBitArray& logicalEnableMask,
             const QBitArray& logicalSetMask,

@@ -62,7 +62,7 @@ class QTRELAYSSHARED_EXPORT QRelaySequencer : public QRelayUpperBase
 public:
     QRelaySequencer(QObject *parent = Q_NULLPTR);
 
-    bool AddGroup(const TRelaySequencerGroup &group);
+    bool addGroup(const TRelaySequencerGroup &group);
 
 protected:
     virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);

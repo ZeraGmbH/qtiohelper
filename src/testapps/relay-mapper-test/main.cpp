@@ -335,10 +335,10 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_1);
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_2);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
 
     qInfo("Test if multiple adding id denied");
-    if(relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
+    if(relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
     {
         qWarning("Test failed: incorrect group was accepted!");
         checkOK = false;
@@ -351,28 +351,28 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_2);
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_3);
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_ON_4);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums));
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_1);
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_2);
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_3);
     arrui16MemberLogRelayNums.append(RELAY_OVERLAPPED_OFF_4);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_OFF, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_OFF, arrui16MemberLogRelayNums));
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_PASS_ON_1);
     arrui16MemberLogRelayNums.append(RELAY_PASS_ON_2);
     arrui16MemberLogRelayNums.append(RELAY_PASS_ON_3);
     arrui16MemberLogRelayNums.append(RELAY_PASS_ON_4);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_ON, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_PASS_ON, arrui16MemberLogRelayNums));
 
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_1);
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_2);
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_3);
     arrui16MemberLogRelayNums.append(RELAY_PASS_OFF_4);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_PASS_OFF, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_PASS_OFF, arrui16MemberLogRelayNums));
 
     return checkOK;
 }
@@ -386,10 +386,10 @@ static bool initRelaySerializerSetup(QRelaySerializer &relaySerializer)
     arrui16MemberLogRelayNums.clear();
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_1);
     arrui16MemberLogRelayNums.append(RELAY_TRANSPARENT_2);
-    relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
+    relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_TRANSPARENT, arrui16MemberLogRelayNums));
 
     qInfo("Test if multiple adding id denied");
-    if(relaySequencer.AddGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
+    if(relaySequencer.addGroup(TRelaySequencerGroup(SWITCH_OVERLAPPED_ON, arrui16MemberLogRelayNums)))
     {
         qWarning("Test failed: incorrect group was accepted!");
         checkOK = false;
@@ -1539,7 +1539,7 @@ int main(int argc, char *argv[])
                 QObject::connect(currentLayer, &QRelaySerializer::idle, &loop, &QEventLoop::quit);
             }
             if(currTestCase==0)
-                relaySequencer.SetLowLayer(&relayMapper);
+                relaySequencer.setLowLayer(&relayMapper);
             // reconfigure layers
             if(currTestCase==relayMapperTestCases)
             {
@@ -1549,7 +1549,7 @@ int main(int argc, char *argv[])
                                   sliceTimerPeriod,
                                   CallbackStartLowLayerSwitch);
                 // inform relaySequencer that relay-mapper has changed configuration
-                relaySequencer.SetLowLayer(&relayMapper);
+                relaySequencer.setLowLayer(&relayMapper);
             }
             if(currTestCase==relayMapperTestCases+relaySequencerTestCases)
             {
@@ -1559,8 +1559,8 @@ int main(int argc, char *argv[])
                                   sliceTimerPeriod,
                                   CallbackStartLowLayerSwitch);
                 // new layer config: Serializer->Mapper
-                relaySequencer.SetLowLayer(Q_NULLPTR);
-                relaySerializer.SetLowLayer(&relayMapper);
+                relaySequencer.setLowLayer(Q_NULLPTR);
+                relaySerializer.setLowLayer(&relayMapper);
             }
             // run startSetMulti or / startSet as set in test case
             timeoutTimer.start(1000);

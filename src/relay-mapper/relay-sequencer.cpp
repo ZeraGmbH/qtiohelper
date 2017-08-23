@@ -21,7 +21,7 @@ QRelaySequencer::QRelaySequencer(QObject *parent) :
     Q_D(QRelaySequencer);
 }
 
-bool QRelaySequencer::AddGroup(const TRelaySequencerGroup &group)
+bool QRelaySequencer::addGroup(const TRelaySequencerGroup &group)
 {
     Q_D(QRelaySequencer);
     int relay;

@@ -46,8 +46,8 @@ class QTRELAYSSHARED_EXPORT QRelaySerializer : public QRelayUpperBase
 public:
     QRelaySerializer(QObject *parent = Q_NULLPTR);
 
-    bool AddGroup(const TRelaySerializerGroup &group);
-    void AppendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent);
+    bool addGroup(const TRelaySerializerGroup &group);
+    void appendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent);
 
 protected:
     virtual void setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount);

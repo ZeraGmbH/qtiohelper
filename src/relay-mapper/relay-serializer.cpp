@@ -20,7 +20,7 @@ QRelaySerializer::QRelaySerializer(QObject *parent) :
     Q_D(QRelaySerializer);
 }
 
-bool QRelaySerializer::AddGroup(const TRelaySerializerGroup &group)
+bool QRelaySerializer::addGroup(const TRelaySerializerGroup &group)
 {
     Q_D(QRelaySerializer);
     int relay;
@@ -57,7 +57,7 @@ bool QRelaySerializer::AddGroup(const TRelaySerializerGroup &group)
     return checkOK;
 }
 
-void QRelaySerializer::AppendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent)
+void QRelaySerializer::appendSymetricRelay(QVector<TSerializerRelayData> &arrSerializerRelayData, quint16 relayNum, float supplyCurrent)
 {
     arrSerializerRelayData.append(TSerializerRelayData(relayNum, supplyCurrent, true));
     arrSerializerRelayData.append(TSerializerRelayData(relayNum, supplyCurrent, false));

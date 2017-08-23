@@ -133,7 +133,7 @@ QRelayUpperBase::QRelayUpperBase(QObject *parent, QRelayUpperBasePrivate *dp) :
     connect(&d->m_IdleTimer, &QTimer::timeout, this, &QRelayUpperBase::onIdleTimer);
 }
 
-void QRelayUpperBase::SetLowLayer(QRelayBase *lowRelayLayer)
+void QRelayUpperBase::setLowLayer(QRelayBase *lowRelayLayer)
 {
     Q_D(QRelayUpperBase);
     // reconnect?
