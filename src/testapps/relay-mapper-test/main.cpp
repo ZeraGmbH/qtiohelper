@@ -1339,6 +1339,7 @@ int main(int argc, char *argv[])
 
     // Timer to simulate unblocked low layer
     QTimer timerForUnblocked;
+    timerForUnblocked.setTimerType(Qt::PreciseTimer);
     timerForUnblocked.setSingleShot(true);
 
     /* setup relay mapper */

@@ -9,6 +9,7 @@ QRelayMapperPrivate::QRelayMapperPrivate()
     ui16MaxPhysicalPinHandled = 0;
     CallbackQueryLowLayerBusy = nullptr;
     CallbackStartLowLayerSwitch = nullptr;
+    sliceTimer.setTimerType(Qt::PreciseTimer);
 }
 
 QRelayMapperPrivate::~QRelayMapperPrivate()
