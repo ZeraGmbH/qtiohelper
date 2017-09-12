@@ -65,6 +65,15 @@ const QBitArray &QRelayMapper::getLogicalRelayState()
     return d->logicalSetMaskCurrent;
 }
 
+void QRelayMapper::onLowLayerIdle()
+{
+    Q_D(QRelayMapper);
+    // stop periodic timer in case this transaction is over
+    if(!isBusy())
+        d->sliceTimer.stop();
+    QRelayBase::onLowLayerIdle();
+}
+
 void QRelayMapper::startSetMulti(const QBitArray &logicalEnableMask, const QBitArray &logicalSetMask, bool bForce)
 {
     Q_D(QRelayMapper);
@@ -190,11 +199,6 @@ void QRelayMapper::onSliceTimer()
         bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
     // There is either nothing to do for low layer or low layer signalled blocked call (so it is finished)
     if(!bLowerLayerBusy)
-    {
-        // stop periodic timer in case this transaction is over
-        if(!isBusy())
-            d->sliceTimer.stop();
         // we need to notify -> low layer won't emit idle
         onLowLayerIdle();
-    }
 }

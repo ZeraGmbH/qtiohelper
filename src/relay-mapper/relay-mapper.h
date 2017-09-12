@@ -77,6 +77,8 @@ public:
                                   // had on last power off
     virtual const QBitArray& getLogicalRelayState();
 
+public slots:
+    virtual void onLowLayerIdle();
 private slots:
     void onSliceTimer();
 
