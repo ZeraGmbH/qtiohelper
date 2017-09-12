@@ -406,17 +406,17 @@ struct TExpectedLowLayerData
             const QBitArray &EnableMask_,
             const QBitArray &SetMask_,
             const QBitArray &LogicalMask_,
-            int delaySinceLast_)
+            int expectedDelaySinceLast_)
     {
         EnableMask = EnableMask_;
         SetMask = SetMask_;
-        delaySinceLast = delaySinceLast_;
+        expectedDelaySinceLast = expectedDelaySinceLast_;
         LogicalMask = LogicalMask_;
     }
     QBitArray EnableMask;
     QBitArray SetMask;
     QBitArray LogicalMask;  // ignore in case of size = 0
-    int delaySinceLast;
+    int expectedDelaySinceLast;
 };
 
 struct TTestCase
@@ -1367,24 +1367,33 @@ int main(int argc, char *argv[])
             qInfo() << "Callback:" << currCallback+1;
             if(currCallback < testCases[currTestCase].expectedData.size())
             {
-                int delaySinceLast = testCases[currTestCase].expectedData[currCallback].delaySinceLast;
-                if(delaySinceLast != 0)
+                int expectedDelaySinceLast = testCases[currTestCase].expectedData[currCallback].expectedDelaySinceLast;
+                if(expectedDelaySinceLast != 0)
                 {
                     // Check delay deviation
-                    double expectedDelay = delaySinceLast;
+                    double expectedDelay = expectedDelaySinceLast;
                     double actualDelay = elapsed;
                     double deviation = (actualDelay-expectedDelay)/expectedDelay;
                     if(fabs(deviation) > maxDelayDeviation)
                     {
                         bSingleTestError = true;
-                        qWarning() <<  "Error!!! delay out of limit:" << elapsed << "expected:" << delaySinceLast;
+                        qWarning() <<  "Error!!! delay out of limit:" << elapsed << "expected:" << expectedDelaySinceLast;
                     }
                     else
-                        qInfo() <<  "Delay since last:" << elapsed << "expected:" << delaySinceLast;
+                        qInfo() <<  "Delay since last:" << elapsed << "expected:" << expectedDelaySinceLast;
                 }
-                // TDB: limits check for 0-delay case?
                 else
-                    qInfo() <<  "Delay since last:" << elapsed << "expected:" << delaySinceLast;
+                {
+                    // In our test application setting expectedDelaySinceLast=0 means we are running through a timer
+                    // of 0 - allow 2ms max
+                    if(elapsed <= 2)
+                        qInfo() <<  "Delay since last:" << elapsed << "expected:" << expectedDelaySinceLast;
+                    else
+                    {
+                        bSingleTestError = true;
+                        qWarning() <<  "Error!!! delay out of limit:" << elapsed << "expected:" << expectedDelaySinceLast;
+                    }
+                }
 
                 QBitArray expectedEnableMask = testCases[currTestCase].expectedData[currCallback].EnableMask;
                 QBitArray expectedSetMask = testCases[currTestCase].expectedData[currCallback].SetMask;
