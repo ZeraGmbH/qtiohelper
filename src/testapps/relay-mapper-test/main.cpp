@@ -807,7 +807,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
-    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked - physical layer needs time
     testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_100_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_100_1, false);
@@ -833,7 +833,7 @@ static void appendTestCasesMapper(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT); // init
     testCase.bForce = false;
     testCase.bSetMasksBitByBit = false;
-    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked - physical layer needs time
     testCase.expectedFinalDelay = 0 + testCase.lowLayerUnblockedDelayMs; // bistable only
     testCase.EnableMask.setBit(RELAY_BISTABLE_50_1, true);
     testCase.SetMask.setBit(RELAY_BISTABLE_50_1, false);
@@ -1088,7 +1088,7 @@ static void appendTestCasesSequencer(QList<TTestCase> &testCases)
     testCase.EnableMask.fill(false,LOGICAL_RELAY_COUNT_SEQ_SERSEQ); // init
     testCase.bForce = true;
     testCase.bSetMasksBitByBit = false;
-    testCase.lowLayerUnblockedDelayMs = 100; // unblocked
+    testCase.lowLayerUnblockedDelayMs = 100; // unblocked - physical layer needs time
     testCase.expectedFinalDelay = 100+100;
     testCase.EnableMask.fill(true, RELAY_PASS_ON_1, RELAY_PASS_ON_4+1);
     testCase.SetMask.setBit(RELAY_PASS_ON_1, true);
@@ -1345,6 +1345,7 @@ int main(int argc, char *argv[])
     /* setup relay mapper */
     QRelayMapper relayMapper;
     initRelayMapperSetup();
+    // simulate unblocked I/O worker by timer
     QObject::connect(&timerForUnblocked, &QTimer::timeout, &relayMapper, &QRelayMapper::onLowLayerIdle);
     relayMapper.setupCallbackLowLayerBusy([&]()
     {
@@ -1432,6 +1433,7 @@ int main(int argc, char *argv[])
         else
         {
             timerForUnblocked.start(testCases[currTestCase].lowLayerUnblockedDelayMs);
+            qInfo("Timer for for physical delay started (unblocked I/O)");
             return true;
         }
     };  // relay callback end
