@@ -11,5 +11,3 @@ SOURCES += \
     $$PWD/serialportasyncblock.cpp
 
 HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS
-
-#QMAKE_CXXFLAGS += -O0
