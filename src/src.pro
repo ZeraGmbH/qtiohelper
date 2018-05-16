@@ -2,14 +2,14 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     actuasense \
-    bit-input-poller \
-    relay-mapper \
-    remote-common \
+    bitinputpoller \
+    relaymapper \
+    remotecommon \
     spidevice \
     serialportasyncblock \
     testapps \
     tools
 
-testapps.depends = relay-mapper
+testapps.depends = relaymapper
 tools.depends = spidevice
-spidevice.depends = remote-common
+spidevice.depends = remotecommon

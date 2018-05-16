@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QBitArray>
 #include <functional>
-#include "relay_global.h"
+#include "relaymapper_global.h"
 #include "relay-base.h"
 
 struct TLogicalRelayEntry

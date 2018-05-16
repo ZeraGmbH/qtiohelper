@@ -4,9 +4,9 @@
 #include <QtDebug>
 #include <QElapsedTimer>
 #include <math.h>
-#include "../../relay-mapper/relay-mapper.h"
-#include "../../relay-mapper/relay-sequencer.h"
-#include "../../relay-mapper/relay-serializer.h"
+#include "../../relaymapper/relay-mapper.h"
+#include "../../relaymapper/relay-sequencer.h"
+#include "../../relaymapper/relay-serializer.h"
 
 // slice timer period should be
 // * less than 1/5 of shortest relay
@@ -380,6 +380,7 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
 static bool initRelaySerializerSetup(QRelaySerializer &relaySerializer)
 {
     bool checkOK = true;
+    Q_UNUSED(relaySerializer);
 /*    QVector<quint16> arrui16MemberLogRelayNums;
 
     // we do not set all intentionally to test proper default

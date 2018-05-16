@@ -4,7 +4,7 @@
 #include <limits>
 #include "qspidevice_p.h"
 #include "qspiremoteserver.h"
-#include "../remote-common/remote-common.h"
+#include "../remotecommon/remote-common.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 enum enRemotableCommands

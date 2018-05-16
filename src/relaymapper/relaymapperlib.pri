@@ -1,7 +1,7 @@
 INCLUDEPATH += $$PWD
 
 PUBLIC_HEADERS += \
-    $$PWD/relay_global.h \
+    $$PWD/relaymapper_global.h \
     $$PWD/relay-base.h \
     $$PWD/relay-mapper.h \
     $$PWD/relay-sequencer.h \

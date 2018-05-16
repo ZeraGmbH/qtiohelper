@@ -89,7 +89,7 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
 ---
 
-* **QT += bit-input-poller (see bit-input-poller.h):**
+* **QT += bitinputpoller (see bit-input-poller.h):**
 
   A very simple module to poll an array of input bits periodically.
 
@@ -130,7 +130,7 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
 
 ---
 
-* **QT += relay-mapper (see relay-mapper.h):**
+* **QT += relaymapper (see relay-mapper.h):**
 
   QRelayMapper handles arrays of logical relays as objects of QBitArray. A logical relay is the uniform representation of a physical relay and abstracts away:
   * mono-/bistable relays: Monostable (one coil / loosing 'on' state on power off) and bistable (two coils / switch on only during state change / keeping current state on power off) relays are switched in the same way (see startSet implementations). For bistable relays QRelayMapper takes care for correct timing of coils.

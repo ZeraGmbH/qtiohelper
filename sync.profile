@@ -1,8 +1,8 @@
 %modules = (
     "QtActuaSense"           => "$basedir/src/actuasense",
-    "QtBitInputPoller"       => "$basedir/src/bit-input-poller",
-    "QtIoRemoteCommon"       => "$basedir/src/remote-common",
-    "QtRelayMapper"          => "$basedir/src/relay-mapper",
+    "QtBitInputPoller"       => "$basedir/src/bitinputpoller",
+    "QtIoRemoteCommon"       => "$basedir/src/remotecommon",
+    "QtRelayMapper"          => "$basedir/src/relaymapper",
     "QtSerialPortAsyncBlock" => "$basedir/src/serialportasyncblock",
     "QtSpiDevice"            => "$basedir/src/spidevice",
 );

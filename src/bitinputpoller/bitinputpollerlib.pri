@@ -1,7 +1,7 @@
 INCLUDEPATH += $$PWD
 
 PUBLIC_HEADERS += \
-    $$PWD/bit-input-poller_global.h \
+    $$PWD/bitinputpoller_global.h \
     $$PWD/bit-input-poller.h
 
 PRIVATE_HEADERS += \

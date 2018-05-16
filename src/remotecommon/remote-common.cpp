@@ -1,4 +1,5 @@
 #include "remote-common.h"
+#include <QDataStream>
 
 bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
 {

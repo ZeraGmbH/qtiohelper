@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QBitArray>
 #include <functional>
-#include "bit-input-poller_global.h"
+#include "bitinputpoller_global.h"
 
 class QBitInputPollerPrivate;
 
