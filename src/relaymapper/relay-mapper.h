@@ -17,15 +17,15 @@ struct TLogicalRelayEntry
 
 enum enLogicalRelayFlags
 {
-    RELAY_LOG_VALID,       // Only relays set by RELAY_PHYS_FLAGS are
+    RELAY_LOG_VALID,        // Only relays set by RELAY_PHYS_FLAGS are
                             // marked as valid. RelayMapper keeps validity
                             // mask in ui8RelayMapperValidLogicalMask for other
                             // layers to ignore not defined relays.
-    RELAY_BISTABLE,        // If set: bistable
-    RELAY_PHYS_NEG_ON,     // If set a PHYSICAL output is active at low level
+    RELAY_BISTABLE,         // If set: bistable
+    RELAY_PHYS_NEG_ON,      // If set a PHYSICAL output is active at low level
                             // For bistable relays: a switching transaction is
                             // initiated by setting the output to LOW level
-    RELAY_PHYS_NEG_OFF,	// ignored for monostable relays / for bistable
+    RELAY_PHYS_NEG_OFF,     // ignored for monostable relays / for bistable
                             // off-pin is negative active
 };
 
