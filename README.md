@@ -115,6 +115,8 @@ QtIoHelper is a set of tiny Qt I/O helper modules:
         /* blocking */
         return false;
       });
+  /* start poll 10Hz */
+  bitInputPoller.startPoll(100);
   ```
   
   At every time input state can be checked by
