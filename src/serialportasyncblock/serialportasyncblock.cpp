@@ -45,12 +45,10 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
         if(d->m_bIoPending && d->m_iMsReceiveFirst > 0)
             d->m_TimerForFirst.start(d->m_iMsReceiveFirst);
     }
-    // If nothing is started: end up by dummy timeout. Timeout is used to make
-    // blocked designs (starting an event lopp right after call of
-    // sendAndReceive) work. If we emit ioFinished here, these event loops will
-    // miss ioFinished.
+    // if nothing is started: end up here. This cannot be done by timeout
+    // due to missing call of timeout slot
     if(!d->m_bIoPending)
-        d->m_TimerForFirst.start(1);
+        emit ioFinished();
 }
 
 void QSerialPortAsyncBlock::setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes)
@@ -76,11 +74,8 @@ bool QSerialPortAsyncBlock::isIOPending()
 void QSerialPortAsyncBlock::onTimeout()
 {
     Q_D(QSerialPortAsyncBlock);
-    if(error() == QSerialPort::NoError)
-    {
-        d->m_pDataReceive->append(readAll());
-        clear(AllDirections);
-    }
+    d->m_pDataReceive->append(readAll());
+    clear(AllDirections);
     d->m_TimerForFirst.stop();
     d->m_TimerForBetweenTwoBytes.stop();
     d->m_bIoPending = false;
