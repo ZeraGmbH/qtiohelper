@@ -22,6 +22,7 @@ public:
     QTimer m_TimerForBetweenTwoBytes;
 
     bool m_bIoPending;
+    bool m_bEnableDebugMessages;
 };
 #endif // QTSERIALPORTASYNCBLOCK_P_H
 

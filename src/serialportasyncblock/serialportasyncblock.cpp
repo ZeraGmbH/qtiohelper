@@ -10,6 +10,7 @@ QSerialPortAsyncBlockPrivate::QSerialPortAsyncBlockPrivate()
     m_iMsBetweenTwoBytes = 0;
     m_iBlockLenReceive = 0;
     m_bIoPending = false;
+    m_bEnableDebugMessages = false;
 }
 
 // ************************** QSerialPortAsyncBlock
@@ -65,6 +66,12 @@ void QSerialPortAsyncBlock::setBlockEndCriteria(int iBlockLenReceive, QByteArray
     d->m_endBlock = endBlock;
 }
 
+void QSerialPortAsyncBlock::enableDebugMessages(bool bEnable)
+{
+    Q_D(QSerialPortAsyncBlock);
+    d->m_bEnableDebugMessages = bEnable;
+}
+
 bool QSerialPortAsyncBlock::isIOPending()
 {
     Q_D(QSerialPortAsyncBlock);
@@ -74,6 +81,8 @@ bool QSerialPortAsyncBlock::isIOPending()
 void QSerialPortAsyncBlock::onTimeout()
 {
     Q_D(QSerialPortAsyncBlock);
+    if(d->m_bEnableDebugMessages)
+        qInfo("Handle onTimeout");
     d->m_pDataReceive->append(readAll());
     clear(AllDirections);
     d->m_TimerForFirst.stop();
@@ -89,6 +98,8 @@ void QSerialPortAsyncBlock::onReadyRead()
     // ignore received data after timeout
     if( d->m_bIoPending )
     {
+        if(d->m_bEnableDebugMessages)
+            qInfo("onReadyRead handled");
         d->m_pDataReceive->append(subBlock);
         // we received data: stop timeout for first
         d->m_TimerForFirst.stop();
@@ -110,5 +121,10 @@ void QSerialPortAsyncBlock::onReadyRead()
         // check further with inter char timeout
         else if(d->m_iMsBetweenTwoBytes)
             d->m_TimerForBetweenTwoBytes.start(d->m_iMsBetweenTwoBytes);
+    }
+    else
+    {
+        if(d->m_bEnableDebugMessages)
+            qInfo("onReadyRead not handled");
     }
 }

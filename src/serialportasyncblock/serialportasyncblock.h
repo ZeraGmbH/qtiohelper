@@ -15,6 +15,7 @@ public:
     void sendAndReceive(QByteArray dataSend, QByteArray* pDataReceive);
     void setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes);
     void setBlockEndCriteria(int iBlockLenReceive = 0, QByteArray endBlock = QByteArray());
+    void enableDebugMessages(bool bEnable);
     bool isIOPending();
 signals:
     void ioFinished();
