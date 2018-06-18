@@ -87,13 +87,11 @@ void QSerialPortAsyncBlock::onReadyRead()
     Q_D(QSerialPortAsyncBlock);
     QByteArray subBlock = readAll();
     // ignore received data after timeout
-    if( (d->m_iMsReceiveFirst > 0 && d->m_TimerForFirst.isActive()) ||
-        (d->m_iMsBetweenTwoBytes > 0 && d->m_TimerForBetweenTwoBytes.isActive()))
+    if( d->m_bIoPending )
     {
         d->m_pDataReceive->append(subBlock);
         // we received data: stop timeout for first
-        if(d->m_iMsBetweenTwoBytes > 0)
-            d->m_TimerForFirst.stop();
+        d->m_TimerForFirst.stop();
 
         bool bFinish = false;
         // finish for blocklen?
@@ -105,7 +103,6 @@ void QSerialPortAsyncBlock::onReadyRead()
         // all work done?
         if(bFinish)
         {
-            d->m_TimerForFirst.stop();
             d->m_TimerForBetweenTwoBytes.stop();
             d->m_bIoPending = false;
             emit ioFinished();
