@@ -39,7 +39,7 @@ void QSerialPortAsyncBlock::sendAndReceive(QByteArray dataSend, QByteArray* pDat
         // empty send: read only
         if(dataSend.size() > 0)
         {
-            if(write(dataSend) == -1)
+            if(write(dataSend) <= 0)
                 d->m_bIoPending = false;
         }
         if(d->m_bIoPending && d->m_iMsReceiveFirst > 0)
