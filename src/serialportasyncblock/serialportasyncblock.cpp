@@ -88,12 +88,16 @@ void QSerialPortAsyncBlock::onTimeout()
     Q_D(QSerialPortAsyncBlock);
     if(d->m_bEnableDebugMessages)
         qInfo("Handle onTimeout");
-    d->m_pDataReceive->append(readAll());
+    if(d->m_pDataReceive)
+        d->m_pDataReceive->append(readAll());
     clear(AllDirections);
     d->m_TimerForFirst.stop();
     d->m_TimerForBetweenTwoBytes.stop();
-    d->m_bIoPending = false;
-    emit ioFinished();
+    if(d->m_bIoPending)
+    {
+        d->m_bIoPending = false;
+        emit ioFinished();
+    }
 }
 
 void QSerialPortAsyncBlock::onError(QSerialPort::SerialPortError serialError)
@@ -102,12 +106,15 @@ void QSerialPortAsyncBlock::onError(QSerialPort::SerialPortError serialError)
     Q_D(QSerialPortAsyncBlock);
     if(d->m_bEnableDebugMessages)
         qWarning("Handle onError(\"%s\"", qPrintable(errorString()));
-    d->m_pDataReceive->append(readAll());
-    clear(AllDirections);
+    if(d->m_pDataReceive && isOpen())
+        d->m_pDataReceive->append(readAll());
     d->m_TimerForFirst.stop();
     d->m_TimerForBetweenTwoBytes.stop();
-    d->m_bIoPending = false;
-    emit ioFinished();
+    if(d->m_bIoPending)
+    {
+        d->m_bIoPending = false;
+        emit ioFinished();
+    }
 }
 
 void QSerialPortAsyncBlock::onReadyRead()
@@ -119,7 +126,8 @@ void QSerialPortAsyncBlock::onReadyRead()
     {
         if(d->m_bEnableDebugMessages)
             qInfo("onReadyRead handled");
-        d->m_pDataReceive->append(subBlock);
+        if(d->m_pDataReceive)
+            d->m_pDataReceive->append(subBlock);
         // we received data: stop timeout for first
         d->m_TimerForFirst.stop();
 
@@ -128,7 +136,7 @@ void QSerialPortAsyncBlock::onReadyRead()
         if(d->m_iBlockLenReceive > 0 && d->m_pDataReceive->count() >= d->m_iBlockLenReceive)
             bFinish = true;
         // finish for blockend
-        if(d->m_endBlock.count() && d->m_pDataReceive->contains(d->m_endBlock))
+        if(d->m_endBlock.count() && d->m_pDataReceive && d->m_pDataReceive->contains(d->m_endBlock))
             bFinish = true;
         // all work done?
         if(bFinish)
