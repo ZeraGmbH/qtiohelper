@@ -22,6 +22,11 @@ QSerialPortAsyncBlock::QSerialPortAsyncBlock(QObject *parent) :
     connect(&d->m_TimerForFirst, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
     connect(&d->m_TimerForBetweenTwoBytes, &QTimer::timeout, this, &QSerialPortAsyncBlock::onTimeout);
     connect(this, &QSerialPortAsyncBlock::readyRead, this, &QSerialPortAsyncBlock::onReadyRead);
+#if QT_VERSION >= 0x050800
+    connect(this, &QSerialPortAsyncBlock::errorOccurred, this, &QSerialPortAsyncBlock::onError);
+#else
+    connect(this, static_cast<void(QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error), this, &QSerialPortAsyncBlock::onError);
+#endif
 
     d->m_TimerForFirst.setSingleShot(true);
     d->m_TimerForBetweenTwoBytes.setSingleShot(true);
@@ -83,6 +88,20 @@ void QSerialPortAsyncBlock::onTimeout()
     Q_D(QSerialPortAsyncBlock);
     if(d->m_bEnableDebugMessages)
         qInfo("Handle onTimeout");
+    d->m_pDataReceive->append(readAll());
+    clear(AllDirections);
+    d->m_TimerForFirst.stop();
+    d->m_TimerForBetweenTwoBytes.stop();
+    d->m_bIoPending = false;
+    emit ioFinished();
+}
+
+void QSerialPortAsyncBlock::onError(QSerialPort::SerialPortError serialError)
+{
+    Q_UNUSED(serialError);
+    Q_D(QSerialPortAsyncBlock);
+    if(d->m_bEnableDebugMessages)
+        qWarning("Handle onError(\"%s\"", qPrintable(errorString()));
     d->m_pDataReceive->append(readAll());
     clear(AllDirections);
     d->m_TimerForFirst.stop();

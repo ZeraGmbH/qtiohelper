@@ -25,6 +25,7 @@ public slots:
 private slots:
     void onTimeout();
     void onReadyRead();
+    void onError(SerialPortError serialError);
 
 private:
     QSerialPortAsyncBlockPrivate *d_ptr;
