@@ -106,12 +106,12 @@ void QSerialPortAsyncBlock::onError(QSerialPort::SerialPortError serialError)
     Q_D(QSerialPortAsyncBlock);
     if(d->m_bEnableDebugMessages)
         qWarning("Handle onError(\"%s\"", qPrintable(errorString()));
-    if(d->m_pDataReceive && isOpen())
-        d->m_pDataReceive->append(readAll());
     d->m_TimerForFirst.stop();
     d->m_TimerForBetweenTwoBytes.stop();
     if(d->m_bIoPending)
     {
+        if(d->m_pDataReceive && isOpen())
+            d->m_pDataReceive->append(readAll());
         d->m_bIoPending = false;
         emit ioFinished();
     }
