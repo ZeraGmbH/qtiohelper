@@ -9,7 +9,7 @@ QActuaSenseIOData::QActuaSenseIOData(QObject* pParent) : QObject(pParent)
 
     m_bDemoMode = false;
     m_iDemoBitNumIn = -1;
-    m_pDemoBitArrIn = Q_NULLPTR;
+    m_pDemoBitArrIn = nullptr;
     m_bDemoError = false;
 
     m_iTimeoutMs = 0;
@@ -30,8 +30,8 @@ void QActuaSenseIOData::setDemoInfo(bool bDemoMode, QBitArray *pDemoBitArrIn, in
 // ********************************* QActuaSensePrivate *********************************
 QActuaSensePrivate::QActuaSensePrivate(QActuaSense *pPublic) : q_ptr(pPublic)
 {
-    m_pInBitArr = Q_NULLPTR;
-    m_pLowLayerStartFunc = Q_NULLPTR;
+    m_pInBitArr = nullptr;
+    m_pLowLayerStartFunc = nullptr;
 }
 
 QActuaSensePrivate::~QActuaSensePrivate()

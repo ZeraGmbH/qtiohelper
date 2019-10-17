@@ -1572,7 +1572,7 @@ int main(int argc, char *argv[])
                                   sliceTimerPeriod,
                                   CallbackStartLowLayerSwitch);
                 // new layer config: Serializer->Mapper
-                relaySequencer.setLowLayer(Q_NULLPTR);
+                relaySequencer.setLowLayer(nullptr);
                 relaySerializer.setLowLayer(&relayMapper);
             }
             // run startSetMulti or / startSet as set in test case

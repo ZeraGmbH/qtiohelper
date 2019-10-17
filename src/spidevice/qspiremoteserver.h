@@ -11,7 +11,7 @@ class QTSPIDEVICESHARED_EXPORT QSPIDeviceRemoteServer: public QObject
 {
     Q_OBJECT
 public:
-    QSPIDeviceRemoteServer(QObject *parent = 0);
+    QSPIDeviceRemoteServer(QObject *parent = nullptr);
     void open(quint16 port);
     void setVerboseLevel(int level);
 public slots:

@@ -57,7 +57,7 @@ class QTRELAYSSHARED_EXPORT QRelayMapper : public QRelayBase
 {
     Q_OBJECT
 public:
-    QRelayMapper(QObject *parent = Q_NULLPTR);
+    QRelayMapper(QObject *parent = nullptr);
     void setup(quint16 ui16LogicalArrayInfoCount,
                const struct TLogicalRelayEntry *pLogicalInfoArray,
                int iMsecSlice,

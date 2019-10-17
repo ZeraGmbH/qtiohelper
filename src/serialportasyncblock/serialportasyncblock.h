@@ -11,7 +11,7 @@ class QTSERIALPORTASYNCBLOCK_EXPORT QSerialPortAsyncBlock : public QSerialPort
 {
     Q_OBJECT
 public:
-    QSerialPortAsyncBlock(QObject *parent = Q_NULLPTR);
+    QSerialPortAsyncBlock(QObject *parent = nullptr);
     void sendAndReceive(QByteArray dataSend, QByteArray* pDataReceive);
     void setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes);
     void setBlockEndCriteria(int iBlockLenReceive = 0, QByteArray endBlock = QByteArray());

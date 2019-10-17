@@ -5,7 +5,7 @@
 
 QRelayMapperPrivate::QRelayMapperPrivate()
 {
-    pLogicalInfoArray = Q_NULLPTR;
+    pLogicalInfoArray = nullptr;
     ui16MaxPhysicalPinHandled = 0;
     CallbackQueryLowLayerBusy = nullptr;
     CallbackStartLowLayerSwitch = nullptr;

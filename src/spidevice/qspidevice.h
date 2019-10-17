@@ -9,8 +9,8 @@ class QSPIDevicePrivate;
 class QTSPIDEVICESHARED_EXPORT QSPIDevice : public QFile
 {
 public:
-    QSPIDevice(const QString & name, QObject *parent = Q_NULLPTR);
-    QSPIDevice(int bus, int channel, QObject *parent = Q_NULLPTR);
+    QSPIDevice(const QString & name, QObject *parent = nullptr);
+    QSPIDevice(int bus, int channel, QObject *parent = nullptr);
 
     // Call this once before opening devices
     static void setRemoteServer(const QString serverIP, quint16 serverPort);

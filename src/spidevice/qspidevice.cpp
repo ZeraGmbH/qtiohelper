@@ -11,7 +11,7 @@
 QSPIDevicePrivate::QSPIDevicePrivate()
 {
     bSWReverseRequired = false;
-    remoteClient = Q_NULLPTR;
+    remoteClient = nullptr;
 }
 
 QSPIDevicePrivate::~QSPIDevicePrivate()
@@ -94,7 +94,7 @@ bool QSPIDevice::open(OpenMode flags)
 void QSPIDevice::close()
 {
     Q_D(QSPIDevice);
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         qInfo("SPI closing %s...", qPrintable(fileName()));
         QFile::close();
@@ -115,7 +115,7 @@ bool QSPIDevice::setMode(quint8 Mode)
 {
     Q_D(QSPIDevice);
     bool bOK = true;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         qInfo("SPI set mode %u...", Mode);
         __u8 mode = 0;
@@ -162,7 +162,7 @@ bool QSPIDevice::setLSBFirst(bool lsbFirst)
 {
     Q_D(QSPIDevice);
     bool bOK = true;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         qInfo("SPI LSBFirst %u...", lsbFirst);
         if(!isOpen())
@@ -193,7 +193,7 @@ bool QSPIDevice::setBitsPerWord(quint8 bitsPerWord)
 {
     Q_D(QSPIDevice);
     bool bOK = true;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         qInfo("SPI bits per word %u...", bitsPerWord);
         if(!isOpen())
@@ -218,7 +218,7 @@ bool QSPIDevice::setBitSpeed(quint32 bitSpeedHz)
 {
     Q_D(QSPIDevice);
     bool bOK = true;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         qInfo("SPI bitspeed %u Hz...", bitSpeedHz);
         if(!isOpen())
@@ -243,7 +243,7 @@ bool QSPIDevice::sendReceive(QByteArray &dataSend, QByteArray &dataReceive)
 {
     Q_D(QSPIDevice);
     bool bOK = true;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         if(!isOpen())
         {
@@ -287,7 +287,7 @@ qint64 QSPIDevice::readData(char *data, qint64 maxlen)
 {
     Q_D(QSPIDevice);
     qint64 bytesRead = -1;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         bytesRead = QFile::readData(data, maxlen);
         if(d->bSWReverseRequired)
@@ -305,7 +305,7 @@ qint64 QSPIDevice::writeData(const char *data, qint64 len)
 {
     Q_D(QSPIDevice);
     qint64 bytesWritten = -1;
-    if(d->remoteClient == Q_NULLPTR)
+    if(d->remoteClient == nullptr)
     {
         if(d->bSWReverseRequired)
         {

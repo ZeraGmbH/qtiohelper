@@ -60,7 +60,7 @@ class QTRELAYSSHARED_EXPORT QRelaySequencer : public QRelayUpperBase
 {
     Q_OBJECT
 public:
-    QRelaySequencer(QObject *parent = Q_NULLPTR);
+    QRelaySequencer(QObject *parent = nullptr);
 
     bool addGroup(const TRelaySequencerGroup &group);
 
