@@ -380,7 +380,7 @@ static bool initRelaySequencerSetup(QRelaySequencer &relaySequencer)
 static bool initRelaySerializerSetup(QRelaySerializer &relaySerializer)
 {
     bool checkOK = true;
-    Q_UNUSED(relaySerializer);
+    Q_UNUSED(relaySerializer)
 /*    QVector<quint16> arrui16MemberLogRelayNums;
 
     // we do not set all intentionally to test proper default

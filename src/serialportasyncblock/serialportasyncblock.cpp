@@ -102,7 +102,7 @@ void QSerialPortAsyncBlock::onTimeout()
 
 void QSerialPortAsyncBlock::onError(QSerialPort::SerialPortError serialError)
 {
-    Q_UNUSED(serialError);
+    Q_UNUSED(serialError)
     Q_D(QSerialPortAsyncBlock);
     if(d->m_bEnableDebugMessages)
         qWarning("Handle onError(\"%s\"", qPrintable(errorString()));
