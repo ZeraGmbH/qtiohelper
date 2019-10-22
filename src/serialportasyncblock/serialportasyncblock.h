@@ -13,7 +13,7 @@ class QTSERIALPORTASYNCBLOCK_EXPORT QSerialPortAsyncBlock : public QSerialPort
 public:
     QSerialPortAsyncBlock(QObject *parent = nullptr);
     void sendAndReceive(QByteArray dataSend, QByteArray* pDataReceive);
-    void setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes);
+    void setReadTimeout(int iMsReceiveFirst, int iMsBetweenTwoBytes, int iMsMinTotal = 0);
     void setBlockEndCriteria(int iBlockLenReceive = 0, QByteArray endBlock = QByteArray());
     void enableDebugMessages(bool bEnable);
     bool isIOPending();
@@ -23,11 +23,14 @@ signals:
 public slots:
 
 private slots:
-    void onTimeout();
+    void onTimeoutFirst();
+    void onTimeoutBetweenBytes();
+    void onTimeoutMinTotal();
     void onReadyRead();
     void onError(SerialPortError serialError);
 
 private:
+    void onTimeoutCommon();
     QSerialPortAsyncBlockPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QSerialPortAsyncBlock)
 };
