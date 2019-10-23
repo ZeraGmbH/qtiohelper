@@ -1,4 +1,3 @@
-#include <QDebug>
 #include "relay-base.h"
 #include "relay-base_p.h"
 
@@ -34,7 +33,7 @@ QRelayBase::~QRelayBase()
 
 quint16 QRelayBase::getLogicalRelayCount()
 {
-    return getLogicalRelayState().size();
+    return static_cast<quint16>(getLogicalRelayState().size());
 }
 
 void QRelayBase::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
@@ -53,12 +52,10 @@ void QRelayBase::startSetMulti(const QBitArray& logicalEnableMask,
     Q_D(QRelayBase);
     for(int ui16BitNo=0;
         ui16BitNo<logicalEnableMask.size() && ui16BitNo<getLogicalRelayCount();
-        ui16BitNo++)
-    {
+        ui16BitNo++) {
         // set bit data for enabled and (forced) changing bits only
         if( logicalEnableMask.testBit(ui16BitNo) &&
-            (bForce || logicalSetMask.testBit(ui16BitNo) != getLogicalRelayState().testBit(ui16BitNo)))
-        {
+            (bForce || logicalSetMask.testBit(ui16BitNo) != getLogicalRelayState().testBit(ui16BitNo))) {
             d->logicalEnableMaskNext.setBit(ui16BitNo);
             d->logicalSetMaskNext.setBit(ui16BitNo, logicalSetMask.testBit(ui16BitNo));
         }
@@ -69,17 +66,16 @@ void QRelayBase::startSet(quint16 ui16BitNo,
                           bool bSet,
                           bool bForce)
 {
-    Q_D(QRelayBase);
     quint16 ui16LogicalArrayCount = getLogicalRelayCount();
     QBitArray logicalEnableMask(ui16LogicalArrayCount);
     QBitArray logicalSetMask(ui16LogicalArrayCount);
-    if(ui16BitNo < ui16LogicalArrayCount)
-    {
+    if(ui16BitNo < ui16LogicalArrayCount) {
         logicalEnableMask.setBit(ui16BitNo);
         logicalSetMask.setBit(ui16BitNo, bSet);
     }
-    else
-        qWarning() << "QRelayBase::startSet: ui16BitNo out of range:" << ui16BitNo << "max:" << getLogicalRelayCount();
+    else {
+        qWarning("QRelayBase::startSet: ui16BitNo out of range: %u / max: %u", ui16BitNo,getLogicalRelayCount() );
+    }
     // even if no valid bit was set: start transaction so we get an idle signal
     startSetMulti(logicalEnableMask, logicalSetMask, bForce);
 }
@@ -88,13 +84,14 @@ bool QRelayBase::startNextTransaction()
 {
     Q_D(QRelayBase);
     // we are not busy check for next transaction
-    if(d->logicalDirtyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true))
-    {
+    if(d->logicalDirtyMask.count(true) == 0 && d->logicalEnableMaskNext.count(true)) {
         // calculate target state
         d->logicalTargetMask = getLogicalRelayState();
-        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++)
-            if(d->logicalEnableMaskNext.testBit(ui16Bit))
+        for(quint16 ui16Bit=0; ui16Bit<getLogicalRelayCount(); ui16Bit++) {
+            if(d->logicalEnableMaskNext.testBit(ui16Bit)) {
                 d->logicalTargetMask.setBit(ui16Bit, d->logicalSetMaskNext.testBit(ui16Bit));
+            }
+        }
         // calculate bit difference mask
         d->logicalDirtyMask = getLogicalRelayState() ^ d->logicalSetMaskNext;
         // filter enabled
@@ -115,10 +112,10 @@ bool QRelayBase::isBusy()
 
 void QRelayBase::onLowLayerIdle()
 {
-    Q_D(QRelayBase);
-    if(!isBusy())
+    if(!isBusy()) {
         // All transactions done -> give notification
         emit idle();
+    }
 }
 
 // ************************** QRelayUpperBase
@@ -137,18 +134,19 @@ void QRelayUpperBase::setLowLayer(QRelayBase *lowRelayLayer)
 {
     Q_D(QRelayUpperBase);
     // reconnect?
-    if(d->lowRelayLayer)
+    if(d->lowRelayLayer) {
         // avoid multiple slot calls - we allow only one lower layer anyway
         QObject::disconnect(d->lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle);
+    }
 
     d->lowRelayLayer = lowRelayLayer;
-    if(lowRelayLayer)
-    {
+    if(lowRelayLayer) {
         QObject::connect(lowRelayLayer, &QRelayBase::idle, this, &QRelayUpperBase::onLowLayerIdle, Qt::DirectConnection);
         setupBaseBitmaps(getLogicalRelayCount());
     }
-    else
+    else {
         setupBaseBitmaps(0);
+    }
 }
 
 void QRelayUpperBase::startSetMulti(const QBitArray& logicalEnableMask,
@@ -157,13 +155,11 @@ void QRelayUpperBase::startSetMulti(const QBitArray& logicalEnableMask,
 {
     Q_D(QRelayUpperBase);
     // setting bForce is intended to set initial relay state -> bypass to lowest layer (mapper)
-    if(bForce && d->lowRelayLayer)
-    {
+    if(bForce && d->lowRelayLayer) {
         d->lowRelayLayer->startSetMulti(logicalEnableMask, logicalSetMask, bForce);
         d->bypassToLowerLayerActive = true;
     }
-    else
-    {
+    else {
         QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
         d->m_IdleTimer.start();
     }
@@ -187,31 +183,32 @@ void QRelayUpperBase::onIdleTimer()
 {
     Q_D(QRelayUpperBase);
     // in case low layer is still busy - wait for next idle
-    if(d->lowRelayLayer && d->lowRelayLayer->isBusy())
+    if(d->lowRelayLayer && d->lowRelayLayer->isBusy()) {
         return;
+    }
     // does this layer start a low layer transaction?
     d->lowLayerTransactionStarted = process();
-    if(!d->lowLayerTransactionStarted)
+    if(!d->lowLayerTransactionStarted) {
         // no -> finish -> give notification
         emit idle();
+    }
 }
 
 void QRelayUpperBase::onLowLayerIdle()
 {
     Q_D(QRelayUpperBase);
     // special bypass case
-    if(d->bypassToLowerLayerActive)
-    {
+    if(d->bypassToLowerLayerActive) {
         d->bypassToLowerLayerActive = false;
         emit idle();
     }
     // transaction pending?
-    if(isBusy())
-    {
+    if(isBusy()) {
         // does this layer start a low layer transaction?
         d->lowLayerTransactionStarted = process();
-        if(!d->lowLayerTransactionStarted)
+        if(!d->lowLayerTransactionStarted) {
             // no -> finish -> give notification
             emit idle();
+        }
     }
 }

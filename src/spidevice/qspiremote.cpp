@@ -25,8 +25,7 @@ bool QSPIDeviceRemoteClient::open(const QString serverIP, quint16 serverPort, QS
     // connect and wait for establishment
     socket.connectToHost(serverIP, serverPort);
     bool bOpen = socket.waitForConnected(2000);
-    if(bOpen)
-    {
+    if(bOpen) {
 
         QByteArray dataCmdSend;
         QDataStream streamOut(&dataCmdSend, QIODevice::WriteOnly);
@@ -38,7 +37,7 @@ bool QSPIDeviceRemoteClient::open(const QString serverIP, quint16 serverPort, QS
         streamOut << ui32Len << ui32Cmd << devFileName << ui32flags;
 
         // length correction
-        ui32Len = dataCmdSend.size();
+        ui32Len = static_cast<quint32>(dataCmdSend.size());
         streamOut.device()->seek(0);
         streamOut << ui32Len;
 
@@ -61,7 +60,7 @@ void QSPIDeviceServerClient::handleOpen(QByteArray* dataReceive)
 
     // handle device action
     spiDevice.setFileName(devFileName);
-    bool bOK = spiDevice.open((QIODevice::OpenMode)ui32flags);
+    bool bOK = spiDevice.open(static_cast<QIODevice::OpenMode>(ui32flags));
 
     // send response
     sendOK(socket, bOK);
@@ -78,7 +77,7 @@ void QSPIDeviceRemoteClient::close()
     streamOut << ui32Len << ui32Cmd;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -106,7 +105,7 @@ void QSPIDeviceServerClient::handleClose(QByteArray* dataReceive)
     streamOut << ui32Len;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -125,7 +124,7 @@ bool QSPIDeviceRemoteClient::setMode(quint8 ui8Mode)
     streamOut << ui32Len << ui32Cmd << ui8Mode;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -163,7 +162,7 @@ bool QSPIDeviceRemoteClient::setLSBFirst(bool lsbFirst)
     streamOut << ui32Len << ui32Cmd << ui8LsbFirst;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -200,7 +199,7 @@ bool QSPIDeviceRemoteClient::setBitsPerWord(quint8 ui8BitsPerWord)
     streamOut << ui32Len << ui32Cmd << ui8BitsPerWord;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -237,7 +236,7 @@ bool QSPIDeviceRemoteClient::setBitSpeed(quint32 ui32BitSpeedHz)
     streamOut << ui32Len << ui32Cmd << ui32BitSpeedHz;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -274,7 +273,7 @@ bool QSPIDeviceRemoteClient::sendReceive(QByteArray& dataRemoteSend, QByteArray&
     streamOut << ui32Len << ui32Cmd << dataRemoteSend;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -284,8 +283,7 @@ bool QSPIDeviceRemoteClient::sendReceive(QByteArray& dataRemoteSend, QByteArray&
     // get response
     bool bOK = false;
     QByteArray dataReceive;
-    if(readTCPFrameBlocked(&socket, &dataReceive))
-    {
+    if(readTCPFrameBlocked(&socket, &dataReceive)) {
         dataRemoteReceive.clear();
         quint8 ui8OK;
         QDataStream streamIn(dataReceive);
@@ -304,15 +302,18 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteSend;
 
     // QSPIDevice does not log this by default
-    if(verboseLevel>1)
+    if(verboseLevel>1) {
         qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
+    }
 
     // handle device action
-    if(verboseLevel>2)
-        logData(QLatin1String("SendReceive/Send:"), dataRemoteSend);
+    if(verboseLevel>2) {
+        logData(QStringLiteral("SendReceive/Send:"), dataRemoteSend);
+    }
     quint8 ui8OK = spiDevice.sendReceive(dataRemoteSend, dataRemoteReceive);
-    if(verboseLevel>2)
-        logData(QLatin1String("SendReceive/Receive:"), dataRemoteReceive);
+    if(verboseLevel>2) {
+        logData(QStringLiteral("SendReceive/Receive:"), dataRemoteReceive);
+    }
 
     // create response
     QByteArray dataCmdSend;
@@ -320,7 +321,7 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
     streamOut << ui32Len << dataRemoteReceive << ui8OK;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -339,7 +340,7 @@ qint64 QSPIDeviceRemoteClient::readData(char *data, qint64 i64maxlen)
     streamOut << ui32Len << ui32Cmd << i64maxlen;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -349,12 +350,12 @@ qint64 QSPIDeviceRemoteClient::readData(char *data, qint64 i64maxlen)
     // get response
     QByteArray dataReceive;
     QByteArray dataRemoteReceive;
-    if(readTCPFrameBlocked(&socket, &dataReceive))
-    {
+    if(readTCPFrameBlocked(&socket, &dataReceive)) {
         QDataStream streamIn(dataReceive);
         streamIn >> ui32Len >> dataRemoteReceive;
-        for(int iByte=0; iByte<dataRemoteReceive.size(); iByte++)
+        for(int iByte=0; iByte<dataRemoteReceive.size(); iByte++) {
             data[iByte] = dataRemoteReceive[iByte];
+        }
     }
     return dataRemoteReceive.size();
 }
@@ -368,13 +369,15 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> i64maxlen;
 
     // QSPIDevice does not log this by default
-    if(verboseLevel>1)
+    if(verboseLevel>1) {
         qInfo("SPI read on %s (%lli Bytes)", qPrintable(spiDevice.fileName()), i64maxlen);
+    }
 
     // handle device action
     QByteArray dataRemoteReceive = spiDevice.read(i64maxlen);
-    if(verboseLevel>2)
-        logData(QLatin1String("Read:"), dataRemoteReceive);
+    if(verboseLevel>2) {
+        logData(QStringLiteral("Read:"), dataRemoteReceive);
+    }
 
     // create response
     QByteArray dataCmdSend;
@@ -382,7 +385,7 @@ void QSPIDeviceServerClient::handleReadData(QByteArray* dataReceive)
     streamOut << ui32Len << dataRemoteReceive;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -398,11 +401,11 @@ qint64 QSPIDeviceRemoteClient::writeData(const char *data, qint64 i64Len)
     // Build send frame
     quint32 ui32Len = 0;
     quint32 ui32Cmd = CMD_WRITE;
-    QByteArray dataRemoteWrite = QByteArray::fromRawData(data, i64Len);
+    QByteArray dataRemoteWrite = QByteArray::fromRawData(data, static_cast<int>(i64Len));
     streamOut << ui32Len << ui32Cmd << dataRemoteWrite;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -412,8 +415,7 @@ qint64 QSPIDeviceRemoteClient::writeData(const char *data, qint64 i64Len)
     // get response
     QByteArray dataReceive;
     qint64 ui64BytesWritten = 0;
-    if(readTCPFrameBlocked(&socket, &dataReceive))
-    {
+    if(readTCPFrameBlocked(&socket, &dataReceive)) {
         QDataStream streamIn(&dataReceive, QIODevice::ReadOnly);
         streamIn >> ui32Len >> ui64BytesWritten;
     }
@@ -429,12 +431,14 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
     streamIn >> ui32Len >> ui32Cmd >> dataRemoteWrite;
 
     // QSPIDevice does not log this by default
-    if(verboseLevel>1)
+    if(verboseLevel>1) {
         qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
+    }
 
     // handle device action
-    if(verboseLevel>2)
-        logData(QLatin1String("Write:"), dataRemoteWrite);
+    if(verboseLevel>2) {
+        logData(QStringLiteral("Write:"), dataRemoteWrite);
+    }
     qint64 i64BytesWritten = spiDevice.write(dataRemoteWrite);
 
     // create response
@@ -443,7 +447,7 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
     streamOut << ui32Len << i64BytesWritten;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -455,13 +459,12 @@ void QSPIDeviceServerClient::logData(QString strLead, QByteArray data)
 {
     QString strLog, strByte;
     strLog = strLead;
-    for(int iByte=0; iByte<data.count(); iByte++)
-    {
-        quint8 ui8Val = data.at(iByte);
+    for(int iByte=0; iByte<data.count(); iByte++) {
+        quint8 ui8Val = static_cast<quint8>(data.at(iByte));
         strByte.sprintf(" %02X", ui8Val);
         strLog += strByte;
     }
-    qInfo(qPrintable(strLog));
+    qInfo("%s", qPrintable(strLog));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -473,8 +476,9 @@ QSPIDeviceRemoteServer::QSPIDeviceRemoteServer(QObject* parent) : QObject(parent
 
 void QSPIDeviceRemoteServer::open(quint16 port)
 {
-    if(verboseLevel>0)
+    if(verboseLevel>0) {
         qInfo("SPI server listening on IPPort %i\n", port);
+    }
     server.listen(QHostAddress::Any, port);
 }
 
@@ -486,8 +490,9 @@ void QSPIDeviceRemoteServer::setVerboseLevel(int level)
 void QSPIDeviceRemoteServer::onClientNew()
 {
     QTcpSocket* pClientSocket = server.nextPendingConnection();
-    if(verboseLevel>0)
+    if(verboseLevel>0) {
         qInfo("SPI client connected from %s", qPrintable(pClientSocket->peerAddress().toString()));
+    }
     QSPIDeviceServerClient* pClient = new QSPIDeviceServerClient(this, pClientSocket);
     pClient->setVerboseLevel(verboseLevel);
     clientHash[pClientSocket] = pClient;
@@ -498,10 +503,10 @@ void QSPIDeviceRemoteServer::onClientNew()
 void QSPIDeviceRemoteServer::onClientDisconnect()
 {
     QTcpSocket *pSocket = qobject_cast<QTcpSocket*>(sender());
-    if(verboseLevel>0)
+    if(verboseLevel>0) {
         qInfo("SPI client %s disconnected\n", qPrintable(pSocket->peerAddress().toString()));
-    if(pSocket)
-    {
+    }
+    if(pSocket) {
         QSPIDeviceServerClient* pClient = clientHash.take(pSocket);
         delete pClient;
         pSocket->deleteLater();
@@ -524,16 +529,13 @@ void QSPIDeviceServerClient::setVerboseLevel(int level)
 void QSPIDeviceServerClient::onReceive()
 {
     QTcpSocket *sendSocket = qobject_cast<QTcpSocket*>(sender());
-    if(sendSocket == socket)
-    {
+    if(sendSocket == socket) {
         QByteArray dataReceive;
-        if(readTCPFrameBlocked(socket, &dataReceive))
-        {
+        if(readTCPFrameBlocked(socket, &dataReceive)) {
             QDataStream stream(dataReceive);
             quint32 ui32Len, ui32Cmd;
             stream >> ui32Len >> ui32Cmd;
-            switch(ui32Cmd)
-            {
+            switch(ui32Cmd) {
             case CMD_OPEN:
                 handleOpen(&dataReceive);
                 break;

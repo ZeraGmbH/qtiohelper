@@ -2,7 +2,6 @@
 #include "serialportasyncblock_p.h"
 #include <QTimer>
 #include <QDateTime>
-#include <QDebug>
 
 // ************************** QSerialPortAsyncBlockPrivate
 

@@ -33,7 +33,7 @@ public:
     bool m_bDemoError;
 
     int m_iTimeoutMs;
-    int m_iMsSinceLastSet;
+    qint64 m_iMsSinceLastSet;
     bool m_bInStateDesired;
 
     QString m_strOK;

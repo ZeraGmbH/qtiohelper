@@ -8,20 +8,18 @@ bool readTCPFrameBlocked(QTcpSocket *socket, QByteArray *data)
     quint32 ui32Count = sizeof(ui32Count);
     QDataStream stream(data, QIODevice::ReadOnly);
     bool bLenValid = false;
-    while ((quint32)data->size() < ui32Count)
-    {
+    while (static_cast<quint32>(data->size()) < ui32Count) {
         if(socket->bytesAvailable() == 0)
             socket->waitForReadyRead();
-        *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
-        if(!bLenValid && (quint32)data->size() >= sizeof(ui32Count))
-        {
+        *data += socket->read(qMin(ui32Count, static_cast<quint32>(socket->bytesAvailable())));
+        if(!bLenValid && static_cast<quint32>(data->size()) >= sizeof(ui32Count)) {
             stream >> ui32Count;
             bLenValid = true;
             // we just read count there might be more waiting
-            *data += socket->read(qMin(ui32Count, (quint32)socket->bytesAvailable()));
+            *data += socket->read(qMin(ui32Count, static_cast<quint32>(socket->bytesAvailable())));
         }
     }
-    return ui32Count == (quint32)data->size();
+    return ui32Count == static_cast<quint32>(data->size());
 }
 
 void sendOK(QTcpSocket *socket, bool bOK)
@@ -35,7 +33,7 @@ void sendOK(QTcpSocket *socket, bool bOK)
     streamOut << ui32Len << ui8OK;
 
     // length correction
-    ui32Len = dataCmdSend.size();
+    ui32Len = static_cast<quint32>(dataCmdSend.size());
     streamOut.device()->seek(0);
     streamOut << ui32Len;
 
@@ -48,8 +46,7 @@ bool receiveOK(QTcpSocket *socket)
     // get response
     QByteArray dataReceive;
     bool bOK = false;
-    if(readTCPFrameBlocked(socket, &dataReceive))
-    {
+    if(readTCPFrameBlocked(socket, &dataReceive)) {
         quint32 ui32Len;
         quint8 ui8OK;
         QDataStream streamIn(&dataReceive, QIODevice::ReadOnly);

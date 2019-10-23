@@ -49,7 +49,7 @@ enum enPhysPinsForMapper
     PHYSICAL_PIN_COUNT
 };
 
-struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
+static struct TLogicalRelayEntry arrRelayMapperSetup[LOGICAL_RELAY_COUNT];
 
 static void initRelayMapperSetup()
 {
@@ -58,49 +58,49 @@ static void initRelayMapperSetup()
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_100_1;
     pEntry->ui16OnPosition  = PIN_BISTABLE_100_1_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_100_1_OFF;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_100_2;
     pEntry->ui16OnPosition  = PIN_BISTABLE_100_2_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_100_2_OFF;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, true /*on     inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable    */, true /*on     inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_50_1;
     pEntry->ui16OnPosition  = PIN_BISTABLE_50_1_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_50_1_OFF;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 50/sliceTimerPeriod; // 50ms
 
     pEntry = arrRelayMapperSetup + RELAY_BISTABLE_50_2;
     pEntry->ui16OnPosition  = PIN_BISTABLE_50_2_ON;
     pEntry->ui16OffPosition = PIN_BISTABLE_50_2_OFF;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, true /* off      inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(true /*bistable   */, false/*on not inverted*/, true /* off      inverted*/);
     pEntry->ui8OnTime = 50/sliceTimerPeriod; // 50ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_300_1;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_300_1;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_300_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 300/sliceTimerPeriod; // 300ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_300_2;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_300_2;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_300_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, true /*on     inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, true /*on     inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 300/sliceTimerPeriod; // 300ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_600_1;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_600_1;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_600_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 600/sliceTimerPeriod; // 600ms
 
     pEntry = arrRelayMapperSetup + RELAY_MONOSTABLE_600_2;
     pEntry->ui16OnPosition  = PIN_MONOSTABLE_600_2;
     pEntry->ui16OffPosition = PIN_MONOSTABLE_600_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, true /* off inverted -> should not cause any effect*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable*/, false/*on not inverted*/, true /* off inverted -> should not cause any effect*/);
     pEntry->ui8OnTime = 600/sliceTimerPeriod; // 600ms
 }
 
@@ -175,7 +175,7 @@ enum enPhysPinsForSequencerSerializer
     PHYSICAL_PIN_COUNT_SERSEQ
 };
 
-struct TLogicalRelayEntry arrRelayMapperSetupSequencer[LOGICAL_RELAY_COUNT_SEQ_SERSEQ];
+static struct TLogicalRelayEntry arrRelayMapperSetupSequencer[LOGICAL_RELAY_COUNT_SEQ_SERSEQ];
 
 static void initRelayMapperSetupSerSeq()
 {
@@ -184,145 +184,145 @@ static void initRelayMapperSetupSerSeq()
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_1;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_1;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_2;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_2;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_3;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_3;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_3;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_4;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_4;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_4;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_5;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_5;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_5;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_6;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_6;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_6;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_7;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_7;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_7;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_TRANSPARENT_8;
     pEntry->ui16OnPosition  = PIN_TRANSPARENT_8;
     pEntry->ui16OffPosition = PIN_TRANSPARENT_8;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_1;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_1;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_2;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_2;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_3;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_3;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_3;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_ON_4;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_ON_4;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_ON_4;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_1;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_1;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_2;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_2;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_3;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_3;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_3;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_OVERLAPPED_OFF_4;
     pEntry->ui16OnPosition  = PIN_OVERLAPPED_OFF_4;
     pEntry->ui16OffPosition = PIN_OVERLAPPED_OFF_4;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_1;
     pEntry->ui16OnPosition  = PIN_PASS_ON_1;
     pEntry->ui16OffPosition = PIN_PASS_ON_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_2;
     pEntry->ui16OnPosition  = PIN_PASS_ON_2;
     pEntry->ui16OffPosition = PIN_PASS_ON_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_3;
     pEntry->ui16OnPosition  = PIN_PASS_ON_3;
     pEntry->ui16OffPosition = PIN_PASS_ON_3;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_ON_4;
     pEntry->ui16OnPosition  = PIN_PASS_ON_4;
     pEntry->ui16OffPosition = PIN_PASS_ON_4;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_1;
     pEntry->ui16OnPosition  = PIN_PASS_OFF_1;
     pEntry->ui16OffPosition = PIN_PASS_OFF_1;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_2;
     pEntry->ui16OnPosition  = PIN_PASS_OFF_2;
     pEntry->ui16OffPosition = PIN_PASS_OFF_2;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_3;
     pEntry->ui16OnPosition  = PIN_PASS_OFF_3;
     pEntry->ui16OffPosition = PIN_PASS_OFF_3;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 
     pEntry = arrRelayMapperSetupSequencer + RELAY_PASS_OFF_4;
     pEntry->ui16OnPosition  = PIN_PASS_OFF_4;
     pEntry->ui16OffPosition = PIN_PASS_OFF_4;
-    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/),
+    pEntry->ui8Flags = RELAY_PHYS_FLAGS(false /*monostable    */, false/*on not inverted*/, false /* off not inverted*/);
     pEntry->ui8OnTime = 100/sliceTimerPeriod; // 100ms
 }
 
@@ -1585,7 +1585,7 @@ int main(int argc, char *argv[])
             else
             {
                 qInfo() << "Performing test by bit by bit call";
-                for(qint16 logRelay=0;
+                for(quint16 logRelay=0;
                     logRelay<testCases[currTestCase].EnableMask.size() && logRelay<currentLayer->getLogicalRelayCount();
                     logRelay++)
                 {

@@ -27,8 +27,9 @@ void QBitInputPoller::setupInputMask(int iCountBits, const QBitArray &mask)
     Q_D(QBitInputPoller);
     d->m_BitMaskInput.resize(iCountBits);
     d->m_BitMaskInvert = mask;
-    if(!d->m_BitMaskInvert.isEmpty())
+    if(!d->m_BitMaskInvert.isEmpty()) {
         d->m_BitMaskInvert.resize(iCountBits);
+    }
 }
 
 const QBitArray* QBitInputPoller::getInputBitmask()
@@ -61,13 +62,12 @@ void QBitInputPoller::stopPoll()
 void QBitInputPoller::onPollTimer()
 {
     Q_D(QBitInputPoller);
-    if(d->m_pStartBitReadFunction)
-    {
+    if(d->m_pStartBitReadFunction) {
         bool bBitHandlerBusy = d->m_pStartBitReadFunction(&d->m_BitMaskInput);
-        if(!bBitHandlerBusy)
-        {
-            if(!d->m_BitMaskInvert.isEmpty())
+        if(!bBitHandlerBusy) {
+            if(!d->m_BitMaskInvert.isEmpty()) {
                 d->m_BitMaskInput ^= d->m_BitMaskInvert;
+            }
             emit bitmaskUpdated();
         }
     }
@@ -76,8 +76,9 @@ void QBitInputPoller::onPollTimer()
 void QBitInputPoller::onBitMaskReadFinish()
 {
     Q_D(QBitInputPoller);
-    if(!d->m_BitMaskInvert.isEmpty())
+    if(!d->m_BitMaskInvert.isEmpty()) {
         d->m_BitMaskInput ^= d->m_BitMaskInvert;
+    }
     // for now just pass over
     emit bitmaskUpdated();
 }

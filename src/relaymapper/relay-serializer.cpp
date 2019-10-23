@@ -1,6 +1,5 @@
 #include "relay-serializer.h"
 #include "relay-serializer_p.h"
-#include "QDebug"
 
 // ************************** QRelaySerializerPrivate
 
@@ -17,7 +16,6 @@ QRelaySerializerPrivate::~QRelaySerializerPrivate()
 QRelaySerializer::QRelaySerializer(QObject *parent) :
     QRelayUpperBase(parent, new QRelaySerializerPrivate())
 {
-    Q_D(QRelaySerializer);
 }
 
 bool QRelaySerializer::addGroup(const TRelaySerializerGroup &group)
@@ -25,33 +23,30 @@ bool QRelaySerializer::addGroup(const TRelaySerializerGroup &group)
     Q_D(QRelaySerializer);
     int relay;
     bool checkOK = true;
-    for(relay=0; relay<group.arrSerializerRelayData.size(); relay++)
-    {
+    for(relay=0; relay<group.arrSerializerRelayData.size(); relay++) {
         // relays shall not be members of more than one group - check that
         quint16 relayNum = group.arrSerializerRelayData[relay].relayNum;
         bool switchOn = group.arrSerializerRelayData[relay].switchOn;
         if((switchOn && d->insertedRelaysOn.contains(relayNum)) ||
-           (!switchOn && d->insertedRelaysOff.contains(relayNum)))
-        {
+           (!switchOn && d->insertedRelaysOff.contains(relayNum))) {
             checkOK = false;
-            qCritical() << "Relay" << relayNum << "is already member of a relay-serializer group. Group will be ignored!!";
+            qCritical("Relay %i is already member of a relay-serializer group. Group will be ignored!!", relayNum);
         }
         // relay's current must be less or equal than power supply's current
-        if(group.arrSerializerRelayData[relay].supplyCurrent > group.powerSupplyMaxCurrent)
-        {
+        if(group.arrSerializerRelayData[relay].supplyCurrent > group.powerSupplyMaxCurrent) {
             checkOK = false;
-            qCritical() << "Relay" << relayNum << ": current is larger than supply" << "Group will be ignored!!";
+            qCritical("Relay %i: current is larger than supply. Group will be ignored!!", relayNum);
         }
     }
-    if(checkOK)
-    {
+    if(checkOK) {
         d->vecGroups.append(group);
-        for(relay=0; relay<group.arrSerializerRelayData.size(); relay++)
-        {
-            if(group.arrSerializerRelayData[relay].switchOn)
+        for(relay=0; relay<group.arrSerializerRelayData.size(); relay++) {
+            if(group.arrSerializerRelayData[relay].switchOn) {
                 d->insertedRelaysOn.insert(group.arrSerializerRelayData[relay].relayNum);
-            else
+            }
+            else {
                 d->insertedRelaysOff.insert(group.arrSerializerRelayData[relay].relayNum);
+            }
         }
     }
     return checkOK;
@@ -65,7 +60,6 @@ void QRelaySerializer::appendSymetricRelay(QVector<TSerializerRelayData> &arrSer
 
 void QRelaySerializer::setupBaseBitmaps(quint16 ui16LogicalArrayInfoCount)
 {
-    Q_D(QRelaySerializer);
     QRelayUpperBase::setupBaseBitmaps(ui16LogicalArrayInfoCount);
     // Revisit remove??
 }

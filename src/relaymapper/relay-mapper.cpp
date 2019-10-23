@@ -41,8 +41,7 @@ void QRelayMapper::setup(quint16 ui16LogicalArrayInfoCount,
     d->arrPinDelayCounter.fill(0,ui16LogicalArrayInfoCount);
 
     // estimate max physical bit number
-    for(quint16 ui16Entry=0; ui16Entry<ui16LogicalArrayInfoCount; ui16Entry++)
-    {
+    for(quint16 ui16Entry=0; ui16Entry<ui16LogicalArrayInfoCount; ui16Entry++) {
         d->ui16MaxPhysicalPinHandled = qMax(d->ui16MaxPhysicalPinHandled, pLogicalInfoArray[ui16Entry].ui16OnPosition);
         d->ui16MaxPhysicalPinHandled = qMax(d->ui16MaxPhysicalPinHandled, pLogicalInfoArray[ui16Entry].ui16OffPosition);
     }
@@ -69,8 +68,9 @@ void QRelayMapper::onLowLayerIdle()
 {
     Q_D(QRelayMapper);
     // stop periodic timer in case this transaction is over
-    if(!isBusy())
+    if(!isBusy()) {
         d->sliceTimer.stop();
+    }
     QRelayBase::onLowLayerIdle();
 }
 
@@ -79,8 +79,7 @@ void QRelayMapper::startSetMulti(const QBitArray &logicalEnableMask, const QBitA
     Q_D(QRelayMapper);
     QRelayBase::startSetMulti(logicalEnableMask, logicalSetMask, bForce);
     // relay mapper performs all activity on slice timer
-    if(!d->sliceTimer.isActive())
-    {
+    if(!d->sliceTimer.isActive()) {
         d->sliceTimer.setInterval(0);
         d->sliceTimer.start();
     }
@@ -90,11 +89,11 @@ void QRelayMapper::onSliceTimer()
 {
     Q_D(QRelayMapper);
     // in case low layer is still busy - wait for next slice
-    if(d->CallbackQueryLowLayerBusy && d->CallbackQueryLowLayerBusy())
+    if(d->CallbackQueryLowLayerBusy && d->CallbackQueryLowLayerBusy()) {
         return;
+    }
     // First timer -> turn on periodic
-    if(d->sliceTimer.interval() == 0)
-    {
+    if(d->sliceTimer.interval() == 0) {
         d->sliceTimer.setInterval(d->slicePeriod);
         d->sliceTimer.start();
     }
@@ -103,40 +102,37 @@ void QRelayMapper::onSliceTimer()
     QBitArray physicalSetMask(d->ui16MaxPhysicalPinHandled+1);
     // loop all logical bits
     bool bLowerIORequested = false;
-    for(int iBit=0; iBit<getLogicalRelayCount(); iBit++)
-    {
+    for(int iBit=0; iBit<getLogicalRelayCount(); iBit++) {
         const TLogicalRelayEntry& logicalPinInfoEntry = d->pLogicalInfoArray[iBit];
         // 1. Handle changes since last slice
-        if(d->logicalEnableMaskNext.testBit(iBit))
-        {
+        if(d->logicalEnableMaskNext.testBit(iBit)) {
             // set physical pins
             // by using a default the 'else'-part in the decisions below are not
             // required
             bool bSetOutput = true;
             // Check On/off
             quint16 ui16OutBitPosition;
-            if(d->logicalSetMaskNext.testBit(iBit))
-            {
+            if(d->logicalSetMaskNext.testBit(iBit)) {
                 ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
                 // ON state same for bistable/monostable
-                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON))
+                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON)) {
                     bSetOutput = false;
-            }
-            else
-            {
-                // OFF state Different behaviour for mono-/bistable
-                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_BISTABLE))
-                {
-                    ui16OutBitPosition = logicalPinInfoEntry.ui16OffPosition;
-                    if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_OFF))
-                        bSetOutput = false;
                 }
-                else
-                {
+            }
+            else {
+                // OFF state Different behaviour for mono-/bistable
+                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_BISTABLE)) {
+                    ui16OutBitPosition = logicalPinInfoEntry.ui16OffPosition;
+                    if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_OFF)) {
+                        bSetOutput = false;
+                    }
+                }
+                else {
                     // uinstable sets only ON pin
                     ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
-                    if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON)) == 0)
+                    if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON)) == 0) {
                         bSetOutput = false;
+                    }
                 }
             }
             // Do set output
@@ -144,7 +140,7 @@ void QRelayMapper::onSliceTimer()
             physicalSetMask.setBit(ui16OutBitPosition, bSetOutput);
 
             // Setup timer (+1: timer is decremented below - so zero values finish here)
-            d->arrPinDelayCounter[iBit] = logicalPinInfoEntry.ui8OnTime+1;
+            d->arrPinDelayCounter[iBit] = static_cast<char>(logicalPinInfoEntry.ui8OnTime+1);
             // mark dirty
             d->logicalDirtyMask.setBit(iBit);
             // keep state
@@ -155,32 +151,29 @@ void QRelayMapper::onSliceTimer()
             bLowerIORequested = true;
         }
         // 2. Handle dirty logical bits
-        if(d->logicalDirtyMask.testBit(iBit))
-        {
+        if(d->logicalDirtyMask.testBit(iBit)) {
             // pin delay finished
-            quint8 ui8Counter = d->arrPinDelayCounter[iBit];
+            quint8 ui8Counter = static_cast<quint8>(d->arrPinDelayCounter[iBit]);
             ui8Counter--;
-            d->arrPinDelayCounter[iBit] = ui8Counter;
-            if(ui8Counter == 0)
-            {
+            d->arrPinDelayCounter[iBit] = static_cast<char>(ui8Counter);
+            if(ui8Counter == 0) {
                 // Only bistable relay have to be touched
-                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_BISTABLE))
-                {
+                if(logicalPinInfoEntry.ui8Flags & (1<<RELAY_BISTABLE)) {
                     uint16_t ui16OutBitPosition;
                     bool bSetOutput = true;
-                    if(d->logicalSetMaskCurrent.testBit(iBit))
-                    {
+                    if(d->logicalSetMaskCurrent.testBit(iBit)) {
                         // It is ON
                         ui16OutBitPosition = logicalPinInfoEntry.ui16OnPosition;
-                        if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON)) == 0)
+                        if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_ON)) == 0) {
                             bSetOutput = false;
+                        }
                     }
-                    else
-                    {
+                    else {
                         // It is OFF
                         ui16OutBitPosition = logicalPinInfoEntry.ui16OffPosition;
-                        if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_OFF)) == 0)
+                        if((logicalPinInfoEntry.ui8Flags & (1<<RELAY_PHYS_NEG_OFF)) == 0) {
                             bSetOutput = false;
+                        }
                     }
 
                     // Do set output
@@ -195,10 +188,12 @@ void QRelayMapper::onSliceTimer()
         }
     }
     bool bLowerLayerBusy = false;
-    if(bLowerIORequested && d->CallbackStartLowLayerSwitch)
+    if(bLowerIORequested && d->CallbackStartLowLayerSwitch) {
         bLowerLayerBusy = d->CallbackStartLowLayerSwitch(physicalEnableMask, physicalSetMask, this);
+    }
     // There is either nothing to do for low layer or low layer signalled blocked call (so it is finished)
-    if(!bLowerLayerBusy)
+    if(!bLowerLayerBusy) {
         // we need to notify -> low layer won't emit idle
         onLowLayerIdle();
+    }
 }
