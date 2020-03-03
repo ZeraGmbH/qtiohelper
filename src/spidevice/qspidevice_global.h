@@ -1,5 +1,5 @@
-#ifndef QTIOHELPER_GLOBAL_H
-#define QTIOHELPER_GLOBAL_H
+#ifndef QSPIDEVICE_GLOBAL_H
+#define QSPIDEVICE_GLOBAL_H
 
 #include <QtCore/qglobal.h>
 
@@ -11,4 +11,4 @@
 #endif
 #endif
 
-#endif // QTIOHELPER_GLOBAL_H
+#endif // QSPIDEVICE_GLOBAL_H
