@@ -1,0 +1,6 @@
+#ifndef QtSerialPortAsyncBlock_H
+#define QtSerialPortAsyncBlock_H
+
+#include "serialportasyncblock.h"
+
+#endif // QtSerialPortAsyncBlock_H

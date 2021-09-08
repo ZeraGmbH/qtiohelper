@@ -1,0 +1,7 @@
+#ifndef QtActuaSense_H
+#define QtActuaSense_H
+
+#include "actuasense.h"
+
+#endif // QtActuaSense_H
+

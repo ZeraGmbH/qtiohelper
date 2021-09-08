@@ -1,0 +1,6 @@
+#ifndef QtIoRemoteCommon_H
+#define QtIoRemoteCommon_H
+
+#include "remote-common.h"
+
+#endif // QtIoRemoteCommon_H
