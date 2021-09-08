@@ -1,0 +1,7 @@
+#ifndef QtSpiDevice_H
+#define QtSpiDevice_H
+
+#include <qspidevice.h>
+#include <qspiremoteserver.h>
+
+#endif // QtSpiDevice_H
