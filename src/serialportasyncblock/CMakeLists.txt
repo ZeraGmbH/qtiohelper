@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 #set project name and language
 project(serialportasyncblock LANGUAGES CXX
-    VERSION 1.00
-#    VERSION ${REPO_VERSION}
+    VERSION ${REPO_VERSION}
 )
 
 
