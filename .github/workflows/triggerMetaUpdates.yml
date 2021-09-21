@@ -1,0 +1,27 @@
+name: trigger updates
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  triggerUpdate:
+    runs-on: ubuntu-latest
+    env: 
+      MODULENAME: ${{ github.repository }}
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    
+    steps:
+      - name: cut_modulename
+        run: |
+          echo "MODULENAME=${MODULENAME##*/}" >> $GITHUB_ENV
+      - uses: convictional/trigger-workflow-and-wait@v1.4.0
+        with:
+          owner: ZeraGmbH
+          repo: zera-metaproject
+          github_token: ${{ secrets.G_TRIGGER_WORKFLOW }}
+          workflow_file_name: updateSubmodule.yml
+          inputs: '{"submodule" : "${{ env.MODULENAME }}"}'  
+          ref: master
+
