@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 include(FeatureSummary)
 include(GNUInstallDirs)
 
-find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt5 REQUIRED COMPONENTS Core Network)
 
 # We're using ${PROJECT_NAME} for target name but it's not necessary
 add_executable(
@@ -20,11 +20,12 @@ add_executable(
 
 target_link_libraries(
     spi-remote-server
-    PRIVATE
-        Qt5::Core
-	relaymapper
-	remotecommon
-	spidevice
+    PUBLIC
+    Qt5::Core
+    Qt5::Network
+    relaymapper
+    remotecommon
+    spidevice
 )
 
 install(TARGETS spi-remote-server
