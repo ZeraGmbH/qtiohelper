@@ -20,8 +20,7 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 
 #Find dependecies
-find_package(Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt5SerialPort REQUIRED)
+find_package(Qt5 COMPONENTS Core SerialPort REQUIRED)
 
 #sum up project Files 
 file(GLOB SOURCES 
