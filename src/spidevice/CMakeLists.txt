@@ -49,6 +49,7 @@ target_link_libraries(spidevice
     PUBLIC
     Qt5::Core
     Qt5::Network
+    remotecommon
     )
 
 
