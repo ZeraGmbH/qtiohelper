@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 include(FeatureSummary)
 include(GNUInstallDirs)
 
-find_package(Qt5 REQUIRED COMPONENTS Quick Core)
+find_package(Qt5 REQUIRED COMPONENTS Core)
 
 # We're using ${PROJECT_NAME} for target name but it's not necessary
 add_executable(
