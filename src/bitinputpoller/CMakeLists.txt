@@ -29,7 +29,7 @@ file(GLOB SOURCES
 
 file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/*.h
-    ${PROJECT_SOURCE_DIR}/QtBitInputPoller
+    ${PROJECT_SOURCE_DIR}/QBitInputPoller
     )
 
 file(GLOB RESOURCES 

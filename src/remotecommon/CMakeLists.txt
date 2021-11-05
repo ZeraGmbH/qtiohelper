@@ -29,7 +29,6 @@ file(GLOB SOURCES
 
 file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/*.h
-    ${PROJECT_SOURCE_DIR}/QtIoRemoteCommon
     )
 
 file(GLOB RESOURCES 
