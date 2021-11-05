@@ -15,7 +15,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Network)
 # We're using ${PROJECT_NAME} for target name but it's not necessary
 add_executable(
     spi-remote-server
-    main.cpp        # Our example project consists only of one .cpp file
+    main.cpp
 )
 
 target_link_libraries(
@@ -23,7 +23,6 @@ target_link_libraries(
     PUBLIC
     Qt5::Core
     Qt5::Network
-    relaymapper
     remotecommon
     spidevice
 )

@@ -29,7 +29,7 @@ file(GLOB SOURCES
 
 file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/*.h
-    ${PROJECT_SOURCE_DIR}/QtSpiDevice
+    ${PROJECT_SOURCE_DIR}/QSpiDevice
     )
 
 file(GLOB RESOURCES 
@@ -57,7 +57,7 @@ target_link_libraries(spidevice
 target_include_directories(spidevice
     PUBLIC
     $<INSTALL_INTERFACE:include/qtiohelpers/spidevice>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     PRIVATE

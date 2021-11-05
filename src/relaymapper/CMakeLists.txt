@@ -29,7 +29,7 @@ file(GLOB SOURCES
 
 file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/*.h
-    ${PROJECT_SOURCE_DIR}/QtRelayMapper
+    ${PROJECT_SOURCE_DIR}/QRelayMapper
     )
 
 file(GLOB RESOURCES 
