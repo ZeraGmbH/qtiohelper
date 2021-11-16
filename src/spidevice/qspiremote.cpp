@@ -461,7 +461,7 @@ void QSPIDeviceServerClient::logData(QString strLead, QByteArray data)
     strLog = strLead;
     for(int iByte=0; iByte<data.count(); iByte++) {
         quint8 ui8Val = static_cast<quint8>(data.at(iByte));
-        strByte.sprintf(" %02X", ui8Val);
+        strByte.asprintf(" %02X", ui8Val);
         strLog += strByte;
     }
     qInfo("%s", qPrintable(strLog));
