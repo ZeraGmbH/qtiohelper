@@ -33,7 +33,6 @@ jobs:
           cmake $GITHUB_WORKSPACE \
            -DCMAKE_PREFIX_PATH="$HOME/install/usr;/usr" \
            -DCMAKE_INSTALL_PREFIX:PATH="$HOME/install/usr" \
-           -DCMAKE_INSTALL_SYSCONFDIR="$HOME/install/etc" \
-           -DfirstBuild=ON
+           -DCMAKE_INSTALL_SYSCONFDIR="$HOME/install/etc"
           # compile / install
            make -j $(getconf _NPROCESSORS_ONLN)
