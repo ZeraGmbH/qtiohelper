@@ -6,9 +6,9 @@ set(REPO_VERSION ${PROJECT_VERSION})
 #Automoc and RCC ON. Needed in QT projects
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-#C++ 11 Flag
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# yes we mean it for all targets
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
 #Set project Version
 set(PROJECT_VERSION_MAJOR "1")
