@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[])
         bTotalTestError = true;
 
     // run all test cases in singleshot timerElapsedTestCase -> we need working evenloop
-    QTimer::singleShot(300,[&]
+    QTimer::singleShot(300, &relaySerializer, [&]
                        ()
     {   // singleshot timer callback begin
         int idleCountMapper = 0;
