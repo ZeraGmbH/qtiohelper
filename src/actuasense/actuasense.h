@@ -40,7 +40,7 @@ public:
     void openMultiAction();
     void startOutSet(int iActionID, bool bStateOut);
     void startInObserve(int iActionID, bool bStateInDesired, int iTimeoutMs,
-                        QString strOK = QStringLiteral(), QString strErr = QStringLiteral(), QString strLongTermErr = QStringLiteral());
+                        QString strOK = QLatin1String(), QString strErr = QLatin1String(), QString strLongTermErr = QLatin1String());
     void closeMultiAction();
 
     // convenience
