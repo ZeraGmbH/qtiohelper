@@ -27,7 +27,7 @@ private slots:
     void onTimeoutBetweenBytes();
     void onTimeoutMinTotal();
     void onReadyRead();
-    void onError(SerialPortError serialError);
+    void onError(QSerialPort::SerialPortError serialError);
 
 private:
     void onTimeoutCommon();
