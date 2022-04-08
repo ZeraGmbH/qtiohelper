@@ -17,7 +17,7 @@ QSerialPortAsyncBlockPrivate::QSerialPortAsyncBlockPrivate()
 void QSerialPortAsyncBlockPrivate::outputDebug(const QString strMsg, bool bWarning)
 {
     if(m_bEnableDebugMessages) {
-        QString strOut = QString(QStringLiteral("[%1]: %2")).arg(QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss.zzz"))).arg(strMsg);
+        QString strOut = QString(QStringLiteral("[%1]: %2")).arg(QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss.zzz")),strMsg);
         if(bWarning) {
             qWarning("%s", qPrintable(strOut));
         }
