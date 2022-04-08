@@ -23,6 +23,8 @@ public:
     bool bSWReverseRequired;
     QSPIDeviceRemoteClient *remoteClient;
     QString devFileName;
+    static QString remoteServerIP;
+    static quint16 remoteServerPort;;
 };
 
 class QSPIDeviceRemoteClient

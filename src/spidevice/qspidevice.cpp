@@ -20,13 +20,13 @@ QSPIDevicePrivate::~QSPIDevicePrivate()
 
 // ************************** QSPIDevice
 
-static QString remoteServerIP;
-static quint16 remoteServerPort = 0;
+QString QSPIDevicePrivate::remoteServerIP;
+quint16 QSPIDevicePrivate::remoteServerPort = 0;
 
 void QSPIDevice::setRemoteServer(const QString serverIP, quint16 serverPort)
 {
-    remoteServerIP = serverIP;
-    remoteServerPort = serverPort;
+    QSPIDevicePrivate::remoteServerIP = serverIP;
+    QSPIDevicePrivate::remoteServerPort = serverPort;
 }
 
 
@@ -49,7 +49,7 @@ bool QSPIDevice::open(OpenMode flags)
     Q_D(QSPIDevice);
     flags |= QIODevice::Unbuffered;
     bool bOpen = false;
-    if(remoteServerIP.isEmpty()) {
+    if(QSPIDevicePrivate::remoteServerIP.isEmpty()) {
         qInfo("SPI opening %s...", qPrintable(fileName()));
         bOpen = exists() && QFile::open(flags);
         if(bOpen) {
@@ -83,7 +83,9 @@ bool QSPIDevice::open(OpenMode flags)
         QString strTempFileName = QDir::tempPath() + "/" + strList[strList.count()-1];
         setFileName(strTempFileName);
         d->remoteClient = new QSPIDeviceRemoteClient();
-        bOpen = d->remoteClient->open(remoteServerIP, remoteServerPort, d->devFileName, flags) &&
+        bOpen = d->remoteClient->open(QSPIDevicePrivate::remoteServerIP,
+                                      QSPIDevicePrivate::remoteServerPort,
+                                      d->devFileName, flags) &&
                 QFile::open(flags | QIODevice::ReadWrite);
     }
     return bOpen;
