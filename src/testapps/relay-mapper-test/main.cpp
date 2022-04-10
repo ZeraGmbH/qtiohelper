@@ -1305,8 +1305,18 @@ static void appendTestCasesSerializer(QList<TTestCase> &testCases)
 
 }
 
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    Q_UNUSED(type)
+    Q_UNUSED(context)
+    QTextStream cout(stderr, QIODevice::WriteOnly);
+    cout << msg << Qt::endl;
+}
+
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(myMessageOutput);
+
     QCoreApplication a(argc, argv);
 
     QElapsedTimer timerElapsedApplication;
