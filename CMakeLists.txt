@@ -8,6 +8,10 @@ set(REPO_VERSION ${PROJECT_VERSION})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+#Pin C++ version
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # yes we mean it for all targets
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
