@@ -9,13 +9,6 @@ project(remotecommon LANGUAGES CXX
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#Adding cmake functions like feature_summary()
-include(FeatureSummary)
-include(GNUInstallDirs)
-
-#Find dependecies
-find_package(Qt5 COMPONENTS Core Network CONFIG REQUIRED)
-
 #sum up project Files 
 file(GLOB SOURCES 
     ${PROJECT_SOURCE_DIR}/*.cpp
@@ -101,6 +94,3 @@ install(
     FILES ${HEADER}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/remotecommon
     )
-
-# spawn out some info on configuration
-feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
