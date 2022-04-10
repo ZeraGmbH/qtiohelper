@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.1)
 
 #set project name and language
 project(qtiohelpers LANGUAGES CXX)
