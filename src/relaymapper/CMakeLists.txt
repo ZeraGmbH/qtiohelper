@@ -13,15 +13,10 @@ file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/QRelayMapper
     )
 
-file(GLOB RESOURCES 
-    ${PROJECT_SOURCE_DIR}/*.qrc
-    )
-
 #create library 
 add_library(relaymapper SHARED
     ${SOURCES}
     ${HEADER}
-    ${RESOURCES}
     )
 
 target_link_libraries(relaymapper 
