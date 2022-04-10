@@ -5,15 +5,9 @@ project(spidevice LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-
-#Automoc and RCC ON. Needed in QT projects
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 #C++ 11 Flag
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 #Adding cmake functions like feature_summary()
 include(FeatureSummary)
@@ -43,15 +37,12 @@ add_library(spidevice SHARED
     ${RESOURCES}
     )
 
-
-
 target_link_libraries(spidevice 
     PUBLIC
     Qt5::Core
     Qt5::Network
     remotecommon
     )
-
 
 # announce headers - target perspective
 target_include_directories(spidevice
@@ -77,8 +68,6 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/spidevice_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/spidevice
     )
-
-
 
 # install library
 install(TARGETS spidevice

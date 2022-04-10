@@ -1,8 +1,0 @@
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/actuasense)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/bitinputpoller)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/relaymapper)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/remotecommon)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/serialportasyncblock)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/spidevice)
-include(${CMAKE_CURRENT_LIST_DIR}/testapps/testapps.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/tools/tools.cmake)

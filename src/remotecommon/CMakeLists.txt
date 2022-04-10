@@ -5,15 +5,9 @@ project(remotecommon LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-
-#Automoc and RCC ON. Needed in QT projects
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 #C++ 11 Flag
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 #Adding cmake functions like feature_summary()
 include(FeatureSummary)
@@ -42,14 +36,11 @@ add_library(remotecommon SHARED
     ${RESOURCES}
     )
 
-
-
 target_link_libraries(remotecommon 
     PRIVATE
     Qt5::Core
     Qt5::Network
     )
-
 
 # announce headers - target perspective
 target_include_directories(remotecommon
@@ -75,8 +66,6 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/remotecommon_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/remotecommon
     )
-
-
 
 # install library
 install(TARGETS remotecommon
@@ -115,4 +104,3 @@ install(
 
 # spawn out some info on configuration
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
