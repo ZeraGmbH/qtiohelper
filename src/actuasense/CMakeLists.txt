@@ -3,10 +3,6 @@ project(actuasense LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-#C++ 11 Flag
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 #sum up project Files 
 file(GLOB SOURCES 
     ${PROJECT_SOURCE_DIR}/*.cpp

@@ -2,7 +2,7 @@ project(relaymappertest VERSION 1.0 LANGUAGES CXX)
 
 add_executable(
     relaymappertest
-    main.cpp        # Our example project consists only of one .cpp file
+    main.cpp
 )
 
 target_link_libraries(
