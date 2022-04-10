@@ -13,15 +13,10 @@ file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/QBitInputPoller
     )
 
-file(GLOB RESOURCES 
-    ${PROJECT_SOURCE_DIR}/*.qrc
-    )
-
 #create library 
 add_library(bitinputpoller SHARED
     ${SOURCES}
     ${HEADER}
-    ${RESOURCES}
     )
 
 target_link_libraries(bitinputpoller 

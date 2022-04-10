@@ -12,15 +12,10 @@ file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/*.h
     )
 
-file(GLOB RESOURCES 
-    ${PROJECT_SOURCE_DIR}/*.qrc
-    )
-
 #create library 
 add_library(remotecommon SHARED
     ${SOURCES}
     ${HEADER}
-    ${RESOURCES}
     )
 
 target_link_libraries(remotecommon 

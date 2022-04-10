@@ -13,15 +13,10 @@ file(GLOB HEADER
     ${PROJECT_SOURCE_DIR}/QSerialPortAsyncBlock
     )
 
-file(GLOB RESOURCES 
-    ${PROJECT_SOURCE_DIR}/*.qrc
-    )
-
 #create library 
 add_library(serialportasyncblock SHARED
     ${SOURCES}
     ${HEADER}
-    ${RESOURCES}
     )
 
 target_link_libraries(serialportasyncblock 
