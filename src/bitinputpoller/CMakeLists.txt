@@ -5,15 +5,9 @@ project(bitinputpoller LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-
-#Automoc and RCC ON. Needed in QT projects
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 #C++ 11 Flag
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 #Adding cmake functions like feature_summary()
 include(FeatureSummary)
@@ -48,7 +42,6 @@ target_link_libraries(bitinputpoller
     Qt5::Core
     )
 
-
 # announce headers - target perspective
 target_include_directories(bitinputpoller
     PUBLIC
@@ -73,8 +66,6 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/bitinputpoller_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/bitinputpoller
     )
-
-
 
 # install library
 install(TARGETS bitinputpoller

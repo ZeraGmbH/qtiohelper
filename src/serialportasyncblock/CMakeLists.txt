@@ -5,15 +5,9 @@ project(serialportasyncblock LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-
-#Automoc and RCC ON. Needed in QT projects
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 #C++ 11 Flag
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 #Adding cmake functions like feature_summary()
 include(FeatureSummary)
@@ -43,14 +37,11 @@ add_library(serialportasyncblock SHARED
     ${RESOURCES}
     )
 
-
-
 target_link_libraries(serialportasyncblock 
     PUBLIC
     Qt5::Core
     Qt5::SerialPort
     )
-
 
 # announce headers - target perspective
 target_include_directories(serialportasyncblock
@@ -76,8 +67,6 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/serialportasyncblock_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/serialportasyncblock
     )
-
-
 
 # install library
 install(TARGETS serialportasyncblock
@@ -116,4 +105,3 @@ install(
 
 # spawn out some info on configuration
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-

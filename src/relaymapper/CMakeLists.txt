@@ -5,15 +5,9 @@ project(relaymapper LANGUAGES CXX
     VERSION ${REPO_VERSION}
 )
 
-
-#Automoc and RCC ON. Needed in QT projects
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 #C++ 11 Flag
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
 
 #Adding cmake functions like feature_summary()
 include(FeatureSummary)
@@ -43,13 +37,10 @@ add_library(relaymapper SHARED
     ${RESOURCES}
     )
 
-
-
 target_link_libraries(relaymapper 
     PRIVATE
     Qt5::Core
     )
-
 
 # announce headers - target perspective
 target_include_directories(relaymapper
@@ -75,8 +66,6 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/relaymapper_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/relaymapper
     )
-
-
 
 # install library
 install(TARGETS relaymapper

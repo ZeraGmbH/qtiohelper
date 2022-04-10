@@ -1,8 +1,5 @@
 project(relaymappertest VERSION 1.0 LANGUAGES CXX)
 
-# Tell CMake to call moc automaticly
-set(CMAKE_AUTOMOC ON)
-
 include(FeatureSummary)
 include(GNUInstallDirs)
 

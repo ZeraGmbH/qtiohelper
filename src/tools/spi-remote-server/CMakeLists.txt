@@ -4,9 +4,6 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_QML_DEBUG -DQT_DECLARATIVE_DEBUG")
 endif()
 
-# Tell CMake to call moc automaticly
-set(CMAKE_AUTOMOC ON)
-
 include(FeatureSummary)
 include(GNUInstallDirs)
 
