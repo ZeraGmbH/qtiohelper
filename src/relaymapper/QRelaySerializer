@@ -1,0 +1,7 @@
+#ifndef QtRelaySerializer_H
+#define QtRelaySerializer_H
+
+#include "relay-base.h"
+#include "relay-serializer.h"
+
+#endif // QtRelaySerializer_H

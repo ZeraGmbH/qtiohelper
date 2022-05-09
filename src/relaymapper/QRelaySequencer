@@ -1,0 +1,7 @@
+#ifndef QtRelaySequencer_H
+#define QtRelaySequencer_H
+
+#include "relay-base.h"
+#include "relay-sequencer.h"
+
+#endif // QtRelaySequencer_H

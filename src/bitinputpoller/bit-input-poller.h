@@ -1,5 +1,5 @@
-#ifndef QBitInputPoller_H
-#define QBitInputPoller_H
+#ifndef QBITINPUTPOLLER_H 
+#define QBITINPUTPOLLER_H
 
 #include <QObject>
 #include <QBitArray>
@@ -44,4 +44,4 @@ private:
     Q_DECLARE_PRIVATE(QBitInputPoller)
 };
 
-#endif // QBitInputPoller_H
+#endif // QBITINPUTPOLLER_H

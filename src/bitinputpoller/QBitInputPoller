@@ -1,4 +1,4 @@
-#ifndef QtBitInputPoller_H
+#ifndef QBitInputPoller_H
 #define QBitInputPoller_H
 
 #include "bit-input-poller.h"
