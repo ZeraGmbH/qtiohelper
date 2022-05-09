@@ -3,7 +3,5 @@
 
 #include "relay-base.h"
 #include "relay-mapper.h"
-#include "relay-sequencer.h"
-#include "relay-serializer.h
 
 #endif // QtRelayMapper_H

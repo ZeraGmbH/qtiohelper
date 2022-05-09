@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
-#include <QSpiDevice>
+#include <QSPIDevice>
 
 int main(int argc, char *argv[])
 {

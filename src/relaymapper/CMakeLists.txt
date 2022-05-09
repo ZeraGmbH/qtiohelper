@@ -5,12 +5,14 @@ project(relaymapper LANGUAGES CXX
 
 #sum up project Files 
 file(GLOB SOURCES 
-    ${PROJECT_SOURCE_DIR}/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
     )
 
 file(GLOB HEADER
-    ${PROJECT_SOURCE_DIR}/*.h
-    ${PROJECT_SOURCE_DIR}/QRelayMapper
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/QRelayMapper
+    ${CMAKE_CURRENT_SOURCE_DIR}/QRelaySequencer
+    ${CMAKE_CURRENT_SOURCE_DIR}/QRelaySerializer
     )
 
 #create library 
