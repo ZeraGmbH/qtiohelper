@@ -1310,7 +1310,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     Q_UNUSED(type)
     Q_UNUSED(context)
     QTextStream cout(stderr, QIODevice::WriteOnly);
+#if (QT_VERSION >= QT_VERSION_CHECK(5,14,0))
     cout << msg << Qt::endl;
+#else
+    cout << msg << endl;
+#endif
 }
 
 int main(int argc, char *argv[])
