@@ -27,7 +27,7 @@ target_link_libraries(bitinputpoller
 # announce headers - target perspective
 target_include_directories(bitinputpoller
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/bitinputpoller>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/bitinputpoller>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

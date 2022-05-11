@@ -29,7 +29,7 @@ target_link_libraries(relaymapper
 # announce headers - target perspective
 target_include_directories(relaymapper
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/relaymapper>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/relaymapper>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

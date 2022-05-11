@@ -27,7 +27,7 @@ target_link_libraries(actuasense
 # announce headers - target perspective
 target_include_directories(actuasense
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/actuasense>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/actuasense>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

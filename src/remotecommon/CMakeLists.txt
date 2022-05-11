@@ -27,7 +27,7 @@ target_link_libraries(remotecommon
 # announce headers - target perspective
 target_include_directories(remotecommon
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/remotecommon>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/remotecommon>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
