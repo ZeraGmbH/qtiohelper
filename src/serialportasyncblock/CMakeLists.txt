@@ -28,7 +28,7 @@ target_link_libraries(serialportasyncblock
 # announce headers - target perspective
 target_include_directories(serialportasyncblock
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/serialportasyncblock>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/serialportasyncblock>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

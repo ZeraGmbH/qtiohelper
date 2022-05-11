@@ -29,7 +29,7 @@ target_link_libraries(spidevice
 # announce headers - target perspective
 target_include_directories(spidevice
     PUBLIC
-    $<INSTALL_INTERFACE:include/qtiohelpers/spidevice>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qtiohelpers/spidevice>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
