@@ -196,12 +196,10 @@ void QActuaSensePrivate::onPollTimer()
     // 1st loop over all action arrays
     for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
         iter != m_PoolIOData.end();
-        iter++)
-    {
+        iter++) {
         QActuaSenseIOData* pActionData = iter.value();
         // active actions
-        if(!m_bInAddingActions && pActionData->m_eActionState == ACTION_STATE_ACTIVE)
-        {
+        if(!m_bInAddingActions && pActionData->m_eActionState == ACTION_STATE_ACTIVE) {
             pActionData->m_iMsSinceLastSet += iTimeSinceLastPoll;
             // action finished?
             if(hasReachedDestinationState(pActionData))
@@ -218,12 +216,10 @@ void QActuaSensePrivate::onPollTimer()
                     pActionData->m_eActionState = ACTION_STATE_INACTIVE;
             }
             // action timed out?
-            else if(hasTimedOut(pActionData))
-            {
+            else if(hasTimedOut(pActionData)) {
                 bOneOrMoreFinished = true;
                 // treat as error only for error string set
-                if(!pActionData->m_strErr.isEmpty())
-                {
+                if(!pActionData->m_strErr.isEmpty()) {
                     bActiveError = true;
                     qCritical("%s", qPrintable(pActionData->m_strErr));
                 }
@@ -231,11 +227,9 @@ void QActuaSensePrivate::onPollTimer()
             }
         }
         // long term observation
-        if(pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE)
-        {
+        if(pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE) {
             // Lost it's destination state?
-            if(!hasReachedDestinationState(pActionData))
-            {
+            if(!hasReachedDestinationState(pActionData)) {
                 qCritical("%s", qPrintable(pActionData->m_strLongTermErr));
                 bLongTermError = true;
                 // pass to long observe error
@@ -250,48 +244,48 @@ void QActuaSensePrivate::onPollTimer()
     bool bActivePending = false;
     for(QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.begin();
         iter != m_PoolIOData.end();
-        iter++)
-    {
+        iter++) {
         QActuaSenseIOData* pActionData = iter.value();
-        if(pActionData->m_eActionState == ACTION_STATE_ACTIVE)
-        {
+        if(pActionData->m_eActionState == ACTION_STATE_ACTIVE) {
             // 1.
-            if(bActiveError)
+            if(bActiveError) {
                 pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+            }
             // 2.
-            else
+            else {
                 bActivePending = true;
+            }
         }
     }
 
     Q_Q(QActuaSense);
     // active actions finished -> notification
-    if(bOneOrMoreFinished && !bActivePending)
+    if(bOneOrMoreFinished && !bActivePending) {
         emit q->multiActionFinished(bActiveError);
-
+    }
     // notify for long term errors
-    if(bLongTermError)
+    if(bLongTermError) {
         emit q->longTermObservationError();
-
+    }
 }
 
 bool QActuaSensePrivate::readInputState(QActuaSenseIOData *pActionData)
 {
     bool bInState = false;
-    if(!pActionData->m_bDemoMode)
+    if(!pActionData->m_bDemoMode) {
         bInState = m_pInBitArr->testBit(pActionData->m_iInBitNum);
-    // demo mode
-    else
-    {
+    }
+    else {
         // full input demo
-        if(pActionData->m_pDemoBitArrIn && pActionData->m_iDemoBitNumIn >=0)
+        if(pActionData->m_pDemoBitArrIn && pActionData->m_iDemoBitNumIn >=0) {
             bInState = pActionData->m_pDemoBitArrIn->testBit(pActionData->m_iDemoBitNumIn);
+        }
         // demo error
-        else if(pActionData->m_bDemoError)
+        else if(pActionData->m_bDemoError) {
             bInState = !pActionData->m_bInStateDesired;
+        }
         // standard demo
-        else
-        {
+        else {
             // standard demo reaches desired state at half timeout
             if(pActionData->m_iMsSinceLastSet >= pActionData->m_iTimeoutMs/2 )
                 bInState = pActionData->m_bInStateDesired;
@@ -307,45 +301,41 @@ void QActuaSensePrivate::removeFromLongObserv(int iActionID)
     QActuaSenseIODataIntHash::iterator iter;
     QActuaSenseIOData* pActionData;
     // one
-    if(iActionID != -1)
-    {
+    if(iActionID != -1) {
         iter = m_PoolIOData.find(iActionID);
-        if(iter != m_PoolIOData.end())
-        {
+        if(iter != m_PoolIOData.end())  {
             pActionData = iter.value();
             if( pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE ||
-                pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR )
+                pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR ) {
                 pActionData->m_eActionState = ACTION_STATE_INACTIVE;
+            }
         }
     }
     // all
-    else
-    {
+    else {
         for(iter = m_PoolIOData.begin();
             iter != m_PoolIOData.end();
-            iter++)
-        {
+            iter++) {
             pActionData = iter.value();
             if( pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE ||
                 pActionData->m_eActionState == ACTION_STATE_LONG_OBSERVE_ERR )
                 pActionData->m_eActionState = ACTION_STATE_INACTIVE;
         }
     }
-
 }
 
 QActuaSenseIOData* QActuaSensePrivate::findOrCreateIOParam(int iActionID, QObject* pParent)
 {
     QActuaSenseIODataIntHash::iterator iter = m_PoolIOData.find(iActionID);
     QActuaSenseIOData* pActionData;
-    if(iter == m_PoolIOData.end())
-    {
+    if(iter == m_PoolIOData.end())  {
         // create a new parameter
         pActionData = new QActuaSenseIOData(pParent);
         m_PoolIOData[iActionID] = pActionData;
     }
-    else
+    else {
         pActionData = iter.value();
+    }
     return pActionData;
 }
 
@@ -382,8 +372,7 @@ void QActuaSense::addAtomicOut(int iActionID, int iOutBitNum)
     QActuaSenseIOData* pActionData = d->findOrCreateIOParam(iActionID, this);
     pActionData->m_iOutBitNum = iOutBitNum;
     // bitmaps size alignment neccessary?
-    if(iOutBitNum+1 > d->m_OutSetBitArr.count())
-    {
+    if(iOutBitNum+1 > d->m_OutSetBitArr.count())  {
         d->m_OutEnableBitArr.resize(iOutBitNum+1);
         d->m_OutSetBitArr.resize(iOutBitNum+1);
     }
@@ -402,11 +391,9 @@ void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitAr
     QActuaSenseIODataIntHash::iterator iter;
     QActuaSenseIOData* pActionData;
     // one
-    if(iActionID != -1)
-    {
+    if(iActionID != -1) {
         iter = d->m_PoolIOData.find(iActionID);
-        if(iter != d->m_PoolIOData.end())
-        {
+        if(iter != d->m_PoolIOData.end()) {
             pActionData = iter.value();
             pActionData->m_bDemoMode = bDemoMode;
             pActionData->m_pDemoBitArrIn = pDemoBitArrIn;
@@ -414,10 +401,8 @@ void QActuaSense::setupDemo(bool bDemoMode, int iActionID, QBitArray *pDemoBitAr
         }
     }
     // all
-    else
-    {
-        for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++)
-        {
+    else {
+        for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++) {
             pActionData = iter.value();
             pActionData->m_bDemoMode = bDemoMode;
             pActionData->m_pDemoBitArrIn = pDemoBitArrIn;
@@ -432,20 +417,16 @@ void QActuaSense::setDemoError(bool bDemoError, int iActionID)
     QActuaSenseIODataIntHash::iterator iter;
     QActuaSenseIOData* pActionData;
     // one
-    if(iActionID != -1)
-    {
+    if(iActionID != -1) {
         iter = d->m_PoolIOData.find(iActionID);
-        if(iter != d->m_PoolIOData.end())
-        {
+        if(iter != d->m_PoolIOData.end()) {
             pActionData = iter.value();
             pActionData->m_bDemoError = bDemoError;
         }
     }
     // all
-    else
-    {
-        for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++)
-        {
+    else {
+        for(iter = d->m_PoolIOData.begin(); iter!=d->m_PoolIOData.end(); iter++) {
             pActionData = iter.value();
             pActionData->m_bDemoError = bDemoError;
         }
