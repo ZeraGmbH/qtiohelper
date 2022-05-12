@@ -1,10 +1,10 @@
+#include "qspidevice.h"
+#include "qspidevice_p.h"
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include <QString>
 #include <QDir>
-#include "qspidevice.h"
-#include "qspidevice_p.h"
 
 // ************************** QSPIDevicePrivate
 
