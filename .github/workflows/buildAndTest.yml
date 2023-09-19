@@ -3,50 +3,57 @@ on:
   pull_request:
     branches:
       - master
+      - main
   workflow_dispatch:
   
 jobs:
   build:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip')"
-
     strategy:
       matrix:
-        compiler:
-          - g++
-          #- clang++
-          - clazy
+        compiler: [gcc, clang]
 
     container:
       image: schnitzeltony/fedora-qt5:32
     steps:
-      - name: Download artifact
+      - name: Echo github environment
+        run: |
+          echo "Home: $HOME"
+          echo "Workspace: $GITHUB_WORKSPACE"
+          echo "CPUs: $(getconf _NPROCESSORS_ONLN)"
+
+      - name: Download zera-metaproject's install artifact
         uses: dawidd6/action-download-artifact@v2
         with:
           repo: ZeraGmbH/zera-metaproject
-          name: buildroot
+          name: install-artifact
           workflow: buildAndExportArtifact.yml
-          path: /github/home/install/
-      - uses: actions/checkout@master
+
+      - name: 'Untar install artifact'
+        run: tar -xf install_files.tar.xz -C /
+
+      - name: Checkout sources
+        uses: actions/checkout@master
         with:
           submodules: recursive
+
       - name: Build
         run: |
-          echo $HOME
-          echo $GITHUB_WORKSPACE
           cd $HOME
           mkdir -p "$HOME/targetbuild"
           cd "$HOME/targetbuild"
 
-          export CXX=${{ matrix.compiler }}
-
+          if [ "${{ matrix.compiler }}" == "clang" ]; then
+            export CC=clang
+            export CXX=clang++
+          fi
           cmake $GITHUB_WORKSPACE \
            -DCMAKE_PREFIX_PATH="$HOME/install/usr;/usr" \
            -DCMAKE_INSTALL_PREFIX:PATH="$HOME/install/usr" \
            -DCMAKE_INSTALL_SYSCONFDIR="$HOME/install/etc"
-          # compile / install
            make -j $(getconf _NPROCESSORS_ONLN)
-      - name: Unittests
+      - name: unittest
         run: |
           cd "$HOME/targetbuild"
           ctest -V
