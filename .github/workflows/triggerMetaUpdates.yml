@@ -23,4 +23,6 @@ jobs:
           workflow_file_name: updateSubmodule.yml
           inputs: '{"submodule" : "${{ env.MODULENAME }}"}'  
           ref: master
+          wait_workflow: false
+          propagate_failure: false
 
