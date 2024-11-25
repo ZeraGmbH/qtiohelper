@@ -23,7 +23,7 @@ jobs:
           echo "CPUs: $(getconf _NPROCESSORS_ONLN)"
 
       - name: Download zera-metaproject's install artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           repo: ZeraGmbH/zera-metaproject
           name: install-artifact
