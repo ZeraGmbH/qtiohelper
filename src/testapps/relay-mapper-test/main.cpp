@@ -3,6 +3,7 @@
 #include <QTimer>
 #include <QtDebug>
 #include <QElapsedTimer>
+#include <QIODevice>
 #include <math.h>
 #include "../../relaymapper/relay-mapper.h"
 #include "../../relaymapper/relay-sequencer.h"

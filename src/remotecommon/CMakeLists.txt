@@ -20,8 +20,8 @@ add_library(remotecommon SHARED
 
 target_link_libraries(remotecommon 
     PRIVATE
-    Qt5::Core
-    Qt5::Network
+    ${QTX}::Core
+    ${QTX}::Network
     )
 
 # announce headers - target perspective

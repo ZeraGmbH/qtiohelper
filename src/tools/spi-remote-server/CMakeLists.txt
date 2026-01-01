@@ -9,8 +9,8 @@ add_executable(
 target_link_libraries(
     spi-remote-server
     PUBLIC
-    Qt5::Core
-    Qt5::Network
+    ${QTX}::Core
+    ${QTX}::Network
     remotecommon
     spidevice
 )

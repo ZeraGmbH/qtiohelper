@@ -12,6 +12,6 @@ add_executable(
 target_link_libraries(
     relaymappertest
     PRIVATE
-        Qt5::Core
+        ${QTX}::Core
 	relaymapper
 )

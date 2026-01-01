@@ -21,8 +21,8 @@ add_library(spidevice SHARED
 
 target_link_libraries(spidevice 
     PUBLIC
-    Qt5::Core
-    Qt5::Network
+    ${QTX}::Core
+    ${QTX}::Network
     remotecommon
     )
 

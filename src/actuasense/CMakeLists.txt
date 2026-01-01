@@ -21,7 +21,7 @@ add_library(actuasense SHARED
 
 target_link_libraries(actuasense 
     PRIVATE
-    Qt5::Core
+    ${QTX}::Core
     )
 
 # announce headers - target perspective

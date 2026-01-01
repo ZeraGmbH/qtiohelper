@@ -21,8 +21,8 @@ add_library(serialportasyncblock SHARED
 
 target_link_libraries(serialportasyncblock 
     PUBLIC
-    Qt5::Core
-    Qt5::SerialPort
+    ${QTX}::Core
+    ${QTX}::SerialPort
     )
 
 # announce headers - target perspective

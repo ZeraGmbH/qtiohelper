@@ -21,7 +21,7 @@ add_library(bitinputpoller SHARED
 
 target_link_libraries(bitinputpoller 
     PRIVATE
-    Qt5::Core
+    ${QTX}::Core
     )
 
 # announce headers - target perspective

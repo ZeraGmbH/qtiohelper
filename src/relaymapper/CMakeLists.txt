@@ -23,7 +23,7 @@ add_library(relaymapper SHARED
 
 target_link_libraries(relaymapper 
     PRIVATE
-    Qt5::Core
+    ${QTX}::Core
     )
 
 # announce headers - target perspective

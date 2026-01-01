@@ -1,7 +1,6 @@
 #include <QDataStream>
 #include <QEventLoop>
 #include <QTimer>
-#include <limits>
 #include "qspidevice_p.h"
 #include "qspiremoteserver.h"
 #include "../remotecommon/remote-common.h"
@@ -303,7 +302,7 @@ void QSPIDeviceServerClient::handleSendReceive(QByteArray* dataReceive)
 
     // QSPIDevice does not log this by default
     if(verboseLevel>1) {
-        qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.count());
+        qInfo("SPI send/receive on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteSend.size());
     }
 
     // handle device action
@@ -432,7 +431,7 @@ void QSPIDeviceServerClient::handleWriteData(QByteArray* dataReceive)
 
     // QSPIDevice does not log this by default
     if(verboseLevel>1) {
-        qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.count());
+        qInfo("SPI write on %s (%i Bytes)", qPrintable(spiDevice.fileName()), dataRemoteWrite.size());
     }
 
     // handle device action
@@ -459,7 +458,7 @@ void QSPIDeviceServerClient::logData(QString strLead, QByteArray data)
 {
     QString strLog, strByte;
     strLog = strLead;
-    for(int iByte=0; iByte<data.count(); iByte++) {
+    for(int iByte=0; iByte<data.size(); iByte++) {
         quint8 ui8Val = static_cast<quint8>(data.at(iByte));
         strByte = QString(" %1").arg(ui8Val, 2, 16, QLatin1Char('0')).toUpper();
         strLog += strByte;

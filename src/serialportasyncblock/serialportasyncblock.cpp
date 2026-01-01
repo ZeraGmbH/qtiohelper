@@ -183,11 +183,11 @@ void QSerialPortAsyncBlock::onReadyRead()
 
         bool bFinish = false;
         // finish for blocklen?
-        if(d->m_iBlockLenReceive > 0 && d->m_pDataReceive->count() >= d->m_iBlockLenReceive) {
+        if(d->m_iBlockLenReceive > 0 && d->m_pDataReceive->size() >= d->m_iBlockLenReceive) {
             bFinish = true;
         }
         // finish for blockend
-        if(d->m_endBlock.count() && d->m_pDataReceive && d->m_pDataReceive->contains(d->m_endBlock)) {
+        if(d->m_endBlock.size() && d->m_pDataReceive && d->m_pDataReceive->contains(d->m_endBlock)) {
             bFinish = true;
         }
         // all work done?

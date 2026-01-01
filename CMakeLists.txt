@@ -17,7 +17,10 @@ set(REPO_VERSION ${PROJECT_VERSION})
 include(FeatureSummary)
 include(GNUInstallDirs)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Network SerialPort)
+set(QT_MAJOR_VER "5" CACHE STRING "Qt major version")
+set(QTX "Qt${QT_MAJOR_VER}")
+
+find_package(${QTX} REQUIRED COMPONENTS Core Network SerialPort)
 
 enable_testing()
 
