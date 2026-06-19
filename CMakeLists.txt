@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.16)
 
 project(qtiohelpers LANGUAGES CXX)
 set(REPO_VERSION ${PROJECT_VERSION})
